@@ -309,7 +309,7 @@ public final class Magic {
             for (int dz = -2; dz <= 2; dz++) {
                 BlockPos p = center.offset(dx, 0, dz);
                 if (level.getBlockState(p).isAir()) {
-                    level.setBlock(p, Blocks.PURPLE_STAINED_GLASS.defaultBlockState(), Block.UPDATE_ALL);
+                    level.setBlock(p, Blocks.AMETHYST_BLOCK.defaultBlockState(), Block.UPDATE_ALL);
                     TEMP_BLOCKS.add(new Temp(level, p.immutable(), until));
                 }
             }
@@ -376,7 +376,7 @@ public final class Magic {
         while (it.hasNext()) {
             Temp t = it.next();
             if (t.level().getGameTime() < t.until()) continue;
-            if (t.level().getBlockState(t.pos()).is(Blocks.PURPLE_STAINED_GLASS)) {
+            if (t.level().getBlockState(t.pos()).is(Blocks.AMETHYST_BLOCK)) {
                 t.level().setBlock(t.pos(), Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
             }
             it.remove();

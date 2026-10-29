@@ -65,7 +65,7 @@ public final class MagicClient {
         while (CAST.consumeClick()) send(MagicPayloads.CAST, 0);
         while (NEXT.consumeClick()) send(player.isShiftKeyDown() ? MagicPayloads.PREV : MagicPayloads.NEXT, 0);
         while (SKILLS.consumeClick()) mc.gui.setScreen(new SkillScreen());
-        boolean down = COMPRESS.isDown() && mc.screen == null;
+        boolean down = COMPRESS.isDown();
         if (down != compressing) {
             compressing = down;
             send(down ? MagicPayloads.COMPRESS_START : MagicPayloads.COMPRESS_STOP, 0);
