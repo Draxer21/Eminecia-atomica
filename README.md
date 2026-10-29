@@ -1,6 +1,6 @@
 # Drax Atomic
 
-Mod de NeoForge para Minecraft 26.2 (versión del mod 0.7.1).
+Mod de NeoForge para Minecraft 26.2 (versión del mod 0.8.0).
 
 ## Poder mágico
 
@@ -43,13 +43,13 @@ Usa el **Emblema de la Sombra** con clic derecho en el suelo para invocar a una 
 
 | Integrante | Rol |
 |---|---|
-| Noctis | Espadachina |
-| Umbra | Sigilo: invisible fuera de combate, debilita al golpear |
-| Vesper | Maga: rayos explosivos a distancia |
-| Lyra | Arquera: rayos rápidos de largo alcance |
-| Selene | Sanadora: cura a ti y a las demás |
-| Nyx | Berserker: golpes de barrido |
-| Iris | Guardiana: mucha vida y armadura, con escudo |
+| Alpha | Espadachina |
+| Beta | Arquera: rayos rápidos de largo alcance |
+| Gamma | Sanadora: cura a ti y a las demás |
+| Delta | Berserker: golpes de barrido |
+| Epsilon | Maga: rayos explosivos a distancia |
+| Zeta | Sigilo: invisible fuera de combate, debilita al golpear |
+| Eta | Guardiana: mucha vida y armadura, con escudo |
 
 **Receta del emblema:** oro arriba y abajo, bloque de slime – ojo de ender – bloque de slime en el centro.
 
@@ -72,10 +72,36 @@ Usa el **Emblema de la Sombra** con clic derecho en el suelo para invocar a una 
   - Nivel 3: bloques de slime y el Emblema de la Sombra; compra Gotas de Diablos.
   - Nivel 4: capucha y botas de slime.
   - Nivel 5: la Espada de Slime y el Sello de Diablos.
-- **Capital de Midgar:** ciudad amurallada de 48×48 con torres, dos puertas, plaza con fuente, ocho casas, una catedral con campanario y una sucursal de Mitsugoshi. Aparece en llanuras, praderas, sabanas y bosques (`/locate structure draxatomic:midgar_capital`).
 - Las estructuras se generan con `tools/structures.py` (requiere `pip install nbtlib`).
 
 **Receta del mostrador:** oro – bloque de cuarzo – oro / tablones – esmeralda – tablones / tres tablones.
+
+## Las capitales
+
+Las ciudades se construyen por cuadras de 32×32 a medida que cargas el terreno (Minecraft no puede generar de golpe algo tan grande). La posición sale de la semilla del mundo, así que cada mundo tiene las suyas.
+
+- **Capital de Midgar (512×512):** muralla con torres y cuatro puertas, castillo real con salón del trono, plaza central con fuente y mercados, catedral, sede central de Mitsugoshi, Academia de Caballeros Oscuros, cuarteles y unas 170 cuadras de casas medievales con aldeanos.
+- **Capital de Oriana (256×256):** el País de las Artes, de estilo parisino: palacio con cúpula de cobre y jardines a la francesa, ópera, galería con pirámide de vidrio, plaza, sucursal de Mitsugoshi y edificios con techos de pizarra.
+- **Guardias del reino:** patrullan, pelean contra monstruos y el Culto de Diablos, y no atacan a los aldeanos.
+- Comandos: `/draxatomic city locate midgar|oriana` (dónde está y cuánto se ha construido). En creativo: `/draxatomic city tp midgar|oriana`, `/draxatomic city build` y `/draxatomic city view <ciudad> overview|castle|street`.
+- Se configura en `[cities]`: activar/desactivar y cada cuántos bloques puede haber una ciudad.
+
+## Personajes y misiones
+
+Haz clic derecho sobre un personaje: te saluda y lista sus misiones con botones **[Aceptar]** y **[Entregar]** en el chat (pasa el ratón por encima para ver la recompensa). `/draxatomic quest list` muestra las que tienes en curso.
+
+| Personaje | Dónde | Misiones |
+|---|---|---|
+| Princesa Alexia Midgar | Salón del trono de Midgar | Limpieza de la capital · Un Caballero de la Mesa Redonda |
+| Princesa Iris Midgar | Salón del trono de Midgar | La Orden Carmesí · Suministros para la Orden |
+| Claire Kagenou | Academia de Midgar | Práctica de espada · ¿Dónde está mi hermano? (+25 de poder) |
+| Gamma | Sede de Mitsugoshi | Materia prima · La expansión de Mitsugoshi · Investigación de las gotas |
+| Princesa Rose Oriana | Palacio de Oriana | El arte en peligro · La boda (+50 de poder) |
+| Rey Raphael | Palacio de Oriana | El tributo del Culto |
+
+Las skins de los personajes son genéricas según su rol; puedes reemplazarlas por las tuyas en `assets/draxatomic/textures/entity/npc/<id>.png`.
+
+Las integrantes de la Shadow Garden ahora usan los nombres de las Siete Sombras: Alpha, Beta, Gamma, Delta, Epsilon, Zeta y Eta.
 
 ## Comandos de prueba (modo creativo)
 
@@ -98,6 +124,7 @@ Los textos (incluida la frase) están en `assets/draxatomic/lang/*.json`.
 
 ## Historial
 
+- 0.8.0: capitales de Midgar (512×512) y Oriana (256×256) construidas por cuadras, aldeanos, guardias, personajes con misiones y las Siete Sombras.
 - 0.7.1: primera versión compilada; comandos de prueba; CI con autoprueba del servidor y capturas del juego.
 - 0.7.0: Mitsugoshi (tienda, empleado, mostrador y productos) y la capital de Midgar.
 - 0.6.0: All-Range Atomic y Recovery Atomic; capucha abierta; el culto pasa a ser el Culto de Diablos y el jefe un Caballero de la Mesa Redonda.

@@ -42,6 +42,18 @@ public final class ShadowGarden {
                     .clientTrackingRange(10)
                     .build(ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "shadow_ally"))));
 
+    public static final DeferredHolder<EntityType<?>, EntityType<StoryNpcEntity>> STORY_NPC = ENTITY_TYPES.register("story_npc", () ->
+            EntityType.Builder.of(StoryNpcEntity::new, MobCategory.MISC)
+                    .sized(0.6F, 1.8F)
+                    .clientTrackingRange(10)
+                    .build(ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "story_npc"))));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<KingdomGuardEntity>> GUARD = ENTITY_TYPES.register("kingdom_guard", () ->
+            EntityType.Builder.of(KingdomGuardEntity::new, MobCategory.CREATURE)
+                    .sized(0.6F, 1.8F)
+                    .clientTrackingRange(10)
+                    .build(ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "kingdom_guard"))));
+
     public static final DeferredHolder<Item, Item> EMBLEM = DraxAtomic.ITEMS.registerItem("shadow_emblem",
             properties -> new EmblemItem(properties.stacksTo(16).rarity(Rarity.EPIC)));
 
@@ -52,25 +64,30 @@ public final class ShadowGarden {
 
     private static void attributes(EntityAttributeCreationEvent event) {
         event.put(ALLY.value(), ShadowAllyEntity.createAttributes().build());
+        event.put(STORY_NPC.value(), StoryNpcEntity.createAttributes().build());
+        event.put(GUARD.value(), KingdomGuardEntity.createAttributes().build());
     }
 
     /** Las siete integrantes y su estilo de combate. */
     public enum Member {
-        NOCTIS("noctis", Role.SWORD, 0x2B2F8A),
-        UMBRA("umbra", Role.STEALTH, 0x1A1A1A),
-        VESPER("vesper", Role.MAGE, 0xC9B26A),
-        LYRA("lyra", Role.ARCHER, 0x6FA8D9),
-        SELENE("selene", Role.HEALER, 0xE8E8F0),
-        NYX("nyx", Role.BERSERKER, 0xA02A2A),
-        IRIS("iris", Role.GUARDIAN, 0x6A4BA8);
+        ALPHA("alpha", "noctis", Role.SWORD, 0x2B2F8A),
+        BETA("beta", "lyra", Role.ARCHER, 0x6FA8D9),
+        GAMMA("gamma", "selene", Role.HEALER, 0xE8E8F0),
+        DELTA("delta", "nyx", Role.BERSERKER, 0xA02A2A),
+        EPSILON("epsilon", "vesper", Role.MAGE, 0xC9B26A),
+        ZETA("zeta", "umbra", Role.STEALTH, 0x1A1A1A),
+        ETA("eta", "iris", Role.GUARDIAN, 0x6A4BA8);
 
         public final String id;
+        /** Nombre del archivo de textura. */
+        public final String skin;
         public final Role role;
         /** Color de pelo (para la textura y las partículas). */
         public final int hair;
 
-        Member(String id, Role role, int hair) {
+        Member(String id, String skin, Role role, int hair) {
             this.id = id;
+            this.skin = skin;
             this.role = role;
             this.hair = hair;
         }

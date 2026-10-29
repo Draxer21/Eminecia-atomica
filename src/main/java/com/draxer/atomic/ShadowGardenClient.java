@@ -19,6 +19,8 @@ public final class ShadowGardenClient {
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ShadowGarden.ALLY.value(), AllyRenderer::new);
+        event.registerEntityRenderer(ShadowGarden.STORY_NPC.value(), NpcRenderer::new);
+        event.registerEntityRenderer(ShadowGarden.GUARD.value(), GuardRenderer::new);
     }
 
     public static final class AllyRenderState extends HumanoidRenderState {
@@ -32,7 +34,7 @@ public final class ShadowGardenClient {
         static {
             for (ShadowGarden.Member member : ShadowGarden.Member.values()) {
                 TEXTURES[member.ordinal()] = Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID,
-                        "textures/entity/shadow_garden/" + member.id + ".png");
+                        "textures/entity/shadow_garden/" + member.skin + ".png");
             }
         }
 
@@ -54,6 +56,64 @@ public final class ShadowGardenClient {
         @Override
         public Identifier getTextureLocation(AllyRenderState state) {
             return TEXTURES[Math.floorMod(state.member, TEXTURES.length)];
+        }
+    }
+
+    public static final class NpcRenderState extends HumanoidRenderState {
+        public String character = "alexia";
+    }
+
+    /** Personajes con nombre: textura en textures/entity/npc/<id>.png (reemplazable por tu propia skin). */
+    public static final class NpcRenderer
+            extends HumanoidMobRenderer<StoryNpcEntity, NpcRenderState, HumanoidModel<NpcRenderState>> {
+        public NpcRenderer(EntityRendererProvider.Context context) {
+            super(context, new HumanoidModel<>(context.bakeLayer(ModelLayers.ZOMBIE)), 0.5F);
+        }
+
+        @Override
+        public NpcRenderState createRenderState() {
+            return new NpcRenderState();
+        }
+
+        @Override
+        public void extractRenderState(StoryNpcEntity entity, NpcRenderState state, float partialTicks) {
+            super.extractRenderState(entity, state, partialTicks);
+            state.character = entity.character().id();
+        }
+
+        @Override
+        public Identifier getTextureLocation(NpcRenderState state) {
+            return Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "textures/entity/npc/" + state.character + ".png");
+        }
+    }
+
+    public static final class GuardRenderState extends HumanoidRenderState {
+        public boolean oriana;
+    }
+
+    public static final class GuardRenderer
+            extends HumanoidMobRenderer<KingdomGuardEntity, GuardRenderState, HumanoidModel<GuardRenderState>> {
+        private static final Identifier MIDGAR = Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "textures/entity/guard/midgar.png");
+        private static final Identifier ORIANA = Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "textures/entity/guard/oriana.png");
+
+        public GuardRenderer(EntityRendererProvider.Context context) {
+            super(context, new HumanoidModel<>(context.bakeLayer(ModelLayers.ZOMBIE)), 0.5F);
+        }
+
+        @Override
+        public GuardRenderState createRenderState() {
+            return new GuardRenderState();
+        }
+
+        @Override
+        public void extractRenderState(KingdomGuardEntity entity, GuardRenderState state, float partialTicks) {
+            super.extractRenderState(entity, state, partialTicks);
+            state.oriana = entity.kingdom().equals("oriana");
+        }
+
+        @Override
+        public Identifier getTextureLocation(GuardRenderState state) {
+            return state.oriana ? ORIANA : MIDGAR;
         }
     }
 }

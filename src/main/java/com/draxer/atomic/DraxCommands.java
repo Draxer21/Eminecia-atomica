@@ -1,5 +1,6 @@
 package com.draxer.atomic;
 
+import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -31,6 +32,32 @@ public final class DraxCommands {
     @SubscribeEvent
     public static void register(RegisterCommandsEvent event) {
         event.getDispatcher().register(Commands.literal("draxatomic")
+                .then(Commands.literal("quest")
+                        .then(Commands.literal("list").executes(c -> {
+                            if (c.getSource().getEntity() instanceof ServerPlayer p) Quests.list(p);
+                            return 1;
+                        }))
+                        .then(Commands.literal("accept").then(Commands.argument("id", StringArgumentType.word()).executes(c ->
+                                c.getSource().getEntity() instanceof ServerPlayer p ? Quests.accept(p, StringArgumentType.getString(c, "id")) : 0)))
+                        .then(Commands.literal("turnin").then(Commands.argument("id", StringArgumentType.word()).executes(c ->
+                                c.getSource().getEntity() instanceof ServerPlayer p ? Quests.turnIn(p, StringArgumentType.getString(c, "id")) : 0))))
+                .then(Commands.literal("city")
+                        .then(Commands.literal("locate")
+                                .then(Commands.literal("midgar").executes(c -> locate(c.getSource(), CityLayout.Kind.MIDGAR, false)))
+                                .then(Commands.literal("oriana").executes(c -> locate(c.getSource(), CityLayout.Kind.ORIANA, false))))
+                        .then(Commands.literal("build").executes(c -> buildHere(c.getSource())))
+                        .then(Commands.literal("view")
+                                .then(Commands.literal("midgar")
+                                        .then(Commands.literal("overview").executes(c -> view(c.getSource(), CityLayout.Kind.MIDGAR, "overview")))
+                                        .then(Commands.literal("castle").executes(c -> view(c.getSource(), CityLayout.Kind.MIDGAR, "castle")))
+                                        .then(Commands.literal("street").executes(c -> view(c.getSource(), CityLayout.Kind.MIDGAR, "street"))))
+                                .then(Commands.literal("oriana")
+                                        .then(Commands.literal("overview").executes(c -> view(c.getSource(), CityLayout.Kind.ORIANA, "overview")))
+                                        .then(Commands.literal("castle").executes(c -> view(c.getSource(), CityLayout.Kind.ORIANA, "castle")))
+                                        .then(Commands.literal("street").executes(c -> view(c.getSource(), CityLayout.Kind.ORIANA, "street")))))
+                        .then(Commands.literal("tp")
+                                .then(Commands.literal("midgar").executes(c -> locate(c.getSource(), CityLayout.Kind.MIDGAR, true)))
+                                .then(Commands.literal("oriana").executes(c -> locate(c.getSource(), CityLayout.Kind.ORIANA, true)))))
                 .then(Commands.literal("mana").executes(context -> {
                     ServerPlayer player = creative(context.getSource());
                     if (player == null) return 0;
@@ -69,6 +96,91 @@ public final class DraxCommands {
                             if (player == null) return 0;
                             return summonGarden((ServerLevel) player.level(), player);
                         }))));
+    }
+
+    /** Busca la capital más cercana; con tp (solo creativo) te lleva sobre su centro. */
+    private static int locate(CommandSourceStack source, CityLayout.Kind kind, boolean teleport) {
+        ServerLevel level = source.getServer().overworld();
+        var found = Cities.nearest(level, kind, net.minecraft.core.BlockPos.containing(source.getPosition()), 6);
+        if (found.isEmpty()) {
+            source.sendFailure(Component.translatable("message.draxatomic.city_none", Component.translatable("city.draxatomic." + kind.style)));
+            return 0;
+        }
+        Cities.Site site = found.get();
+        int distance = (int) Math.sqrt(Math.pow(site.centerX() - source.getPosition().x, 2) + Math.pow(site.centerZ() - source.getPosition().z, 2));
+        source.sendSuccess(() -> Component.translatable("message.draxatomic.city_found", Component.translatable("city.draxatomic." + kind.style),
+                site.centerX(), site.centerZ(), distance, Cities.progress(level, site), Cities.total(site)), false);
+        if (teleport) {
+            ServerPlayer player = creative(source);
+            if (player == null) return 0;
+            int y = level.getChunkSource().getGenerator().getBaseHeight(site.centerX(), site.centerZ(),
+                    net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE_WG, level, level.getChunkSource().randomState()) + 60;
+            player.teleportTo(site.centerX() + 0.5, y, site.centerZ() + 0.5);
+        }
+        return distance;
+    }
+
+    /** Construye ya las cuadras cargadas de las capitales cercanas (creativo). */
+    private static int buildHere(CommandSourceStack source) {
+        ServerPlayer player = creative(source);
+        if (player == null) return 0;
+        ServerLevel level = source.getServer().overworld();
+        int built = 0;
+        for (CityLayout.Kind kind : CityLayout.Kind.values()) {
+            var site = Cities.nearest(level, kind, player.blockPosition(), 2);
+            if (site.isPresent() && Math.abs(site.get().centerX() - player.getX()) < kind.size()
+                    && Math.abs(site.get().centerZ() - player.getZ()) < kind.size()) {
+                built += Cities.buildLoaded(level, site.get());
+            }
+        }
+        int total = built;
+        source.sendSuccess(() -> Component.literal("Cuadras construidas: " + total), false);
+        return built;
+    }
+
+    /** Puntos de vista para mirar una capital (creativo). */
+    private static int view(CommandSourceStack source, CityLayout.Kind kind, String where) {
+        ServerPlayer player = creative(source);
+        if (player == null) return 0;
+        ServerLevel level = source.getServer().overworld();
+        var found = Cities.nearest(level, kind, player.blockPosition(), 6);
+        if (found.isEmpty()) return 0;
+        Cities.Site site = found.get();
+        int baseY = Cities.baseY(level, site);
+        double x;
+        double y;
+        double z;
+        float yaw;
+        float pitch;
+        switch (where) {
+            case "castle" -> {
+                // Frente al trono: Midgar castillo (7,3), Oriana palacio (3,1).
+                int ci = kind == CityLayout.Kind.MIDGAR ? 7 : 3;
+                int cj = kind == CityLayout.Kind.MIDGAR ? 3 : 1;
+                int ty = kind == CityLayout.Kind.MIDGAR ? 20 : 12;
+                x = site.minX() + ci * CityLayout.CELL + 33.5;
+                z = site.minZ() + cj * CityLayout.CELL + ty + 9.5;
+                y = baseY + 2;
+                yaw = 180.0F;
+                pitch = 5.0F;
+            }
+            case "street" -> {
+                x = site.centerX() - 30.5;
+                z = site.centerZ() + kind.size() / 4.0;
+                y = baseY + 6;
+                yaw = 200.0F;
+                pitch = 8.0F;
+            }
+            default -> {
+                x = site.centerX() + 0.5;
+                z = site.minZ() - kind.size() * 0.35;
+                y = baseY + kind.size() * 0.42;
+                yaw = 0.0F;
+                pitch = 38.0F;
+            }
+        }
+        player.teleportTo(level, x, y, z, java.util.Set.of(), yaw, pitch, true);
+        return 1;
     }
 
     /** Las siete integrantes en fila frente al jugador, mirándolo. */

@@ -33,6 +33,7 @@ public final class DraxAtomic {
         Cult.init(modEventBus);
         ShadowGarden.init(modEventBus);
         Mitsugoshi.init(modEventBus);
+        Cities.init(modEventBus);
         modEventBus.addListener(DraxAtomic::addToTabs);
     }
 

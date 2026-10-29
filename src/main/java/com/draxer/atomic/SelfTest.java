@@ -32,10 +32,22 @@ public final class SelfTest {
         MinecraftServer server = event.getServer();
         ServerLevel level = server.overworld();
         step("templates", () -> {
-            for (String name : new String[] {"mitsugoshi_store", "midgar_capital"}) {
+            java.util.Set<String> names = new java.util.TreeSet<>();
+            names.add("mitsugoshi_store");
+            for (CityLayout.Kind kind : CityLayout.Kind.values()) {
+                CityLayout layout = new CityLayout(kind, 1L);
+                for (int i = 0; i < kind.cells; i++) for (int j = 0; j < kind.cells; j++) {
+                    String t = layout.template(i, j);
+                    if (t != null) names.add(t);
+                }
+            }
+            int missing = 0;
+            for (String name : names) {
                 boolean found = level.getStructureManager().get(Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, name)).isPresent();
+                if (!found) missing++;
                 LOG.info("DRAXTEST template {} {}", name, found ? "OK" : "MISSING");
             }
+            LOG.info("DRAXTEST templates total={} missing={}", names.size(), missing);
         });
         step("trades", () -> {
             var sets = server.registryAccess().lookupOrThrow(Registries.TRADE_SET);
@@ -64,8 +76,24 @@ public final class SelfTest {
         step("place", () -> {
             commands.performPrefixedCommand(source, "forceload add 3000 3000 3060 3060");
             commands.performPrefixedCommand(source, "place structure draxatomic:mitsugoshi_store 3000 100 3000");
-            commands.performPrefixedCommand(source, "place structure draxatomic:midgar_capital 3030 100 3030");
             commands.performPrefixedCommand(source, "locate structure draxatomic:mitsugoshi_store");
+        });
+        step("cities", () -> {
+            for (CityLayout.Kind kind : CityLayout.Kind.values()) {
+                var site = Cities.nearest(level, kind, BlockPos.ZERO, 4);
+                LOG.info("DRAXTEST city {} {}", kind, site.map(s -> s.centerX() + "," + s.centerZ() + " cells=" + Cities.total(s)).orElse("NONE"));
+            }
+            // Coloca algunas cuadras grandes en una zona cargada a la fuerza.
+            commands.performPrefixedCommand(source, "forceload add 5000 5000 5200 5070");
+            int k = 0;
+            for (String t : new String[] {"city/midgar/castle", "city/oriana/palace", "city/midgar/houses_a", "city/oriana/houses_a"}) {
+                Cities.placeCell(level, t, 5000 + k * 70, 90, 5000, 64, 1L);
+                LOG.info("DRAXTEST placed {}", t);
+                k++;
+            }
+            LOG.info("DRAXTEST npcs={} guards={}",
+                    level.getEntitiesOfClass(StoryNpcEntity.class, new net.minecraft.world.phys.AABB(4990, 60, 4990, 5300, 160, 5080)).size(),
+                    level.getEntitiesOfClass(KingdomGuardEntity.class, new net.minecraft.world.phys.AABB(4990, 60, 4990, 5300, 160, 5080)).size());
         });
         step("atomics", () -> {
             var fake = FakePlayerFactory.getMinecraft(level);

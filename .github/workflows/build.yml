@@ -97,7 +97,7 @@ jobs:
           ./gradlew runClient --no-configuration-cache > client.log 2>&1 &
           PID=$!
           taken=""
-          for i in $(seq 1 600); do
+          for i in $(seq 1 2400); do
             for c in $(grep -o 'DRAXDEMO [a-z_]*' client.log | awk '{print $2}'); do
               case " $taken " in *" $c "*) ;; *) import -window root "shots/$c.png" && taken="$taken $c";; esac
             done

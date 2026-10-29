@@ -116,17 +116,36 @@ public final class DemoClient {
             case 478 -> shot("recovery");
             case 500 -> {
                 cmd(mc, "forceload add " + (ox + 180) + " " + (oz - 30) + " " + (ox + 240) + " " + (oz + 30));
-                cmd(mc, "forceload add " + (ox + 380) + " " + (oz - 30) + " " + (ox + 470) + " " + (oz + 70));
                 cmd(mc, "tp @s " + (ox + 206) + " 140 " + (oz - 22) + " 0 40");
             }
             case 600 -> cmd(mc, "place structure draxatomic:mitsugoshi_store " + (ox + 200) + " 100 " + oz);
             case 690 -> shot("store");
-            case 700 -> cmd(mc, "tp @s " + (ox + 424) + " 175 " + (oz - 35) + " 0 50");
-            case 800 -> cmd(mc, "place structure draxatomic:midgar_capital " + (ox + 400) + " 100 " + oz);
-            case 900 -> shot("capital");
-            case 920 -> cmd(mc, "tp @s " + (ox + 424) + " 125 " + (oz - 5) + " 0 25");
-            case 980 -> shot("capital_street");
-            case 1000 -> shot("end");
+            // Capital de Midgar
+            case 700 -> cmd(mc, "draxatomic city view midgar overview");
+            case 900 -> cmd(mc, "draxatomic city build");
+            case 1000 -> cmd(mc, "draxatomic city view midgar overview");
+            case 1060 -> shot("midgar_overview");
+            case 1080 -> cmd(mc, "draxatomic city view midgar castle");
+            case 1180 -> {
+                cmd(mc, "draxatomic city build");
+                cmd(mc, "time set 6000");
+            }
+            case 1240 -> shot("midgar_castle");
+            case 1260 -> cmd(mc, "draxatomic city view midgar street");
+            case 1360 -> cmd(mc, "draxatomic city build");
+            case 1420 -> shot("midgar_street");
+            // Capital de Oriana
+            case 1440 -> cmd(mc, "draxatomic city view oriana overview");
+            case 1640 -> cmd(mc, "draxatomic city build");
+            case 1740 -> cmd(mc, "draxatomic city view oriana overview");
+            case 1800 -> shot("oriana_overview");
+            case 1820 -> cmd(mc, "draxatomic city view oriana castle");
+            case 1920 -> cmd(mc, "draxatomic city build");
+            case 1980 -> shot("oriana_palace");
+            case 2000 -> cmd(mc, "draxatomic city view oriana street");
+            case 2100 -> cmd(mc, "draxatomic city build");
+            case 2160 -> shot("oriana_street");
+            case 2180 -> shot("end");
             default -> {}
         }
     }

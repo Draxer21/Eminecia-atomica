@@ -82,6 +82,17 @@ public final class AtomicConfig {
     private static final ModConfigSpec.IntValue REC_RADIUS = BUILDER
             .comment("Radio de curación.").defineInRange("radius", 20, 4, 64);
 
+    static { BUILDER.pop().push("cities"); }
+    private static final ModConfigSpec.BooleanValue CITIES = BUILDER
+            .comment("Si es true, las capitales de Midgar y Oriana se construyen en el mundo.")
+            .define("enabled", true);
+    private static final ModConfigSpec.IntValue MIDGAR_SPACING = BUILDER
+            .comment("Tamaño de la región de cada Midgar (512x512): una posible ciudad cada N bloques. Mínimo 1200.")
+            .defineInRange("midgarSpacing", 3200, 1200, 100000);
+    private static final ModConfigSpec.IntValue ORIANA_SPACING = BUILDER
+            .comment("Tamaño de la región de cada Oriana (256x256): una posible ciudad cada N bloques. Mínimo 800.")
+            .defineInRange("orianaSpacing", 2400, 800, 100000);
+
     static { BUILDER.pop().push("diablos_cult"); }
     private static final ModConfigSpec.BooleanValue CULT_PATROLS = BUILDER
             .comment("Si es true, patrullas del Culto de Diablos aparecen de noche cerca de los jugadores.")
@@ -120,6 +131,10 @@ public final class AtomicConfig {
     public static boolean allRangeBreaksBlocks() { return loaded() && AR_BREAK.getAsBoolean(); }
     public static int recoveryCost() { return loaded() ? REC_COST.getAsInt() : 60; }
     public static int recoveryRadius() { return loaded() ? REC_RADIUS.getAsInt() : 20; }
+
+    public static boolean cities() { return !loaded() || CITIES.getAsBoolean(); }
+    public static int midgarSpacing() { return loaded() ? MIDGAR_SPACING.getAsInt() : 3200; }
+    public static int orianaSpacing() { return loaded() ? ORIANA_SPACING.getAsInt() : 2400; }
 
     public static boolean cultPatrols() { return !loaded() || CULT_PATROLS.getAsBoolean(); }
     public static float patrolChance() { return loaded() ? PATROL_CHANCE.get().floatValue() : 0.25F; }
