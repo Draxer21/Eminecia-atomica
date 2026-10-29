@@ -104,8 +104,8 @@ public class CultistEntity extends Monster {
 
     /** No se atacan entre miembros de la Orden. */
     @Override
-    public boolean isAlliedTo(net.minecraft.world.entity.Entity other) {
-        return other instanceof CultistEntity || other instanceof RoundsKnightEntity || super.isAlliedTo(other);
+    public boolean considersEntityAsAlly(net.minecraft.world.entity.Entity other) {
+        return other instanceof CultistEntity || other instanceof RoundsKnightEntity || super.considersEntityAsAlly(other);
     }
 
     @Override

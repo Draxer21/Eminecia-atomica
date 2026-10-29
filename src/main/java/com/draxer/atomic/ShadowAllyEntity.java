@@ -169,10 +169,10 @@ public class ShadowAllyEntity extends PathfinderMob {
 
     /** Aliadas entre sí y con su dueño (así el Atomic y las habilidades no las dañan). */
     @Override
-    public boolean isAlliedTo(Entity other) {
+    public boolean considersEntityAsAlly(Entity other) {
         if (isOwnedBy(other)) return true;
         if (other instanceof ShadowAllyEntity ally && ally.owner != null && ally.owner.equals(owner)) return true;
-        return super.isAlliedTo(other);
+        return super.considersEntityAsAlly(other);
     }
 
     private boolean isFoe(@Nullable LivingEntity target) {

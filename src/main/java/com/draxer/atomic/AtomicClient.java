@@ -170,7 +170,7 @@ public final class AtomicClient {
     private static void renderMana(GuiGraphicsExtractor graphics, DeltaTracker delta) {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
-        if (player == null || mc.options.hideGui || player.isSpectator()) return;
+        if (player == null || player.isSpectator()) return;
         ManaPayload mana = ManaPayload.latest;
         net.minecraft.world.item.ItemStack held = player.getMainHandItem();
         boolean holding = held.getItem() instanceof SlimeSwordItem;

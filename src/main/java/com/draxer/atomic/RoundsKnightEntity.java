@@ -53,7 +53,7 @@ public class RoundsKnightEntity extends Monster {
             SynchedEntityData.defineId(RoundsKnightEntity.class, EntityDataSerializers.INT);
     private static final int AWAKEN_TICKS = 80;
 
-    private final ServerBossEvent bossBar = new ServerBossEvent(
+    private final ServerBossEvent bossBar = new ServerBossEvent(java.util.UUID.randomUUID(),
             Component.translatable("entity.draxatomic.round_knight"), BossEvent.BossBarColor.YELLOW, BossEvent.BossBarOverlay.NOTCHED_10);
     private int awakening;
     private int summonCooldown = 200;
@@ -151,8 +151,8 @@ public class RoundsKnightEntity extends Monster {
     }
 
     @Override
-    public boolean isAlliedTo(Entity other) {
-        return other instanceof CultistEntity || super.isAlliedTo(other);
+    public boolean considersEntityAsAlly(Entity other) {
+        return other instanceof CultistEntity || super.considersEntityAsAlly(other);
     }
 
     @Override
