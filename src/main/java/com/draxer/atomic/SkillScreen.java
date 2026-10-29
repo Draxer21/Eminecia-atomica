@@ -33,7 +33,7 @@ public final class SkillScreen extends Screen {
         return this.width / 2 + 8;
     }
 
-    private static final int TOP = 40;
+    private static final int TOP = 48;
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
@@ -65,7 +65,7 @@ public final class SkillScreen extends Screen {
         graphics.fill(0, 0, this.width, this.height, 0xD0100818);
         graphics.centeredText(this.font, this.title, this.width / 2, 10, 0xFFD9B8FF);
         graphics.centeredText(this.font, Component.translatable("gui.draxatomic.skills.points", s.points(), s.xp(), 500),
-                this.width / 2, 24, 0xFFFFD54A);
+                this.width / 2, 22, 0xFFFFD54A);
         // Mejoras
         MagicState.Upgrade[] ups = MagicState.Upgrade.values();
         List<Component> tip = new ArrayList<>();
