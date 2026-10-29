@@ -70,7 +70,7 @@ jobs:
           {
             if grep -q 'Done (' server.log; then echo '### Server started OK'; else echo '### Server did NOT start'; fi
             echo '```'
-            grep -E "DRAXTEST|Placed|structure|Could not|could not" server.log | grep -v DEBUG | head -40
+            grep -E "DRAXTEST|Placed|structure|Could not|could not" server.log | grep -v DEBUG | grep -v "DRAXTEST template " | head -80
             grep -E -i -B1 -A6 "exception|error|failed|couldn't|unknown|missing|invalid" server.log \
               | grep -v -E "DEBUG|^\s*at java\.|^\s*at jdk\." | head -c 50000
             echo '```'

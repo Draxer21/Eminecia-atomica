@@ -49,6 +49,24 @@ public final class SelfTest {
             }
             LOG.info("DRAXTEST templates total={} missing={}", names.size(), missing);
         });
+        step("block_ids", () -> {
+            // Cada bloque usado en las plantillas debe existir en esta versión (si no, se coloca aire).
+            try (var in = SelfTest.class.getResourceAsStream("/assets/draxatomic/selftest/blocks.txt")) {
+                if (in == null) return;
+                int bad = 0;
+                for (String line : new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).split("\n")) {
+                    String id = line.trim();
+                    if (id.isEmpty()) continue;
+                    if (!net.minecraft.core.registries.BuiltInRegistries.BLOCK.containsKey(Identifier.parse(id))) {
+                        LOG.info("DRAXTEST unknown_block {}", id);
+                        bad++;
+                    }
+                }
+                LOG.info("DRAXTEST block_ids unknown={}", bad);
+            } catch (java.io.IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
         step("trades", () -> {
             var sets = server.registryAccess().lookupOrThrow(Registries.TRADE_SET);
             for (int i = 1; i <= 5; i++) {
