@@ -1,6 +1,6 @@
 # Drax Atomic
 
-Mod de NeoForge para Minecraft 26.2 (versión del mod 0.8.0).
+Mod de NeoForge para Minecraft 26.2 (versión del mod 0.8.1).
 
 ## Poder mágico
 
@@ -124,6 +124,7 @@ Los textos (incluida la frase) están en `assets/draxatomic/lang/*.json`.
 
 ## Historial
 
+- 0.8.1: la torre del castillo de Midgar ya no tapa el salón del trono.
 - 0.8.0: capitales de Midgar (512×512) y Oriana (256×256) construidas por cuadras, aldeanos, guardias, personajes con misiones y las Siete Sombras.
 - 0.7.1: primera versión compilada; comandos de prueba; CI con autoprueba del servidor y capturas del juego.
 - 0.7.0: Mitsugoshi (tienda, empleado, mostrador y productos) y la capital de Midgar.

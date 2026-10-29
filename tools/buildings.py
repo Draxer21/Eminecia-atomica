@@ -25,10 +25,10 @@ def cone(b, cx, cz, r, y, mat):
     return y + k
 
 
-def square_tower(b, cx, cz, r, h, wall, roof, rnd):
-    b.walls(cx - r, 1, cz - r, cx + r, h, cz + r, wall)
-    b.box(cx - r + 1, 1, cz - r + 1, cx + r - 1, h - 1, cz + r - 1, 'air')
-    for y in range(4, h, 5):
+def square_tower(b, cx, cz, r, h, wall, roof, rnd, y0=1):
+    b.walls(cx - r, y0, cz - r, cx + r, h, cz + r, wall)
+    b.box(cx - r + 1, y0, cz - r + 1, cx + r - 1, h - 1, cz + r - 1, 'air')
+    for y in range(y0 + 3, h, 5):
         b.set(cx, y, cz - r, 'glass'); b.set(cx, y, cz + r, 'glass'); b.set(cx - r, y, cz, 'glass'); b.set(cx + r, y, cz, 'glass')
     top = cone(b, cx, cz, r + 1, h + 1, roof)
     b.set(cx, top, cz, 'gold_block')
@@ -75,7 +75,7 @@ def midgar_castle():
     # techo escalonado de pizarra y torre del homenaje
     for i in range(6):
         b.box(X0 - 1 + i, 23 + i, Z0 - 1 + i, X1 + 1 - i, 23 + i, Z1 + 1 - i, 'deepslate_tiles')
-    square_tower(b, 33, 30, 3, 40, 'polished_andesite', 'deepslate_tiles', rnd)
+    square_tower(b, 33, 30, 3, 40, 'polished_andesite', 'deepslate_tiles', rnd, y0=24)
     # salón del trono
     for z in range(Z0 + 1, Z1):
         b.set(33, 1, z, 'red_carpet'); b.set(34, 1, z, 'red_carpet')

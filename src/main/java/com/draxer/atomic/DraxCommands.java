@@ -165,18 +165,20 @@ public final class DraxCommands {
                 pitch = 5.0F;
             }
             case "street" -> {
-                x = site.centerX() - 30.5;
-                z = site.centerZ() + kind.size() / 4.0;
-                y = baseY + 6;
-                yaw = 200.0F;
-                pitch = 8.0F;
+                // Sobre la calle norte-sur que sale de la puerta sur, mirando hacia el centro.
+                x = site.minX() + (kind.cells / 2) * CityLayout.CELL + 2.0;
+                z = site.minZ() + (kind.cells - 2) * CityLayout.CELL + 10.5;
+                y = baseY + 3;
+                yaw = 180.0F;
+                pitch = 4.0F;
             }
             default -> {
+                // Fuera de la muralla sur, en alto, mirando la ciudad.
                 x = site.centerX() + 0.5;
-                z = site.minZ() - kind.size() * 0.35;
-                y = baseY + kind.size() * 0.42;
-                yaw = 0.0F;
-                pitch = 38.0F;
+                z = site.minZ() + kind.size() + 24.5;
+                y = baseY + 55;
+                yaw = 180.0F;
+                pitch = 22.0F;
             }
         }
         player.teleportTo(level, x, y, z, java.util.Set.of(), yaw, pitch, true);
