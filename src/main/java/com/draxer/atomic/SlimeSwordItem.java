@@ -57,9 +57,10 @@ public final class SlimeSwordItem extends Item {
         }
         if (player.getCooldowns().isOnCooldown(stack)) return InteractionResult.FAIL;
         SwordMode mode = SwordMode.of(stack);
-        if (!Mana.has(player, mode.cost())) {
+        int cost = Magic.cost(player, mode.cost());
+        if (!Mana.has(player, cost)) {
             if (!level.isClientSide()) {
-                player.sendOverlayMessage(Component.translatable("message.draxatomic.no_power", mode.cost())
+                player.sendOverlayMessage(Component.translatable("message.draxatomic.no_power", cost)
                         .withStyle(ChatFormatting.RED));
             }
             return InteractionResult.FAIL;
@@ -76,7 +77,7 @@ public final class SlimeSwordItem extends Item {
                 default -> false;
             };
             if (!done) return InteractionResult.FAIL;
-            Mana.spend(serverPlayer, mode.cost());
+            Mana.spend(serverPlayer, cost);
             player.getCooldowns().addCooldown(stack, switch (mode) {
                 case WHIP -> 10;
                 case DASH -> 25;
@@ -94,7 +95,8 @@ public final class SlimeSwordItem extends Item {
 
     @Override
     public int getUseDuration(ItemStack stack, LivingEntity entity) {
-        return SwordMode.of(stack).chargeTicks();
+        int base = SwordMode.of(stack).chargeTicks();
+        return entity instanceof Player p ? Math.max(10, Math.round(base * Magic.chargeFactor(p))) : base;
     }
 
     /** Cada tick de carga: aura, sonidos y la frase por partes. */
@@ -161,7 +163,8 @@ public final class SlimeSwordItem extends Item {
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
         if (level instanceof ServerLevel server && entity instanceof ServerPlayer player) {
             SwordMode mode = SwordMode.of(stack);
-            if (!Mana.has(player, mode.cost())) {
+            int cost = Magic.cost(player, mode.cost());
+            if (!Mana.has(player, cost)) {
                 releaseUsing(stack, level, entity, 0);
                 return stack;
             }
@@ -171,7 +174,7 @@ public final class SlimeSwordItem extends Item {
                 releaseUsing(stack, level, entity, 0);
                 return stack;
             }
-            Mana.spend(player, mode.cost());
+            Mana.spend(player, cost);
             player.getCooldowns().addCooldown(stack, mode == SwordMode.RECOVERY_ATOMIC ? 100 : AtomicConfig.cooldownTicks());
             player.removeEffect(MobEffects.LEVITATION);
             // Flota en lugar de caer.

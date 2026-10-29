@@ -157,6 +157,7 @@ public final class Cult {
         public InteractionResult use(Level level, Player player, InteractionHand hand) {
             if (player instanceof ServerPlayer serverPlayer) {
                 Mana.addBonus(serverPlayer, BONUS);
+                Magic.addPoints(serverPlayer, 2);
                 level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.TOTEM_USE,
                         SoundSource.PLAYERS, 0.8F, 1.3F);
                 player.sendOverlayMessage(Component.translatable("message.draxatomic.heart_used", BONUS, Mana.max(player))

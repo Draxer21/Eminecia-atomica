@@ -38,7 +38,9 @@ public record AtomicPayload(double x, double y, double z, int radius, int color,
             event.registrar("1")
                     .playToClient(TYPE, STREAM_CODEC)
                     .playToClient(ManaPayload.TYPE, ManaPayload.STREAM_CODEC)
-                    .playToServer(DoubleJumpPayload.TYPE, DoubleJumpPayload.STREAM_CODEC, DoubleJumpPayload::handle);
+                    .playToServer(DoubleJumpPayload.TYPE, DoubleJumpPayload.STREAM_CODEC, DoubleJumpPayload::handle)
+                    .playToServer(MagicPayloads.Action.TYPE, MagicPayloads.Action.STREAM_CODEC, MagicPayloads.Action::handle)
+                    .playToClient(MagicPayloads.Sync.TYPE, MagicPayloads.Sync.STREAM_CODEC);
         }
     }
 }

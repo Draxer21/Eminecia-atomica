@@ -74,8 +74,11 @@ public final class AtomicBlast {
 
     /** El Atomic normal, centrado en quien lo lanza. */
     public static void detonate(ServerLevel level, ServerPlayer caster) {
+        // La compresión agranda la esfera y multiplica el daño; el árbol de habilidades también.
+        float comp = Magic.consumeCompression(caster);
+        int radius = Math.min(96, Math.round(AtomicConfig.radius() * Magic.reach(caster) * (1.0F + (comp - 1.0F) * 0.4F)));
         AtomicBlast blast = new AtomicBlast(level, caster.getUUID(), caster.position().add(0, 1.0, 0),
-                AtomicConfig.radius(), AtomicConfig.damage(), AtomicConfig.destroyBlocks(), true);
+                radius, AtomicConfig.damage() * comp * Magic.power(caster), AtomicConfig.destroyBlocks(), true);
         ACTIVE.add(blast);
         blast.flash();
     }

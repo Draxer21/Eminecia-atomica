@@ -47,13 +47,13 @@ public final class Mana {
 
     /** Máximo: el de la configuración más lo que aporta el traje de slime. */
     public static int max(Player player) {
-        return AtomicConfig.maxMana() + player.getData(BONUS) + SlimeSuit.MANA_PER_PIECE * SlimeSuit.pieces(player);
+        return AtomicConfig.maxMana() + player.getData(BONUS) + SlimeSuit.MANA_PER_PIECE * SlimeSuit.pieces(player) + Magic.maxManaBonus(player);
     }
 
     /** Recarga por segundo: +1 por pieza del traje, y el doble con el set completo. */
     private static int regenPerSecond(Player player) {
         int pieces = SlimeSuit.pieces(player);
-        int regen = AtomicConfig.manaRegenPerSecond() + pieces;
+        int regen = AtomicConfig.manaRegenPerSecond() + pieces + Magic.regenBonus(player);
         return pieces == 4 ? regen * 2 : regen;
     }
 
@@ -69,16 +69,52 @@ public final class Mana {
     }
 
     /** Gasta poder si alcanza (en creativo es gratis). */
+    /**
+     * Gasta poder para un ataque o hechizo. Si no alcanza y la Sobrecarga está activa, el resto se
+     * paga con vida (5 de poder = 1 punto de vida). Cuenta como experiencia mágica.
+     */
     public static boolean spend(ServerPlayer player, int amount) {
-        if (player.isCreative()) return true;
+        if (player.isCreative() || amount <= 0) return true;
+        int current = get(player);
+        if (current < amount) {
+            int hp = overloadCost(player, amount - current);
+            if (hp < 0) return false;
+            set(player, 0);
+            player.setHealth(player.getHealth() - hp);
+            player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                    net.minecraft.sounds.SoundEvents.WITHER_HURT, net.minecraft.sounds.SoundSource.PLAYERS, 0.5F, 1.6F);
+            Magic.addXp(player, amount);
+            return true;
+        }
+        set(player, current - amount);
+        Magic.addXp(player, amount);
+        return true;
+    }
+
+    /** Gasto continuo (hechizos sostenidos, compresión, planeo): sin Sobrecarga ni experiencia. */
+    public static boolean drain(ServerPlayer player, int amount) {
+        if (player.isCreative() || amount <= 0) return true;
         int current = get(player);
         if (current < amount) return false;
         set(player, current - amount);
         return true;
     }
 
+    /** El Caballero de la Mesa Redonda te roba poder con sus golpes. */
+    public static void steal(ServerPlayer player, int amount) {
+        if (player.isCreative()) return;
+        set(player, get(player) - amount);
+    }
+
+    /** Vida que costaría cubrir {@code deficit} con Sobrecarga, o -1 si no se puede. */
+    private static int overloadCost(Player player, int deficit) {
+        if (!Magic.state(player).on(MagicState.Spell.OVERLOAD)) return -1;
+        int hp = (int) Math.ceil(deficit / 5.0);
+        return player.getHealth() > hp + 1 ? hp : -1;
+    }
+
     public static boolean has(Player player, int amount) {
-        return player.isCreative() || get(player) >= amount;
+        return player.isCreative() || get(player) >= amount || overloadCost(player, amount - get(player)) >= 0;
     }
 
     public static void sync(ServerPlayer player) {

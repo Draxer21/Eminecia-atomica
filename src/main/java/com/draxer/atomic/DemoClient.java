@@ -145,7 +145,26 @@ public final class DemoClient {
             case 2000 -> cmd(mc, "draxatomic city view oriana street");
             case 2100 -> cmd(mc, "draxatomic city build");
             case 2160 -> shot("oriana_street");
-            case 2180 -> shot("end");
+            // Magia: compresión + proyección y el árbol de habilidades.
+            case 2200 -> {
+                cmd(mc, "tp @s " + ox + ".5 " + (oy + 4) + " " + (oz - 40) + ".5 0 5");
+                cmd(mc, "draxatomic mana");
+                for (int i = 0; i < 6; i++) {
+                    cmd(mc, "summon minecraft:zombie " + (ox - 4 + i * 2) + " " + oy + " " + (oz - 18) + " {NoAI:1b}");
+                }
+                net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(new MagicPayloads.Action(MagicPayloads.SELECT, 1));
+                net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(new MagicPayloads.Action(MagicPayloads.COMPRESS_START, 0));
+            }
+            case 2300 -> shot("compressing");
+            case 2310 -> {
+                net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(new MagicPayloads.Action(MagicPayloads.COMPRESS_STOP, 0));
+                net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(new MagicPayloads.Action(MagicPayloads.CAST, 0));
+            }
+            case 2313 -> shot("projection");
+            case 2330 -> mc.gui.setScreen(new SkillScreen());
+            case 2350 -> shot("skills");
+            case 2360 -> mc.gui.setScreen(null);
+            case 2380 -> shot("end");
             default -> {}
         }
     }

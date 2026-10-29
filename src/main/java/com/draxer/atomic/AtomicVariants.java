@@ -42,7 +42,7 @@ public final class AtomicVariants {
     private static final int STRIKE_GAP = 3;
     private static final int MARK_TICKS = 16;
 
-    private record Strike(ServerLevel level, UUID caster, LivingEntity target, int[] delay) {}
+    private record Strike(ServerLevel level, UUID caster, LivingEntity target, int radius, float damage, int[] delay) {}
 
     private static final List<Strike> STRIKES = new ArrayList<>();
 
@@ -50,14 +50,19 @@ public final class AtomicVariants {
 
     /** Devuelve cuántos objetivos encontró (0 = no se lanza y no gasta poder). */
     public static int allRange(ServerLevel level, ServerPlayer player) {
-        int reach = AtomicConfig.allRangeRadius();
+        int reach = Math.round(AtomicConfig.allRangeRadius() * Magic.reach(player));
         List<LivingEntity> targets = level.getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(reach),
                 e -> e.isAlive() && isHostileTo(e, player));
         targets.sort(Comparator.comparingDouble(e -> e.distanceToSqr(player)));
         int max = AtomicConfig.allRangeMaxTargets();
         if (targets.size() > max) targets = new ArrayList<>(targets.subList(0, max));
+        if (targets.isEmpty()) return 0;
+        float comp = Magic.consumeCompression(player);
+        int blastRadius = Math.round(AtomicConfig.allRangeBlastRadius() * (1.0F + (comp - 1.0F) * 0.4F));
+        float damage = AtomicConfig.allRangeDamage() * comp * Magic.power(player);
+
         for (int i = 0; i < targets.size(); i++) {
-            STRIKES.add(new Strike(level, player.getUUID(), targets.get(i), new int[] {MARK_TICKS + i * STRIKE_GAP}));
+            STRIKES.add(new Strike(level, player.getUUID(), targets.get(i), blastRadius, damage, new int[] {MARK_TICKS + i * STRIKE_GAP}));
         }
         return targets.size();
     }
@@ -98,15 +103,14 @@ public final class AtomicVariants {
             it.remove();
             if (!(strike.level().getEntity(strike.caster()) instanceof ServerPlayer caster)) continue;
             Vec3 at = target.position().add(0, target.getBbHeight() * 0.5, 0);
-            AtomicBlast.detonateAt(strike.level(), caster, at, AtomicConfig.allRangeBlastRadius(),
-                    AtomicConfig.allRangeDamage(), AtomicConfig.allRangeBreaksBlocks());
+            AtomicBlast.detonateAt(strike.level(), caster, at, strike.radius(), strike.damage(), AtomicConfig.allRangeBreaksBlocks());
         }
     }
 
     // ---------------------------------------------------------------- Recovery Atomic
 
     public static void recovery(ServerLevel level, ServerPlayer player) {
-        int reach = AtomicConfig.recoveryRadius();
+        int reach = Math.round(AtomicConfig.recoveryRadius() * Magic.reach(player));
         Vec3 c = player.position().add(0, 1, 0);
         AtomicPayload payload = new AtomicPayload(c.x, c.y, c.z, reach, AtomicPayload.RECOVERY, false);
         for (ServerPlayer viewer : level.players()) {

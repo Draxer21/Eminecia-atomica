@@ -1,6 +1,6 @@
 # Drax Atomic
 
-Mod de NeoForge para Minecraft 26.2 (versión del mod 0.8.1).
+Mod de NeoForge para Minecraft 26.2 (versión del mod 0.9.0).
 
 ## Poder mágico
 
@@ -22,6 +22,35 @@ Espada de nivel netherita (no se quema en lava). **Shift + clic derecho** cambia
 Soltar el Atomic antes de tiempo lo cancela sin gastar poder. Tú, tus mascotas, tu equipo y los jugadores en creativo no reciben daño.
 
 **Receta:** bloque de slime / bloque de slime / estrella del Nether (en columna). También en la pestaña Combate del creativo.
+
+## Magia
+
+Teclas (configurables en Controles → Drax Atomic: magia): **R** lanza el hechizo elegido, **Z** cambia de hechizo (Shift+Z al anterior), **V** (mantener) comprime poder, **K** abre el árbol de habilidades.
+
+**Compresión:** mientras mantienes V, cada ~1,5 s se condensan 40 de poder en un nivel (máx. 3, o 5 con la maestría). El siguiente ataque (Látigo, Corte, Lluvia, cualquier Atomic, Proyección o Contraataque) sale con +60% por nivel; en los Atomic además agranda la esfera. Si no la usas, se disipa de a poco.
+
+| Hechizo | Tipo | Efecto |
+|---|---|---|
+| Paso sombra | Lanzar (15) | Apareces hasta 10 bloques adelante cortando lo que atraviesas |
+| Proyección | Lanzar (30) | Rayo de poder perforante de 48 bloques; con compresión ≥2 estalla al final |
+| Contraataque | Lanzar (10) | Durante 0,7 s el próximo golpe cuerpo a cuerpo vuelve al atacante al doble |
+| Plataforma de slime | Lanzar (10) | Piso de 5×5 bajo tus pies durante 8 s |
+| Detección de maná | Lanzar (20) | Los enemigos en 48 bloques brillan a través de las paredes |
+| Forja de slime | Lanzar | Repara tu equipo con poder |
+| Convocatoria | Lanzar (25) | Tus integrantes de la Shadow Garden aparecen a tu lado |
+| Armadura de slime | Sostenido | El poder absorbe el daño; se rompe al vaciarse |
+| Sigilo de sombra | Sostenido | Invisible y los monstruos pierden tu rastro |
+| Ocultamiento de maná | Sostenido | Los monstruos lejanos no te persiguen si no peleas |
+| Despertar | Sostenido | Con la barra casi llena: fuerza, velocidad, +30% de daño y todo a mitad de costo |
+| Sobrecarga | Sostenido | Si no te alcanza el poder, pagas el resto con vida |
+
+**Planeo:** con el traje completo, agáchate mientras caes para planear.
+
+**Árbol de habilidades (K):** Eficiencia, Potencia, Alcance, Reserva, Flujo, Maestría de compresión y Maestría atómica. Ganas puntos cada 500 de poder gastado, +1 por misión completada y +2 por cada Corazón de Diablos.
+
+**La Shadow Garden también usa magia:** cada integrante acumula su propio poder y lanza su técnica (Alpha: corte en abanico; Beta: ráfaga de rayos; Gamma: curación total; Delta: frenesí; Epsilon: un pequeño Atomic; Zeta: aparece detrás del enemigo; Eta: escudo para el grupo).
+
+**El Caballero de la Mesa Redonda te roba poder** con cada golpe.
 
 ## Traje de Slime
 
@@ -124,6 +153,7 @@ Los textos (incluida la frase) están en `assets/draxatomic/lang/*.json`.
 
 ## Historial
 
+- 0.9.0: sistema de magia (12 hechizos, compresión, proyección, árbol de habilidades), técnicas de la Shadow Garden y robo de poder del Caballero.
 - 0.8.1: la torre del castillo de Midgar ya no tapa el salón del trono.
 - 0.8.0: capitales de Midgar (512×512) y Oriana (256×256) construidas por cuadras, aldeanos, guardias, personajes con misiones y las Siete Sombras.
 - 0.7.1: primera versión compilada; comandos de prueba; CI con autoprueba del servidor y capturas del juego.

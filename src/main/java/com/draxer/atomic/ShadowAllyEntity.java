@@ -55,6 +55,9 @@ public class ShadowAllyEntity extends PathfinderMob {
     private @Nullable UUID owner;
     private boolean staying;
     private int skillCooldown;
+    /** Poder mágico propio (0..100): al llenarse 60, usa su técnica especial. */
+    private int mana = 50;
+    private int specialCooldown;
 
     public ShadowAllyEntity(EntityType<? extends ShadowAllyEntity> type, Level level) {
         super(type, level);
@@ -217,6 +220,15 @@ public class ShadowAllyEntity extends PathfinderMob {
         super.aiStep();
         if (!(level() instanceof ServerLevel level)) return;
         if (skillCooldown > 0) skillCooldown--;
+        if (specialCooldown > 0) specialCooldown--;
+        if (tickCount % 10 == 0 && mana < 100) mana++;
+        LivingEntity foe = getTarget();
+        if (foe != null && foe.isAlive() && mana >= 60 && specialCooldown == 0 && distanceToSqr(foe) < 24 * 24) {
+            if (special(level, foe)) {
+                mana -= 60;
+                specialCooldown = 120;
+            }
+        }
         if (tickCount % 40 == 0 && getHealth() < getMaxHealth()) heal(1.0F);
         switch (role()) {
             case STEALTH -> {
@@ -232,6 +244,70 @@ public class ShadowAllyEntity extends PathfinderMob {
             }
             default -> {}
         }
+    }
+
+    /** La técnica especial de cada integrante, pagada con su propio poder mágico. */
+    private boolean special(ServerLevel level, LivingEntity foe) {
+        net.minecraft.core.particles.DustParticleOptions violet = new DustParticleOptions(0x8A3BFF, 1.5F);
+        switch (role()) {
+            case SWORD -> {
+                // Corte en abanico: todo lo que está delante recibe el tajo.
+                if (distanceTo(foe) > 5) return false;
+                Vec3 look = getLookAngle();
+                for (LivingEntity e : level.getEntitiesOfClass(LivingEntity.class, getBoundingBox().inflate(5), this::isFoe)) {
+                    Vec3 to = e.position().subtract(position()).normalize();
+                    if (to.dot(look) > 0.3) e.hurtServer(level, damageSources().mobAttack(this), 14.0F);
+                }
+                level.sendParticles(ParticleTypes.SWEEP_ATTACK, getX() + look.x * 2, getY() + 1, getZ() + look.z * 2, 5, 1.2, 0.2, 1.2, 0);
+                level.playSound(null, getX(), getY(), getZ(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.NEUTRAL, 1.2F, 0.7F);
+            }
+            case ARCHER -> {
+                // Ráfaga: un rayo a cada enemigo cercano (hasta 4).
+                int n = 0;
+                for (LivingEntity e : level.getEntitiesOfClass(LivingEntity.class, getBoundingBox().inflate(20), this::isFoe)) {
+                    if (n++ >= 4) break;
+                    Bolts.fire(level, this, e, 9.0F, 0x5FE6FF, SoundEvents.ARROW_SHOOT);
+                }
+                if (n == 0) return false;
+            }
+            case HEALER -> {
+                for (LivingEntity e : level.getEntitiesOfClass(LivingEntity.class, getBoundingBox().inflate(16),
+                        e -> e == this || isAlliedTo(e))) {
+                    e.heal(e.getMaxHealth());
+                    e.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 160, 1));
+                    level.sendParticles(ParticleTypes.HEART, e.getX(), e.getY() + 2, e.getZ(), 4, 0.4, 0.2, 0.4, 0);
+                }
+                level.playSound(null, getX(), getY(), getZ(), SoundEvents.TOTEM_USE, SoundSource.NEUTRAL, 0.5F, 1.6F);
+            }
+            case BERSERKER -> {
+                addEffect(new MobEffectInstance(MobEffects.STRENGTH, 160, 1));
+                addEffect(new MobEffectInstance(MobEffects.SPEED, 160, 1));
+                level.sendParticles(new DustParticleOptions(0xA02A2A, 1.6F), getX(), getY() + 1, getZ(), 30, 0.5, 0.8, 0.5, 0);
+                level.playSound(null, getX(), getY(), getZ(), SoundEvents.RAVAGER_ROAR, SoundSource.NEUTRAL, 0.6F, 1.5F);
+            }
+            case MAGE -> {
+                // Un pequeño Atomic sobre el enemigo (en nombre de su dueña/o, para no herir a los aliados).
+                if (!(owner() instanceof net.minecraft.server.level.ServerPlayer player)) return false;
+                AtomicBlast.detonateAt(level, player, foe.position().add(0, 1, 0), 4, 30.0F, false);
+            }
+            case STEALTH -> {
+                Vec3 behind = foe.position().subtract(foe.getLookAngle().multiply(1.5, 0, 1.5));
+                level.sendParticles(violet, getX(), getY() + 1, getZ(), 20, 0.3, 0.6, 0.3, 0);
+                teleportTo(behind.x, foe.getY(), behind.z);
+                foe.hurtServer(level, damageSources().mobAttack(this), 16.0F);
+                level.playSound(null, getX(), getY(), getZ(), SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.NEUTRAL, 1.0F, 1.2F);
+            }
+            case GUARDIAN -> {
+                for (LivingEntity e : level.getEntitiesOfClass(LivingEntity.class, getBoundingBox().inflate(10),
+                        e -> e == this || isAlliedTo(e))) {
+                    e.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 160, 1));
+                    e.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 160, 1));
+                }
+                level.sendParticles(violet, getX(), getY() + 1, getZ(), 40, 2.5, 1.0, 2.5, 0);
+                level.playSound(null, getX(), getY(), getZ(), SoundEvents.BEACON_POWER_SELECT, SoundSource.NEUTRAL, 1.0F, 1.2F);
+            }
+        }
+        return true;
     }
 
     /** Sanadora: cura al dueño y a las aliadas heridas cercanas. */

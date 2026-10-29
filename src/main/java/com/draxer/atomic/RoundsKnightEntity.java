@@ -176,6 +176,18 @@ public class RoundsKnightEntity extends Monster {
         }
     }
 
+    /** Sus golpes roban poder mágico (más en la fase 2). */
+    @Override
+    public boolean doHurtTarget(ServerLevel level, Entity target) {
+        boolean hit = super.doHurtTarget(level, target);
+        if (hit && target instanceof ServerPlayer player) {
+            Mana.steal(player, phase() == 2 ? 25 : 15);
+            level.sendParticles(new DustParticleOptions(0xFFD54A, 1.2F), player.getX(), player.getY() + 1, player.getZ(), 12, 0.3, 0.5, 0.3, 0);
+            heal(phase() == 2 ? 6.0F : 3.0F);
+        }
+        return hit;
+    }
+
     // ---------------------------------------------------------------- fases
 
     @Override

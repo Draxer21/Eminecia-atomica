@@ -39,13 +39,14 @@ public final class SlimeSkills {
     public static void whip(ServerLevel level, ServerPlayer player) {
         Vec3 start = player.getEyePosition();
         Vec3 look = player.getLookAngle();
-        Vec3 end = start.add(look.scale(AtomicConfig.whipRange()));
+        float mult = Magic.consumeCompression(player) * Magic.power(player);
+        Vec3 end = start.add(look.scale(AtomicConfig.whipRange() * Magic.reach(player)));
         BlockHitResult wall = level.clip(new ClipContext(start, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
         if (wall.getType() != HitResult.Type.MISS) end = wall.getLocation();
         double length = start.distanceTo(end);
 
         for (Entity target : alongLine(level, player, start, end, 1.2)) {
-            target.hurtServer(level, source(level, player), AtomicConfig.whipDamage());
+            target.hurtServer(level, source(level, player), AtomicConfig.whipDamage() * mult);
             // Lo acerca un poco, como si el látigo lo atrapara.
             Vec3 pull = player.position().subtract(target.position()).normalize().scale(0.6);
             target.push(pull.x, 0.25, pull.z);
@@ -67,13 +68,14 @@ public final class SlimeSkills {
         Vec3 look = player.getLookAngle();
         Vec3 flat = new Vec3(look.x, Math.max(-0.3, Math.min(0.3, look.y)), look.z).normalize();
         Vec3 from = player.position().add(0, 0.5, 0);
-        Vec3 to = from.add(flat.scale(AtomicConfig.dashDistance()));
+        float mult = Magic.consumeCompression(player) * Magic.power(player);
+        Vec3 to = from.add(flat.scale(AtomicConfig.dashDistance() * Magic.reach(player)));
         BlockHitResult wall = level.clip(new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
         if (wall.getType() != HitResult.Type.MISS) {
             to = wall.getLocation().subtract(flat.scale(0.6));
         }
         for (Entity target : alongLine(level, player, from, to, 1.4)) {
-            target.hurtServer(level, source(level, player), AtomicConfig.dashDamage());
+            target.hurtServer(level, source(level, player), AtomicConfig.dashDamage() * mult);
         }
         double length = from.distanceTo(to);
         for (double d = 0; d < length; d += 0.4) {
@@ -102,7 +104,9 @@ public final class SlimeSkills {
         BlockHitResult hit = level.clip(new ClipContext(start, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
         if (hit.getType() == HitResult.Type.MISS) return false;
         Vec3 center = hit.getLocation();
-        RAINS.add(new Rain(level, player.getUUID(), center, AtomicConfig.rainRadius(), AtomicConfig.rainDamage(), new int[] {0}));
+        float mult = Magic.consumeCompression(player) * Magic.power(player);
+        RAINS.add(new Rain(level, player.getUUID(), center, Math.round(AtomicConfig.rainRadius() * Magic.reach(player)),
+                AtomicConfig.rainDamage() * mult, new int[] {0}));
         level.playSound(null, center.x, center.y, center.z, SoundEvents.ILLUSIONER_PREPARE_MIRROR, SoundSource.PLAYERS, 1.5F, 0.6F);
         return true;
     }
