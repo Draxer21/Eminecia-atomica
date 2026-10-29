@@ -1,10 +1,10 @@
 # Drax Atomic
 
-Mod de NeoForge para Minecraft 26.2 (versión del mod 0.9.0).
+Mod de NeoForge para Minecraft 26.2 (versión del mod 0.9.1).
 
 ## Poder mágico
 
-Barra violeta sobre la de experiencia (100 por defecto, se recarga 4 por segundo; no recarga mientras cargas el Atomic). Se conserva al morir. Gratis en creativo.
+Barra violeta a la izquierda de la barra rápida (100 por defecto, se recarga 4 por segundo; no recarga mientras cargas el Atomic). Se conserva al morir. Gratis en creativo.
 
 ## Espada de Slime
 
@@ -153,6 +153,7 @@ Los textos (incluida la frase) están en `assets/draxatomic/lang/*.json`.
 
 ## Historial
 
+- 0.9.1: Midgar aparece con más frecuencia; HUD de poder junto a la barra rápida; pantalla de habilidades más compacta.
 - 0.9.0: sistema de magia (12 hechizos, compresión, proyección, árbol de habilidades), técnicas de la Shadow Garden y robo de poder del Caballero.
 - 0.8.1: la torre del castillo de Midgar ya no tapa el salón del trono.
 - 0.8.0: capitales de Midgar (512×512) y Oriana (256×256) construidas por cuadras, aldeanos, guardias, personajes con misiones y las Siete Sombras.

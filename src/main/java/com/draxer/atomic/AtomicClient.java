@@ -175,19 +175,21 @@ public final class AtomicClient {
         net.minecraft.world.item.ItemStack held = player.getMainHandItem();
         boolean holding = held.getItem() instanceof SlimeSwordItem;
         if (!holding && mana.mana() >= mana.max()) return;
-        int width = 120;
-        int x = graphics.guiWidth() / 2 - width / 2;
-        int y = graphics.guiHeight() - 66;
+        // A la izquierda de la barra rápida, lejos de la vida y del texto de acción.
+        int width = 110;
+        int x = graphics.guiWidth() / 2 - 91 - 8 - width;
+        int y = graphics.guiHeight() - 12;
         float fraction = mana.max() <= 0 ? 0 : Math.min(1.0F, mana.mana() / (float) mana.max());
         int filled = Math.round((width - 2) * fraction);
         graphics.fill(x, y, x + width, y + 6, 0xC0100820);
         graphics.fill(x + 1, y + 1, x + 1 + filled, y + 5, fraction >= 1.0F ? 0xFFB88CFF : 0xFF7A33E6);
         if (filled > 2) graphics.fill(x + 1, y + 1, x + 1 + filled, y + 2, 0x80FFFFFF);
+        String numbers = mana.mana() + "/" + mana.max();
+        graphics.text(mc.font, numbers, x + width - mc.font.width(numbers), y - 10, 0xFFE6D6FF);
         if (holding) {
-            SwordMode mode = SwordMode.of(held);
-            net.minecraft.network.chat.Component label = net.minecraft.network.chat.Component.translatable(
-                    "gui.draxatomic.mana", mode.title(), mana.mana(), mana.max());
-            graphics.text(mc.font, label, graphics.guiWidth() / 2 - mc.font.width(label) / 2, y - 10, 0xFFE6D6FF);
+            // El modo de la espada, a la derecha de la barra rápida (sobre el hechizo).
+            net.minecraft.network.chat.Component mode = SwordMode.of(held).title();
+            graphics.text(mc.font, mode, graphics.guiWidth() / 2 + 91 + 8, y - 20, 0xFFE6D6FF);
         }
     }
 

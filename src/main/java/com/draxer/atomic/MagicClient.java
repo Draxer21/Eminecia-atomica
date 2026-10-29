@@ -79,13 +79,13 @@ public final class MagicClient {
         if (player == null || player.isSpectator()) return;
         MagicPayloads.Sync s = MagicPayloads.Sync.latest;
         int cx = graphics.guiWidth() / 2;
-        int y = graphics.guiHeight() - 58;
+        int y = graphics.guiHeight() - 12;
         MagicState.Spell spell = MagicState.Spell.of(s.spell());
         Component name = Component.translatable("spell.draxatomic." + spell.id());
         // Solo se muestra si el jugador ya usa la magia (tiene la espada, poder gastado o algo activo).
         boolean show = player.getMainHandItem().getItem() instanceof SlimeSwordItem || s.compression() > 0 || s.toggles() != 0 || s.xp() > 0 || s.points() > 0;
         if (!show) return;
-        int x = cx + 64;
+        int x = cx + 91 + 8;
         graphics.text(mc.font, Component.literal("✦ ").append(name), x, y - 10, s.on(spell) ? 0xFFB8F5C4 : 0xFFD9B8FF);
         // Compresión: rombos llenos por nivel.
         int max = 3 + s.level(MagicState.Upgrade.COMPRESSION);
@@ -96,17 +96,17 @@ public final class MagicClient {
             graphics.fill(px + 1, y + 1, px + 5, y + 5, color);
         }
         // Sostenidos activos.
-        int tx = cx - 64 - 4;
+        int tx = cx - 91 - 8;
         int line = 0;
         for (MagicState.Spell t : MagicState.Spell.values()) {
             if (!t.toggle() || !s.on(t)) continue;
             Component label = Component.translatable("spell.draxatomic." + t.id());
-            graphics.text(mc.font, label, tx - mc.font.width(label), y - 10 - line * 10, 0xFFB8F5C4);
+            graphics.text(mc.font, label, tx - mc.font.width(label), y - 22 - line * 10, 0xFFB8F5C4);
             line++;
         }
         if (s.points() > 0) {
             Component p = Component.translatable("gui.draxatomic.points_hint", s.points());
-            graphics.text(mc.font, p, x, y + 9, 0xFFFFD54A);
+            graphics.text(mc.font, p, x + 7 * max + 4, y - 1, 0xFFFFD54A);
         }
     }
 }

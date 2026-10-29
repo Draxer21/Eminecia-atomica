@@ -118,16 +118,23 @@ public final class Cities {
     static boolean valid(ServerLevel level, Site site) {
         return VALID.computeIfAbsent(level.getSeed() + "/" + site.key(), k -> {
             TagKey<Biome> tag = site.kind() == CityLayout.Kind.MIDGAR ? MIDGAR_BIOMES : ORIANA_BIOMES;
+            TagKey<Biome> ocean = TagKey.create(Registries.BIOME, Identifier.withDefaultNamespace("is_ocean"));
             int r = site.kind().size() / 2 - 16;
             int y = level.getSeaLevel();
+            int good = 0;
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dz = -1; dz <= 1; dz++) {
                     int x = site.centerX() + dx * r;
                     int z = site.centerZ() + dz * r;
                     Holder<Biome> biome = level.getUncachedNoiseBiome(x >> 2, y >> 2, z >> 2);
-                    if (!biome.is(tag)) return false;
+                    if (biome.is(ocean)) return false;
+                    boolean ok = biome.is(tag);
+                    if (dx == 0 && dz == 0 && !ok) return false; // el centro siempre en un bioma apto
+                    if (ok) good++;
                 }
             }
+            // Basta con que la mayor parte del terreno sea apto (el resto se aplana igual).
+            if (good < 5) return false;
             // Oriana no se pone encima de una Midgar.
             if (site.kind() == CityLayout.Kind.ORIANA) {
                 for (Site other : sitesNear(level, CityLayout.Kind.MIDGAR, site.centerX(), site.centerZ(), 900, false)) {
