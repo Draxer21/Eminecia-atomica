@@ -48,6 +48,11 @@ public final class DemoClient {
                 cmd(mc, "time set 13000");
                 cmd(mc, "gamerule doDaylightCycle false");
                 cmd(mc, "gamerule doMobSpawning false");
+                // Sin mensajes de comandos en pantalla (nombre viejo y nuevo de la regla).
+                cmd(mc, "gamerule sendCommandFeedback false");
+                cmd(mc, "gamerule send_command_feedback false");
+                cmd(mc, "gamerule spawn_mobs false");
+                cmd(mc, "gamerule advance_time false");
                 ox = player.getBlockX();
                 oz = player.getBlockZ();
                 oy = 150;
@@ -79,16 +84,15 @@ public final class DemoClient {
             }
             case 260 -> shot("cult");
             case 280 -> {
-                cmd(mc, "tp @s " + ox + ".5 " + oy + " " + (oz - 30) + ".5 0 5");
+                cmd(mc, "kill @e[type=!minecraft:player]");
+                cmd(mc, "tp @s " + ox + ".5 " + (oy + 10) + " " + (oz - 40) + ".5 0 8");
                 cmd(mc, "draxatomic mana");
             }
-            case 300 -> {
-                cmd(mc, "summon minecraft:zombie " + ox + " " + oy + " " + (oz - 6) + " {NoAI:1b}");
-                cmd(mc, "draxatomic test atomic");
-            }
-            case 306 -> shot("atomic_flash");
-            case 314 -> shot("atomic_sphere");
-            case 330 -> shot("atomic_after");
+            case 320 -> cmd(mc, "draxatomic test atomicfar");
+            case 330 -> shot("atomic_flash");
+            case 338 -> shot("atomic_sphere");
+            case 346 -> shot("atomic_full");
+            case 366 -> shot("atomic_after");
             case 380 -> {
                 cmd(mc, "tp @s " + ox + ".5 " + (oy + 2) + " " + (oz - 60) + ".5 0 20");
                 for (int i = 0; i < 6; i++) {
@@ -104,17 +108,15 @@ public final class DemoClient {
                 cmd(mc, "draxatomic test recovery");
             }
             case 478 -> shot("recovery");
-            case 500 -> {
-                cmd(mc, "place structure draxatomic:mitsugoshi_store " + (ox + 200) + " 100 " + oz);
-            }
-            case 540 -> cmd(mc, "tp @s " + (ox + 206) + " 130 " + (oz - 18) + " 0 45");
-            case 600 -> shot("store");
-            case 620 -> cmd(mc, "place structure draxatomic:midgar_capital " + (ox + 400) + " 100 " + oz);
-            case 680 -> cmd(mc, "tp @s " + (ox + 424) + " 170 " + (oz - 30) + " 0 50");
-            case 760 -> shot("capital");
-            case 780 -> cmd(mc, "tp @s " + (ox + 424) + " 115 " + (oz + 10) + " 0 20");
-            case 840 -> shot("capital_street");
-            case 860 -> shot("end");
+            case 500 -> cmd(mc, "tp @s " + (ox + 206) + " 130 " + (oz - 18) + " 0 45");
+            case 560 -> cmd(mc, "place structure draxatomic:mitsugoshi_store " + (ox + 200) + " 100 " + oz);
+            case 640 -> shot("store");
+            case 660 -> cmd(mc, "tp @s " + (ox + 424) + " 170 " + (oz - 30) + " 0 50");
+            case 720 -> cmd(mc, "place structure draxatomic:midgar_capital " + (ox + 400) + " 100 " + oz);
+            case 820 -> shot("capital");
+            case 840 -> cmd(mc, "tp @s " + (ox + 424) + " 115 " + (oz + 10) + " 0 20");
+            case 900 -> shot("capital_street");
+            case 920 -> shot("end");
             default -> {}
         }
     }

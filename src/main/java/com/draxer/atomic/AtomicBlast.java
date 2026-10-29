@@ -82,7 +82,12 @@ public final class AtomicBlast {
 
     /** Una explosión atómica más pequeña en cualquier punto (la usa el All-Range Atomic). */
     public static void detonateAt(ServerLevel level, ServerPlayer caster, Vec3 center, int radius, float damage, boolean carve) {
-        AtomicBlast blast = new AtomicBlast(level, caster.getUUID(), center, radius, damage, carve, false);
+        detonateAt(level, caster, center, radius, damage, carve, false);
+    }
+
+    /** Con {@code big} = true se comporta como el Atomic completo (destello, sonido lejano, columna de luz). */
+    public static void detonateAt(ServerLevel level, ServerPlayer caster, Vec3 center, int radius, float damage, boolean carve, boolean big) {
+        AtomicBlast blast = new AtomicBlast(level, caster.getUUID(), center, radius, damage, carve, big);
         ACTIVE.add(blast);
         blast.flash();
     }

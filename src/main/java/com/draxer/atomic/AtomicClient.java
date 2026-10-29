@@ -83,7 +83,7 @@ public final class AtomicClient {
         }
         if (mc.isPaused()) return;
         doubleJump(mc);
-        flash = Math.max(0, flash - 0.03F);
+        flash = Math.max(0, flash - 0.06F);
         shake = Math.max(0, shake - 0.025F);
         Iterator<Blast> it = BLASTS.iterator();
         while (it.hasNext()) {
@@ -104,8 +104,8 @@ public final class AtomicClient {
         double r = blast.radius() * (1.0 - Math.pow(1.0 - t, 3));
         boolean growing = age <= AtomicBlast.EXPAND_TICKS;
         boolean recovery = blast.color() != AtomicPayload.VIOLET;
-        DustParticleOptions shell = new DustParticleOptions(recovery ? 0xE8FFF2 : (growing ? PALE : VIOLET), blast.big() ? 4.0F : 2.5F);
-        DustParticleOptions glow = new DustParticleOptions(recovery ? blast.color() : VIOLET, blast.big() ? 3.0F : 2.0F);
+        DustParticleOptions shell = new DustParticleOptions(recovery ? 0xE8FFF2 : (growing ? PALE : VIOLET), blast.big() ? 4.0F : (recovery ? 1.5F : 2.5F));
+        DustParticleOptions glow = new DustParticleOptions(recovery ? blast.color() : VIOLET, blast.big() ? 3.0F : (recovery ? 1.2F : 2.0F));
         DustParticleOptions spark = new DustParticleOptions(recovery ? 0xFFF6B0 : CYAN, 2.0F);
 
         // La superficie de la esfera: más puntos cuanto más grande, con tope para no ahogar al cliente.

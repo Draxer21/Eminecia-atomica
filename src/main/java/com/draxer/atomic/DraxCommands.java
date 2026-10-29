@@ -13,6 +13,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 /**
  * /draxatomic test atomic|allrange|recovery  lanza el ataque al instante (sin carga ni costo).
+ * /draxatomic test atomicfar                 el Atomic 45 bloques delante, para verlo desde fuera.
  * /draxatomic test garden                    invoca a las siete integrantes frente a ti.
  * /draxatomic mana                           llena tu poder mágico.
  * Solo en creativo (o desde la consola / bloques de comandos).
@@ -41,6 +42,15 @@ public final class DraxCommands {
                             ServerPlayer player = creative(context.getSource());
                             if (player == null) return 0;
                             AtomicBlast.detonate((ServerLevel) player.level(), player);
+                            return 1;
+                        }))
+                        .then(Commands.literal("atomicfar").executes(context -> {
+                            // El Atomic completo 45 bloques delante, para verlo desde fuera.
+                            ServerPlayer player = creative(context.getSource());
+                            if (player == null) return 0;
+                            Vec3 at = player.position().add(player.getLookAngle().multiply(1, 0, 1).normalize().scale(45));
+                            AtomicBlast.detonateAt((ServerLevel) player.level(), player, at.add(0, 1, 0),
+                                    AtomicConfig.radius(), AtomicConfig.damage(), AtomicConfig.destroyBlocks(), true);
                             return 1;
                         }))
                         .then(Commands.literal("allrange").executes(context -> {
