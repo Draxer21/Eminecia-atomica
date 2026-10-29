@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "SSS",
+    "SNS",
+    "S S"
+  ],
+  "key": {
+    "S": "minecraft:slime_block",
+    "N": "minecraft:netherite_ingot"
+  },
+  "result": {
+    "id": "draxatomic:slime_pants",
+    "count": 1
+  }
+}

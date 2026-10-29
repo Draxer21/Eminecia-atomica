@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "draxatomic:block/mitsugoshi_counter"
+    }
+  }
+}

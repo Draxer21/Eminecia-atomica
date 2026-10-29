@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "draxatomic:slime_suit"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "draxatomic:slime_suit"
+      }
+    ]
+  }
+}

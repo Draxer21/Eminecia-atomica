@@ -1,0 +1,17 @@
+{
+  "wants": {
+    "id": "minecraft:emerald",
+    "count": 22.0
+  },
+  "gives": {
+    "id": "draxatomic:slime_boots",
+    "count": 1
+  },
+  "max_uses": 3.0,
+  "reputation_discount": 0.05,
+  "xp": 30.0,
+  "additional_wants": {
+    "id": "minecraft:netherite_scrap",
+    "count": 1.0
+  }
+}

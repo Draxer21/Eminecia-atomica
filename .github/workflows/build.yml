@@ -1,0 +1,49 @@
+name: Build
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v5
+      - name: Build
+        run: |
+          chmod +x gradlew
+          set -o pipefail
+          ./gradlew build --no-configuration-cache 2>&1 | tee build.log
+      - name: Report errors as a commit comment
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo '### Build failed'
+            echo '```'
+            grep -E -A3 "error:|What went wrong|FAILURE|Exception" build.log | head -c 60000
+            echo '```'
+          } > report.md
+          gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/comments" -F body=@report.md
+      - name: Publish release
+        if: success() && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          MC=$(grep '^minecraft_version=' gradle.properties | cut -d= -f2)
+          ver=$(grep '^mod_version=' gradle.properties | cut -d= -f2)
+          jar=$(ls build/libs/*.jar | grep -v -E 'sources|javadoc' | head -1)
+          tag="v${ver}-mc${MC}"
+          if ! gh release view "$tag" > /dev/null 2>&1; then
+            gh release create "$tag" --title "Drax Atomic ${ver} — Minecraft ${MC}" --notes "Drax Atomic ${ver} para Minecraft ${MC} (NeoForge)." --target "$GITHUB_SHA"
+          fi
+          gh release upload "$tag" "$jar" --clobber

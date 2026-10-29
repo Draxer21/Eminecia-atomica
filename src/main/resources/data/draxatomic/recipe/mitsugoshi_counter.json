@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "GQG",
+    "PEP",
+    "PPP"
+  ],
+  "key": {
+    "G": "minecraft:gold_ingot",
+    "Q": "minecraft:quartz_block",
+    "P": "#minecraft:planks",
+    "E": "minecraft:emerald"
+  },
+  "result": {
+    "id": "draxatomic:mitsugoshi_counter",
+    "count": 1
+  }
+}

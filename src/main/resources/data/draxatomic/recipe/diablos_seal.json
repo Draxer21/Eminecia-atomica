@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "FGF",
+    "GSG",
+    "FGF"
+  ],
+  "key": {
+    "F": "draxatomic:diablos_drop",
+    "G": "minecraft:gold_block",
+    "S": "draxatomic:shadow_emblem"
+  },
+  "result": {
+    "id": "draxatomic:diablos_seal",
+    "count": 1
+  }
+}

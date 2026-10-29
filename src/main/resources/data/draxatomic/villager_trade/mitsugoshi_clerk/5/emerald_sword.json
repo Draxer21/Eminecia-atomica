@@ -1,0 +1,17 @@
+{
+  "wants": {
+    "id": "minecraft:emerald",
+    "count": 48.0
+  },
+  "gives": {
+    "id": "draxatomic:slime_sword",
+    "count": 1
+  },
+  "max_uses": 2.0,
+  "reputation_discount": 0.05,
+  "xp": 40.0,
+  "additional_wants": {
+    "id": "draxatomic:diablos_drop",
+    "count": 4.0
+  }
+}

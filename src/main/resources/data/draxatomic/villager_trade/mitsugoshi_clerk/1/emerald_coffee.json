@@ -1,0 +1,13 @@
+{
+  "wants": {
+    "id": "minecraft:emerald",
+    "count": 1.0
+  },
+  "gives": {
+    "id": "draxatomic:mitsugoshi_coffee",
+    "count": 2
+  },
+  "max_uses": 16.0,
+  "reputation_discount": 0.05,
+  "xp": 3.0
+}

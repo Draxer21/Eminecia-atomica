@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "draxatomic:mitsugoshi_store",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 34,
+    "separation": 12,
+    "salt": 771204331
+  }
+}

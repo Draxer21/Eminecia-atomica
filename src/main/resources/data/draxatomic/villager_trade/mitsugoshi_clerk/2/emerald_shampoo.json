@@ -1,0 +1,13 @@
+{
+  "wants": {
+    "id": "minecraft:emerald",
+    "count": 3.0
+  },
+  "gives": {
+    "id": "draxatomic:mitsugoshi_shampoo",
+    "count": 1
+  },
+  "max_uses": 12.0,
+  "reputation_discount": 0.05,
+  "xp": 10.0
+}
