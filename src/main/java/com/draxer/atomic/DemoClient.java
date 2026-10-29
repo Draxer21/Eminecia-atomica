@@ -41,9 +41,15 @@ public final class DemoClient {
         LocalPlayer player = mc.player;
         if (player == null || mc.level == null) return;
         ticks++;
+        if (ticks > 60) {
+            // La cámara flota quieta en el aire (creativo) para que las escenas no se muevan.
+            player.getAbilities().flying = true;
+            player.setDeltaMovement(0, 0, 0);
+        }
         switch (ticks) {
             case 60 -> {
                 mc.gui.setScreen(null);
+                mc.options.chatVisibility().set(net.minecraft.world.entity.player.ChatVisiblity.HIDDEN);
                 cmd(mc, "gamemode creative");
                 cmd(mc, "time set 13000");
                 cmd(mc, "gamerule doDaylightCycle false");
@@ -108,15 +114,19 @@ public final class DemoClient {
                 cmd(mc, "draxatomic test recovery");
             }
             case 478 -> shot("recovery");
-            case 500 -> cmd(mc, "tp @s " + (ox + 206) + " 130 " + (oz - 18) + " 0 45");
-            case 560 -> cmd(mc, "place structure draxatomic:mitsugoshi_store " + (ox + 200) + " 100 " + oz);
-            case 640 -> shot("store");
-            case 660 -> cmd(mc, "tp @s " + (ox + 424) + " 170 " + (oz - 30) + " 0 50");
-            case 720 -> cmd(mc, "place structure draxatomic:midgar_capital " + (ox + 400) + " 100 " + oz);
-            case 820 -> shot("capital");
-            case 840 -> cmd(mc, "tp @s " + (ox + 424) + " 115 " + (oz + 10) + " 0 20");
-            case 900 -> shot("capital_street");
-            case 920 -> shot("end");
+            case 500 -> {
+                cmd(mc, "forceload add " + (ox + 180) + " " + (oz - 30) + " " + (ox + 240) + " " + (oz + 30));
+                cmd(mc, "forceload add " + (ox + 380) + " " + (oz - 30) + " " + (ox + 470) + " " + (oz + 70));
+                cmd(mc, "tp @s " + (ox + 206) + " 140 " + (oz - 22) + " 0 40");
+            }
+            case 600 -> cmd(mc, "place structure draxatomic:mitsugoshi_store " + (ox + 200) + " 100 " + oz);
+            case 690 -> shot("store");
+            case 700 -> cmd(mc, "tp @s " + (ox + 424) + " 175 " + (oz - 35) + " 0 50");
+            case 800 -> cmd(mc, "place structure draxatomic:midgar_capital " + (ox + 400) + " 100 " + oz);
+            case 900 -> shot("capital");
+            case 920 -> cmd(mc, "tp @s " + (ox + 424) + " 125 " + (oz - 5) + " 0 25");
+            case 980 -> shot("capital_street");
+            case 1000 -> shot("end");
             default -> {}
         }
     }
