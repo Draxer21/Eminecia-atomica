@@ -80,5 +80,6 @@
   "tooltip.draxatomic.mitsugoshi_coffee": "Prisa II y visión nocturna por 2 minutos.",
   "tooltip.draxatomic.mitsugoshi_shampoo": "Quita los efectos negativos y da suerte. Brillo garantizado.",
   "structure.draxatomic.mitsugoshi_store": "Tienda Mitsugoshi",
-  "structure.draxatomic.midgar_capital": "Capital de Midgar"
+  "structure.draxatomic.midgar_capital": "Capital de Midgar",
+  "message.draxatomic.command.creative": "Este comando solo funciona en modo creativo."
 }

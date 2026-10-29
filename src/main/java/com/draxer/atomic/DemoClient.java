@@ -1,0 +1,121 @@
+package com.draxer.atomic;
+
+import com.mojang.logging.LogUtils;
+import net.minecraft.client.CameraType;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import org.slf4j.Logger;
+
+/**
+ * Solo CI (-Ddraxatomic.demo=true): una vez dentro del mundo, recorre una serie de escenas
+ * (traje, Shadow Garden, culto, los tres Atomic, la tienda y la capital). Antes de cada captura
+ * escribe "DRAXDEMO nombre" en el log; el workflow saca la captura de pantalla al verlo.
+ */
+@EventBusSubscriber(modid = DraxAtomic.MOD_ID, value = Dist.CLIENT)
+public final class DemoClient {
+    private DemoClient() {}
+
+    private static final boolean DEMO = Boolean.getBoolean("draxatomic.demo");
+    private static final Logger LOG = LogUtils.getLogger();
+    private static int ticks;
+    private static int ox;
+    private static int oy;
+    private static int oz;
+
+    private static void cmd(Minecraft mc, String command) {
+        mc.player.connection.sendCommand(command);
+    }
+
+    private static void shot(String name) {
+        LOG.info("DRAXDEMO {}", name);
+    }
+
+    @SubscribeEvent
+    public static void onClientTick(ClientTickEvent.Post event) {
+        if (!DEMO) return;
+        Minecraft mc = Minecraft.getInstance();
+        LocalPlayer player = mc.player;
+        if (player == null || mc.level == null) return;
+        ticks++;
+        switch (ticks) {
+            case 60 -> {
+                mc.gui.setScreen(null);
+                cmd(mc, "gamemode creative");
+                cmd(mc, "time set 13000");
+                cmd(mc, "gamerule doDaylightCycle false");
+                cmd(mc, "gamerule doMobSpawning false");
+                ox = player.getBlockX();
+                oz = player.getBlockZ();
+                oy = 150;
+                // Plataforma en el cielo para que el terreno no estorbe.
+                cmd(mc, "fill " + (ox - 20) + " " + (oy - 1) + " " + (oz - 20) + " " + (ox + 20) + " " + (oy - 1) + " " + (oz + 20) + " minecraft:grass_block");
+                cmd(mc, "tp @s " + ox + ".5 " + oy + " " + oz + ".5 0 15");
+            }
+            case 100 -> {
+                cmd(mc, "item replace entity @s armor.head with draxatomic:slime_hood");
+                cmd(mc, "item replace entity @s armor.chest with draxatomic:slime_coat");
+                cmd(mc, "item replace entity @s armor.legs with draxatomic:slime_pants");
+                cmd(mc, "item replace entity @s armor.feet with draxatomic:slime_boots");
+                cmd(mc, "item replace entity @s weapon.mainhand with draxatomic:slime_sword");
+                cmd(mc, "time set 6000");
+                mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
+            }
+            case 140 -> shot("suit");
+            case 160 -> {
+                mc.options.setCameraType(CameraType.FIRST_PERSON);
+                cmd(mc, "tp @s " + ox + ".5 " + oy + " " + oz + ".5 0 10");
+                cmd(mc, "draxatomic test garden");
+            }
+            case 200 -> shot("garden");
+            case 220 -> {
+                cmd(mc, "kill @e[type=draxatomic:shadow_ally]");
+                cmd(mc, "summon draxatomic:diablos_cultist " + (ox - 2) + " " + oy + " " + (oz + 6) + " {NoAI:1b,Kind:0,Rotation:[180f,0f]}");
+                cmd(mc, "summon draxatomic:diablos_cultist " + (ox + 2) + " " + oy + " " + (oz + 6) + " {NoAI:1b,Kind:1,Rotation:[180f,0f]}");
+                cmd(mc, "summon draxatomic:round_knight " + ox + " " + oy + " " + (oz + 8) + " {NoAI:1b,Rotation:[180f,0f]}");
+            }
+            case 260 -> shot("cult");
+            case 280 -> {
+                cmd(mc, "tp @s " + ox + ".5 " + oy + " " + (oz - 30) + ".5 0 5");
+                cmd(mc, "draxatomic mana");
+            }
+            case 300 -> {
+                cmd(mc, "summon minecraft:zombie " + ox + " " + oy + " " + (oz - 6) + " {NoAI:1b}");
+                cmd(mc, "draxatomic test atomic");
+            }
+            case 306 -> shot("atomic_flash");
+            case 314 -> shot("atomic_sphere");
+            case 330 -> shot("atomic_after");
+            case 380 -> {
+                cmd(mc, "tp @s " + ox + ".5 " + (oy + 2) + " " + (oz - 60) + ".5 0 20");
+                for (int i = 0; i < 6; i++) {
+                    cmd(mc, "summon minecraft:zombie " + (ox - 10 + i * 4) + " " + oy + " " + (oz - 50) + " {NoAI:1b}");
+                }
+                cmd(mc, "fill " + (ox - 15) + " " + (oy - 1) + " " + (oz - 55) + " " + (ox + 15) + " " + (oy - 1) + " " + (oz - 45) + " minecraft:stone");
+            }
+            case 400 -> cmd(mc, "draxatomic test allrange");
+            case 412 -> shot("allrange_marks");
+            case 434 -> shot("allrange_blasts");
+            case 470 -> {
+                cmd(mc, "effect give @s minecraft:poison 30 0");
+                cmd(mc, "draxatomic test recovery");
+            }
+            case 478 -> shot("recovery");
+            case 500 -> {
+                cmd(mc, "place structure draxatomic:mitsugoshi_store " + (ox + 200) + " 100 " + oz);
+            }
+            case 540 -> cmd(mc, "tp @s " + (ox + 206) + " 130 " + (oz - 18) + " 0 45");
+            case 600 -> shot("store");
+            case 620 -> cmd(mc, "place structure draxatomic:midgar_capital " + (ox + 400) + " 100 " + oz);
+            case 680 -> cmd(mc, "tp @s " + (ox + 424) + " 170 " + (oz - 30) + " 0 50");
+            case 760 -> shot("capital");
+            case 780 -> cmd(mc, "tp @s " + (ox + 424) + " 115 " + (oz + 10) + " 0 20");
+            case 840 -> shot("capital_street");
+            case 860 -> shot("end");
+            default -> {}
+        }
+    }
+}

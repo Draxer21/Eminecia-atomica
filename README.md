@@ -1,6 +1,6 @@
 # Drax Atomic
 
-Mod de NeoForge para Minecraft 26.2 (versión del mod 0.7.0).
+Mod de NeoForge para Minecraft 26.2 (versión del mod 0.7.1).
 
 ## Poder mágico
 
@@ -77,6 +77,12 @@ Usa el **Emblema de la Sombra** con clic derecho en el suelo para invocar a una 
 
 **Receta del mostrador:** oro – bloque de cuarzo – oro / tablones – esmeralda – tablones / tres tablones.
 
+## Comandos de prueba (modo creativo)
+
+- `/draxatomic test atomic` · `/draxatomic test allrange` · `/draxatomic test recovery`: lanza el ataque al instante, sin carga ni costo.
+- `/draxatomic test garden`: invoca a las siete integrantes frente a ti.
+- `/draxatomic mana`: llena tu poder mágico.
+
 ## Configuración (`world/serverconfig/draxatomic-server.toml`)
 
 - `[mana]` `maxMana`, `manaRegenPerSecond`
@@ -92,6 +98,7 @@ Los textos (incluida la frase) están en `assets/draxatomic/lang/*.json`.
 
 ## Historial
 
+- 0.7.1: primera versión compilada; comandos de prueba; CI con autoprueba del servidor y capturas del juego.
 - 0.7.0: Mitsugoshi (tienda, empleado, mostrador y productos) y la capital de Midgar.
 - 0.6.0: All-Range Atomic y Recovery Atomic; capucha abierta; el culto pasa a ser el Culto de Diablos y el jefe un Caballero de la Mesa Redonda.
 - 0.5.0: Orden del Eclipse — cultistas nocturnos, Sello del Eclipse, jefe de dos fases y Corazón del Eclipse.

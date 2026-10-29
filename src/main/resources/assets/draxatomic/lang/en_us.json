@@ -80,5 +80,6 @@
   "tooltip.draxatomic.mitsugoshi_coffee": "Haste II and night vision for 2 minutes.",
   "tooltip.draxatomic.mitsugoshi_shampoo": "Clears negative effects and grants luck. Shine guaranteed.",
   "structure.draxatomic.mitsugoshi_store": "Mitsugoshi Store",
-  "structure.draxatomic.midgar_capital": "Midgar Capital"
+  "structure.draxatomic.midgar_capital": "Midgar Capital",
+  "message.draxatomic.command.creative": "This command only works in creative mode."
 }

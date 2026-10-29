@@ -14,8 +14,19 @@ runs {
         workingDirectory project.layout.projectDirectory.dir('run').dir(name)
         modSource project.sourceSets.main
     }
-    client {}
-    server { argument '--nogui' }
+    client {
+        // Solo CI: recorre escenas del mod para sacar capturas.
+        systemProperty 'draxatomic.demo', System.getenv('DRAX_DEMO') ?: 'false'
+        if (System.getenv('DRAX_DEMO')) {
+            argument '--quickPlayMultiplayer'
+            argument 'localhost:25565'
+        }
+    }
+    server {
+        argument '--nogui'
+        // Solo CI: autoprueba al arrancar (estructuras, entidades, Atomic).
+        systemProperty 'draxatomic.selfTest', System.getenv('DRAX_DEMO') ?: 'false'
+    }
 }
 
 dependencies {

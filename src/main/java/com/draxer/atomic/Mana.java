@@ -37,6 +37,10 @@ public final class Mana {
         set(player, get(player) + amount);
     }
 
+    public static void refill(ServerPlayer player) {
+        set(player, max(player));
+    }
+
     static void init(IEventBus modEventBus) {
         ATTACHMENTS.register(modEventBus);
     }
