@@ -308,7 +308,7 @@ public final class Cities {
         BlockState wall = (midgar ? Blocks.STONE_BRICKS : Blocks.QUARTZ_BRICKS).defaultBlockState();
         BlockState wall2 = (midgar ? Blocks.CRACKED_STONE_BRICKS : Blocks.SMOOTH_QUARTZ).defaultBlockState();
         BlockState cap = (midgar ? Blocks.CHISELED_STONE_BRICKS : Blocks.CHISELED_QUARTZ_BLOCK).defaultBlockState();
-        BlockState roof = (midgar ? Blocks.DEEPSLATE_TILES : Blocks.OXIDIZED_CUT_COPPER).defaultBlockState();
+        BlockState roof = (midgar ? Blocks.DEEPSLATE_TILES : Blocks.DARK_PRISMARINE).defaultBlockState();
         BlockState road = (midgar ? Blocks.STONE_BRICKS : Blocks.POLISHED_ANDESITE).defaultBlockState();
         BlockState grass = Blocks.GRASS_BLOCK.defaultBlockState();
         BlockState lantern = Blocks.LANTERN.defaultBlockState();
