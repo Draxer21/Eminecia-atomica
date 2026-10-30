@@ -155,8 +155,8 @@ public final class DraxCommands {
         switch (where) {
             case "castle" -> {
                 // Frente al trono: Midgar castillo (7,3), Oriana palacio (3,1).
-                int ci = kind == CityLayout.Kind.MIDGAR ? 7 : 3;
-                int cj = kind == CityLayout.Kind.MIDGAR ? 3 : 1;
+                int ci = kind == CityLayout.Kind.MIDGAR ? 3 : 0;
+                int cj = 0;
                 int ty = kind == CityLayout.Kind.MIDGAR ? 20 : 12;
                 x = site.minX() + ci * CityLayout.CELL + 33.5;
                 z = site.minZ() + cj * CityLayout.CELL + ty + 9.5;

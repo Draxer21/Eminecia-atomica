@@ -48,9 +48,7 @@ public final class Cities {
     static final TagKey<Biome> MIDGAR_BIOMES = TagKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "has_midgar_capital"));
     static final TagKey<Biome> ORIANA_BIOMES = TagKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "has_oriana_capital"));
 
-    private static final int CLEAR_ABOVE = 40;
     private static final int MAX_FOUNDATION = 24;
-    private static final int CELLS_PER_PASS = 2;
 
     // ---------------------------------------------------------------- estado guardado
 
@@ -137,8 +135,8 @@ public final class Cities {
             if (good < 5) return false;
             // Oriana no se pone encima de una Midgar.
             if (site.kind() == CityLayout.Kind.ORIANA) {
-                for (Site other : sitesNear(level, CityLayout.Kind.MIDGAR, site.centerX(), site.centerZ(), 900, false)) {
-                    if (Math.abs(other.centerX() - site.centerX()) < 700 && Math.abs(other.centerZ() - site.centerZ()) < 700) return false;
+                for (Site other : sitesNear(level, CityLayout.Kind.MIDGAR, site.centerX(), site.centerZ(), 600, false)) {
+                    if (Math.abs(other.centerX() - site.centerX()) < 400 && Math.abs(other.centerZ() - site.centerZ()) < 400) return false;
                 }
             }
             return true;
@@ -180,31 +178,93 @@ public final class Cities {
 
     // ---------------------------------------------------------------- construcción
 
+    /** Marca en {@code placed} de que la muralla ya está construida. */
+    private static final int WALLS_DONE = -1;
+    /** Bloques alrededor de la ciudad que se generan antes de construir (para que nada la pise después). */
+    private static final int MARGIN = 48;
+    /** Progreso de la generación previa por ciudad (solo en memoria). */
+    private static final Map<String, Integer> PREPARED = new HashMap<>();
+
+    /** Al crear o abrir el mundo: las capitales más cercanas al origen quedan construidas enteras. */
+    @SubscribeEvent
+    public static void onServerStarted(net.neoforged.neoforge.event.server.ServerStartedEvent event) {
+        if (!AtomicConfig.cities()) return;
+        ServerLevel level = event.getServer().overworld();
+        for (CityLayout.Kind kind : CityLayout.Kind.values()) {
+            nearest(level, kind, BlockPos.ZERO, 2).ifPresent(site -> {
+                if (complete(level, site)) return;
+                long t = System.currentTimeMillis();
+                int cells = buildAll(level, site);
+                com.mojang.logging.LogUtils.getLogger().info("Drax Atomic: capital {} construida en X {} Z {} ({} cuadras, {} ms)",
+                        kind.style, site.centerX(), site.centerZ(), cells, System.currentTimeMillis() - t);
+            });
+        }
+    }
+
+    /** En juego: si un jugador se acerca a otra capital, se genera su terreno y se construye entera. */
     @SubscribeEvent
     public static void onServerTick(ServerTickEvent.Post event) {
         if (!AtomicConfig.cities()) return;
         ServerLevel level = event.getServer().overworld();
-        if (level.getGameTime() % 10 != 0 || level.players().isEmpty()) return;
-        int budget = CELLS_PER_PASS;
+        if (level.getGameTime() % 5 != 0 || level.players().isEmpty()) return;
         for (ServerPlayer player : level.players()) {
             for (CityLayout.Kind kind : CityLayout.Kind.values()) {
                 int reach = kind.size() / 2 + 256;
                 for (Site site : sitesNear(level, kind, player.getBlockX(), player.getBlockZ(), reach, true)) {
                     if (Math.abs(site.centerX() - player.getX()) > reach || Math.abs(site.centerZ() - player.getZ()) > reach) continue;
-                    budget -= buildSome(level, site, budget);
-                    if (budget <= 0) return;
+                    if (complete(level, site)) continue;
+                    if (!prepare(level, site, 12)) return;        // primero el terreno, de a poco
+                    if (buildSome(level, site, 3) > 0) return;     // luego unas cuadras por pasada
+                    buildWalls(level, site);
+                    return;
                 }
             }
         }
     }
 
-    /** Coloca hasta {@code budget} cuadras listas de la ciudad; devuelve cuántas colocó. */
+    public static boolean complete(ServerLevel level, Site site) {
+        CityState city = level.getData(STATE).cities().get(site.key());
+        return city != null && city.placed().contains(WALLS_DONE);
+    }
+
+    /** Genera hasta {@code budget} chunks del área de la ciudad y su margen; true cuando no falta ninguno. */
+    static boolean prepare(ServerLevel level, Site site, int budget) {
+        int x0 = (site.minX() - MARGIN) >> 4;
+        int z0 = (site.minZ() - MARGIN) >> 4;
+        int x1 = (site.minX() + site.kind().size() + MARGIN) >> 4;
+        int z1 = (site.minZ() + site.kind().size() + MARGIN) >> 4;
+        int w = x1 - x0 + 1;
+        int total = w * (z1 - z0 + 1);
+        int index = PREPARED.getOrDefault(site.key(), 0);
+        int done = 0;
+        while (index < total && done < budget) {
+            level.getChunk(x0 + index % w, z0 + index / w);
+            index++;
+            done++;
+        }
+        PREPARED.put(site.key(), index);
+        return index >= total;
+    }
+
+    /** Construye la ciudad completa de una vez (terreno, cuadras y muralla). */
+    public static int buildAll(ServerLevel level, Site site) {
+        while (!prepare(level, site, 4096)) { }
+        int total = 0;
+        int step;
+        do {
+            step = buildSome(level, site, 64);
+            total += step;
+        } while (step > 0);
+        buildWalls(level, site);
+        return total;
+    }
+
+    /** Coloca hasta {@code budget} cuadras pendientes; devuelve cuántas colocó. */
     static int buildSome(ServerLevel level, Site site, int budget) {
         State state = level.getData(STATE);
         CityState city = state.cities().get(site.key());
         CityLayout layout = new CityLayout(site.kind(), site.seed());
         int n = site.kind().cells;
-        if (city != null && city.placed().size() >= cellCount(layout)) return 0;
         java.util.Set<Integer> placed = city == null ? new java.util.HashSet<>() : new java.util.HashSet<>(city.placed());
         int baseY = city == null ? Integer.MIN_VALUE : city.baseY();
         int done = 0;
@@ -212,23 +272,22 @@ public final class Cities {
             for (int j = 0; j < n && done < budget; j++) {
                 String template = layout.template(i, j);
                 if (template == null || placed.contains(i * n + j)) continue;
-                int span = layout.span(i, j);
-                int x0 = site.minX() + i * CityLayout.CELL;
-                int z0 = site.minZ() + j * CityLayout.CELL;
-                int size = span * CityLayout.CELL;
-                if (!areaLoaded(level, x0 - 2, z0 - 2, x0 + size + 2, z0 + size + 2)) continue;
+                int size = layout.span(i, j) * CityLayout.CELL;
                 if (baseY == Integer.MIN_VALUE) baseY = baseHeight(level, site);
-                placeCell(level, template, x0, baseY, z0, size, site.seed() ^ (i * 31L + j));
+                placeCell(level, template, site.minX() + i * CityLayout.CELL, baseY, site.minZ() + j * CityLayout.CELL, size,
+                        site.seed() ^ (i * 31L + j));
                 placed.add(i * n + j);
                 done++;
             }
         }
-        if (done > 0) {
-            Map<String, CityState> cities = new HashMap<>(state.cities());
-            cities.put(site.key(), new CityState(baseY, new ArrayList<>(placed)));
-            level.setData(STATE, new State(cities));
-        }
+        if (done > 0) save(level, site, baseY, placed);
         return done;
+    }
+
+    private static void save(ServerLevel level, Site site, int baseY, java.util.Set<Integer> placed) {
+        Map<String, CityState> cities = new HashMap<>(level.getData(STATE).cities());
+        cities.put(site.key(), new CityState(baseY, new ArrayList<>(placed)));
+        level.setData(STATE, new State(cities));
     }
 
     private static int cellCount(CityLayout layout) {
@@ -238,13 +297,99 @@ public final class Cities {
         return count;
     }
 
-    private static boolean areaLoaded(ServerLevel level, int x0, int z0, int x1, int z1) {
-        for (int cx = x0 >> 4; cx <= x1 >> 4; cx++) {
-            for (int cz = z0 >> 4; cz <= z1 >> 4; cz++) {
-                if (!level.hasChunk(cx, cz)) return false;
+    // ---------------------------------------------------------------- muralla
+
+    /** Muralla de 3 de grosor alrededor de la cuadrícula, torres en las esquinas, cuatro puertas y una explanada. */
+    static void buildWalls(ServerLevel level, Site site) {
+        CityState city = level.getData(STATE).cities().get(site.key());
+        if (city == null || city.placed().contains(WALLS_DONE)) return;
+        int baseY = city.baseY();
+        boolean midgar = site.kind() == CityLayout.Kind.MIDGAR;
+        BlockState wall = (midgar ? Blocks.STONE_BRICKS : Blocks.QUARTZ_BRICKS).defaultBlockState();
+        BlockState wall2 = (midgar ? Blocks.CRACKED_STONE_BRICKS : Blocks.SMOOTH_QUARTZ).defaultBlockState();
+        BlockState cap = (midgar ? Blocks.CHISELED_STONE_BRICKS : Blocks.CHISELED_QUARTZ_BLOCK).defaultBlockState();
+        BlockState roof = (midgar ? Blocks.DEEPSLATE_TILES : Blocks.OXIDIZED_CUT_COPPER).defaultBlockState();
+        BlockState road = (midgar ? Blocks.STONE_BRICKS : Blocks.POLISHED_ANDESITE).defaultBlockState();
+        BlockState grass = Blocks.GRASS_BLOCK.defaultBlockState();
+        BlockState lantern = Blocks.LANTERN.defaultBlockState();
+        int height = midgar ? 10 : 8;
+        int size = site.kind().size();
+        int x0 = site.minX();
+        int z0 = site.minZ();
+        int x1 = x0 + size - 1;
+        int z1 = z0 + size - 1;
+        int gate = site.kind().cells / 2 * CityLayout.CELL;   // coincide con la calle de esa columna/fila
+        int apron = 10;
+        int flags = Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE;
+        RandomSource random = RandomSource.create(site.seed());
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        for (int x = x0 - 3 - apron; x <= x1 + 3 + apron; x++) {
+            for (int z = z0 - 3 - apron; z <= z1 + 3 + apron; z++) {
+                if (x >= x0 && x <= x1 && z >= z0 && z <= z1) continue;
+                int out = Math.max(Math.max(x0 - x, x - x1), Math.max(z0 - z, z - z1)); // 1..3 = muralla
+                boolean onWall = out >= 1 && out <= 3;
+                // Terreno: limpia arriba y rellena abajo, igual que las cuadras.
+                clearColumn(level, pos, x, z, baseY, flags);
+                int along = (x < x0 || x > x1) ? z - z0 : x - x0;     // posición a lo largo del lado
+                boolean inGate = along >= gate - 1 && along <= gate + 4;
+                boolean nearGate = along >= gate - 3 && along <= gate + 6;
+                level.setBlock(pos.set(x, baseY, z), inGate || (!onWall && nearGate) ? road : onWall ? wall : grass, flags);
+                if (!onWall) continue;
+                for (int y = 1; y <= height; y++) {
+                    if (inGate && y <= 6) continue;
+                    level.setBlock(pos.set(x, baseY + y, z), random.nextInt(6) == 0 ? wall2 : wall, flags);
+                }
+                // Almenas en el borde exterior.
+                if (out == 3 && Math.floorMod(along, 2) == 0) level.setBlock(pos.set(x, baseY + height + 1, z), cap, flags);
+                if (inGate && out == 2) level.setBlock(pos.set(x, baseY + 7, z), cap, flags);
+                if (out == 1 && nearGate && !inGate && (along == gate - 2 || along == gate + 5)) {
+                    level.setBlock(pos.set(x, baseY + height + 1, z), lantern, flags);
+                }
             }
         }
-        return true;
+        // Torres en las esquinas (7×7, centradas en la muralla).
+        for (int[] c : new int[][] {{x0 - 2, z0 - 2}, {x1 + 2, z0 - 2}, {x0 - 2, z1 + 2}, {x1 + 2, z1 + 2}}) {
+            int top = height + 8;
+            for (int dx = -3; dx <= 3; dx++) {
+                for (int dz = -3; dz <= 3; dz++) {
+                    boolean edge = Math.abs(dx) == 3 || Math.abs(dz) == 3;
+                    for (int y = 1; y <= top; y++) {
+                        BlockState st = edge ? wall : Blocks.AIR.defaultBlockState();
+                        if (edge && y % 5 == 3 && (dx == 0 || dz == 0)) st = Blocks.GLASS_PANE.defaultBlockState();
+                        level.setBlock(pos.set(c[0] + dx, baseY + y, c[1] + dz), st, flags);
+                    }
+                    level.setBlock(pos.set(c[0] + dx, baseY + top + 1, c[1] + dz), cap, flags);
+                }
+            }
+            for (int k = 0; k <= 4; k++) {
+                for (int dx = -4 + k; dx <= 4 - k; dx++) {
+                    for (int dz = -4 + k; dz <= 4 - k; dz++) {
+                        level.setBlock(pos.set(c[0] + dx, baseY + top + 2 + k, c[1] + dz), roof, flags);
+                    }
+                }
+            }
+            level.setBlock(pos.set(c[0], baseY + top + 7, c[1]), Blocks.GOLD_BLOCK.defaultBlockState(), flags);
+            level.setBlock(pos.set(c[0], baseY + top - 1, c[1]), Blocks.LANTERN.defaultBlockState()
+                    .setValue(net.minecraft.world.level.block.LanternBlock.HANGING, true), flags);
+        }
+        java.util.Set<Integer> placed = new java.util.HashSet<>(city.placed());
+        placed.add(WALLS_DONE);
+        save(level, site, baseY, placed);
+    }
+
+    /** Quita todo lo que haya sobre {@code baseY} y rellena con tierra/piedra lo que falte debajo. */
+    private static void clearColumn(ServerLevel level, BlockPos.MutableBlockPos pos, int x, int z, int baseY, int flags) {
+        int surface = level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z);
+        for (int y = surface; y > baseY; y--) {
+            pos.set(x, y, z);
+            if (!level.getBlockState(pos).isAir()) level.setBlock(pos, Blocks.AIR.defaultBlockState(), flags);
+        }
+        for (int y = baseY - 1, depth = 0; y > level.getMinY() && depth < MAX_FOUNDATION; y--, depth++) {
+            pos.set(x, y, z);
+            BlockState state = level.getBlockState(pos);
+            if (!state.isAir() && state.getFluidState().isEmpty() && !state.canBeReplaced()) break;
+            level.setBlock(pos, (depth < 3 ? Blocks.DIRT : Blocks.STONE).defaultBlockState(), flags);
+        }
     }
 
     /** Altura del suelo: la mediana de 25 puntos del terreno generado dentro de la muralla. */
@@ -270,23 +415,8 @@ public final class Cities {
         BlockState stone = Blocks.STONE.defaultBlockState();
         BlockState dirt = Blocks.DIRT.defaultBlockState();
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
-        int top = Math.min(level.getMaxY() - 1, baseY + CLEAR_ABOVE);
         for (int x = x0; x < x0 + size; x++) {
-            for (int z = z0; z < z0 + size; z++) {
-                // Arriba: fuera colinas, árboles y agua.
-                int surface = level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z);
-                for (int y = baseY + 1; y <= Math.min(top, surface); y++) {
-                    pos.set(x, y, z);
-                    if (!level.getBlockState(pos).isAir()) level.setBlock(pos, air, flags);
-                }
-                // Abajo: cimientos hasta tocar terreno firme.
-                for (int y = baseY - 1, depth = 0; y > level.getMinY() && depth < MAX_FOUNDATION; y--, depth++) {
-                    pos.set(x, y, z);
-                    BlockState state = level.getBlockState(pos);
-                    if (!state.isAir() && state.getFluidState().isEmpty() && !state.canBeReplaced()) break;
-                    level.setBlock(pos, depth < 3 ? dirt : stone, flags);
-                }
-            }
+            for (int z = z0; z < z0 + size; z++) clearColumn(level, pos, x, z, baseY, flags);
         }
         Identifier id = Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, template);
         Optional<StructureTemplate> found = level.getStructureManager().get(id);
@@ -299,15 +429,9 @@ public final class Cities {
         found.get().placeInWorld(level, at, at, settings, RandomSource.create(seed), Block.UPDATE_CLIENTS);
     }
 
-    /** Para el comando y la autoprueba: construye ya todas las cuadras cuyo terreno esté cargado. */
+    /** Para el comando y la autoprueba. */
     public static int buildLoaded(ServerLevel level, Site site) {
-        int total = 0;
-        int step;
-        do {
-            step = buildSome(level, site, 64);
-            total += step;
-        } while (step > 0);
-        return total;
+        return buildAll(level, site);
     }
 
     /** Altura base de la ciudad (la calcula si aún no se decidió). */

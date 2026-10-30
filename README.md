@@ -1,6 +1,6 @@
 # Drax Atomic
 
-Mod de NeoForge para Minecraft 26.2 (versión del mod 0.9.1).
+Mod de NeoForge para Minecraft 26.2 (versión del mod 0.10.0).
 
 ## Poder mágico
 
@@ -107,12 +107,13 @@ Usa el **Emblema de la Sombra** con clic derecho en el suelo para invocar a una 
 
 ## Las capitales
 
-Las ciudades se construyen por cuadras de 32×32 a medida que cargas el terreno (Minecraft no puede generar de golpe algo tan grande). La posición sale de la semilla del mundo, así que cada mundo tiene las suyas.
+Al crear o abrir el mundo se construyen enteras la Midgar y la Oriana más cercanas al origen (puede tardar unos segundos la primera vez). Las demás capitales del mundo se construyen completas cuando te acercas. La posición sale de la semilla.
 
-- **Capital de Midgar (512×512):** muralla con torres y cuatro puertas, castillo real con salón del trono, plaza central con fuente y mercados, catedral, sede central de Mitsugoshi, Academia de Caballeros Oscuros, cuarteles y unas 170 cuadras de casas medievales con aldeanos.
-- **Capital de Oriana (256×256):** el País de las Artes, de estilo parisino: palacio con cúpula de cobre y jardines a la francesa, ópera, galería con pirámide de vidrio, plaza, sucursal de Mitsugoshi y edificios con techos de pizarra.
+- **Capital de Midgar (256×256):** muralla con torres y cuatro puertas, castillo con salón del trono, banquete, aposentos y biblioteca; plaza central con fuente, mercados, catedral con órgano y velas, sede de Mitsugoshi (5 pisos con oficinas, almacenes y biblioteca), Academia (aulas, biblioteca y dormitorios), cuarteles con armería y casas medievales amuebladas con aldeanos.
+- **Capital de Oriana (128×128):** palacio con cúpula, comedor, biblioteca, aposentos y salón de baile; ópera iluminada con palcos; galería con pirámide de vidrio y estatuas; plaza, sucursal de Mitsugoshi y edificios parisinos de varios pisos con departamentos amueblados.
+- Todos los edificios de varios pisos tienen escalera de mano.
 - **Guardias del reino:** patrullan, pelean contra monstruos y el Culto de Diablos, y no atacan a los aldeanos.
-- Comandos: `/draxatomic city locate midgar|oriana` (dónde está y cuánto se ha construido). En creativo: `/draxatomic city tp midgar|oriana`, `/draxatomic city build` y `/draxatomic city view <ciudad> overview|castle|street`.
+- Comandos: `/draxatomic city locate midgar|oriana`. En creativo: `/draxatomic city tp midgar|oriana`, `/draxatomic city build` y `/draxatomic city view <ciudad> overview|castle|street`.
 - Se configura en `[cities]`: activar/desactivar y cada cuántos bloques puede haber una ciudad.
 
 ## Personajes y misiones
@@ -153,6 +154,7 @@ Los textos (incluida la frase) están en `assets/draxatomic/lang/*.json`.
 
 ## Historial
 
+- 0.10.0: Midgar 256×256 y Oriana 128×128, construidas al crear el mundo; muralla nueva; interiores amueblados; arreglos (terreno flotante, techo de la catedral, pisos sin acceso, ópera oscura, partículas frente a la cámara).
 - 0.9.1: Midgar aparece con más frecuencia; HUD de poder junto a la barra rápida; pantalla de habilidades más compacta.
 - 0.9.0: sistema de magia (12 hechizos, compresión, proyección, árbol de habilidades), técnicas de la Shadow Garden y robo de poder del Caballero.
 - 0.8.1: la torre del castillo de Midgar ya no tapa el salón del trono.

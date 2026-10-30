@@ -87,11 +87,11 @@ public final class AtomicConfig {
             .comment("Si es true, las capitales de Midgar y Oriana se construyen en el mundo.")
             .define("enabled", true);
     private static final ModConfigSpec.IntValue MIDGAR_SPACING = BUILDER
-            .comment("Tamaño de la región de cada Midgar (512x512): una posible ciudad cada N bloques. Mínimo 1200.")
-            .defineInRange("midgarSpacing", 3200, 1200, 100000);
+            .comment("Tamaño de la región de cada Midgar (256x256): una posible ciudad cada N bloques. Mínimo 800.")
+            .defineInRange("midgarSpacing", 2400, 800, 100000);
     private static final ModConfigSpec.IntValue ORIANA_SPACING = BUILDER
-            .comment("Tamaño de la región de cada Oriana (256x256): una posible ciudad cada N bloques. Mínimo 800.")
-            .defineInRange("orianaSpacing", 2400, 800, 100000);
+            .comment("Tamaño de la región de cada Oriana (128x128): una posible ciudad cada N bloques. Mínimo 600.")
+            .defineInRange("orianaSpacing", 1800, 600, 100000);
 
     static { BUILDER.pop().push("diablos_cult"); }
     private static final ModConfigSpec.BooleanValue CULT_PATROLS = BUILDER
@@ -133,8 +133,8 @@ public final class AtomicConfig {
     public static int recoveryRadius() { return loaded() ? REC_RADIUS.getAsInt() : 20; }
 
     public static boolean cities() { return !loaded() || CITIES.getAsBoolean(); }
-    public static int midgarSpacing() { return loaded() ? MIDGAR_SPACING.getAsInt() : 3200; }
-    public static int orianaSpacing() { return loaded() ? ORIANA_SPACING.getAsInt() : 2400; }
+    public static int midgarSpacing() { return loaded() ? MIDGAR_SPACING.getAsInt() : 2400; }
+    public static int orianaSpacing() { return loaded() ? ORIANA_SPACING.getAsInt() : 1800; }
 
     public static boolean cultPatrols() { return !loaded() || CULT_PATROLS.getAsBoolean(); }
     public static float patrolChance() { return loaded() ? PATROL_CHANCE.get().floatValue() : 0.25F; }

@@ -60,6 +60,8 @@ public final class Magic {
     private static final int XP_PER_POINT = 500;
     private static final DustParticleOptions VIOLET = new DustParticleOptions(0x8A3BFF, 1.3F);
     private static final DustParticleOptions DENSE = new DustParticleOptions(0x3A0A7A, 1.8F);
+    private static final DustParticleOptions SMALL = new DustParticleOptions(0x8A3BFF, 0.7F);
+    private static final DustParticleOptions SMALL_DENSE = new DustParticleOptions(0x3A0A7A, 0.8F);
     private static final DustParticleOptions CYAN = new DustParticleOptions(0x5FE6FF, 1.0F);
 
     /** Jugadores que mantienen la tecla de compresión, y ticks acumulados. */
@@ -127,7 +129,8 @@ public final class Magic {
         float mult = 1.0F + 0.6F * s.compression();
         set(player, s.withCompression(0));
         ServerLevel level = (ServerLevel) player.level();
-        level.sendParticles(ParticleTypes.SONIC_BOOM, player.getX(), player.getY() + 1.2, player.getZ(), 1, 0, 0, 0, 0);
+        Vec3 front = player.getEyePosition().add(player.getLookAngle().scale(2.5));
+        level.sendParticles(ParticleTypes.SONIC_BOOM, front.x, front.y - 0.3, front.z, 1, 0, 0, 0, 0);
         level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.WARDEN_SONIC_BOOM, SoundSource.PLAYERS, 0.6F, 1.6F);
         return mult;
     }
@@ -222,7 +225,7 @@ public final class Magic {
             case PROJECTION -> projection(level, player);
             case COUNTER -> {
                 COUNTER.put(player.getUUID(), level.getGameTime() + 14);
-                level.sendParticles(VIOLET, player.getX(), player.getY() + 1, player.getZ(), 20, 0.5, 0.7, 0.5, 0);
+                level.sendParticles(SMALL, player.getX(), player.getY() + 0.5, player.getZ(), 20, 0.5, 0.25, 0.5, 0);
                 level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.SHIELD_BLOCK.value(), SoundSource.PLAYERS, 0.8F, 1.6F);
             }
             case SLIME_PLATFORM -> platform(level, player);
@@ -348,7 +351,7 @@ public final class Magic {
             repaired++;
         }
         if (repaired > 0) {
-            level.sendParticles(VIOLET, player.getX(), player.getY() + 1, player.getZ(), 30, 0.5, 0.8, 0.5, 0);
+            level.sendParticles(SMALL, player.getX(), player.getY() + 0.5, player.getZ(), 30, 0.5, 0.25, 0.5, 0);
             level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ANVIL_USE, SoundSource.PLAYERS, 0.6F, 1.5F);
         }
         player.sendOverlayMessage(Component.translatable("message.draxatomic.forge", repaired).withStyle(ChatFormatting.LIGHT_PURPLE));
@@ -403,11 +406,14 @@ public final class Magic {
             int ticks = t + 1;
             COMPRESSING.put(id, ticks);
             // Aura que se cierra sobre la mano.
-            double r = 1.6 - (ticks % interval) / (double) interval * 1.2;
-            for (int i = 0; i < 6; i++) {
-                double a = ticks * 0.4 + i * Math.PI / 3;
-                level.sendParticles(s.compression() >= 2 ? DENSE : VIOLET, player.getX() + Math.cos(a) * r, player.getY() + 1.0 + Math.sin(ticks * 0.2) * 0.3,
-                        player.getZ() + Math.sin(a) * r, 1, 0, 0, 0, 0);
+            // Anillo que se cierra alrededor de los pies (lejos de la cámara).
+            double r = 2.2 - (ticks % interval) / (double) interval * 1.2;
+            if (ticks % 2 == 0) {
+                for (int i = 0; i < 6; i++) {
+                    double a = ticks * 0.4 + i * Math.PI / 3;
+                    level.sendParticles(s.compression() >= 2 ? SMALL_DENSE : SMALL, player.getX() + Math.cos(a) * r, player.getY() + 0.15,
+                            player.getZ() + Math.sin(a) * r, 1, 0, 0, 0, 0);
+                }
             }
             if (ticks % interval == 0 && s.compression() < maxCompression(player)) {
                 if (Mana.drain(player, cost(player, COMPRESS_COST))) {
@@ -421,8 +427,8 @@ public final class Magic {
         } else if (s.compression() > 0) {
             // Si no se usa, la compresión se disipa: un nivel cada 15 s.
             int idle = COMPRESSION_IDLE.merge(id, 1, Integer::sum);
-            if (player.tickCount % 4 == 0) {
-                level.sendParticles(DENSE, player.getX(), player.getY() + 1.1, player.getZ(), s.compression(), 0.25, 0.3, 0.25, 0);
+            if (player.tickCount % 8 == 0) {
+                level.sendParticles(SMALL_DENSE, player.getX(), player.getY() + 0.1, player.getZ(), s.compression(), 0.4, 0.02, 0.4, 0);
             }
             if (idle >= 300) {
                 COMPRESSION_IDLE.put(id, 0);
@@ -456,7 +462,7 @@ public final class Magic {
                 player.addEffect(new MobEffectInstance(MobEffects.SPEED, 40, 1, false, false));
                 player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 40, 0, false, false));
                 player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 40, 0, false, false));
-                level.sendParticles(DENSE, player.getX(), player.getY() + 1, player.getZ(), 25, 0.5, 1.0, 0.5, 0.05);
+                level.sendParticles(SMALL_DENSE, player.getX(), player.getY() + 0.1, player.getZ(), 10, 0.6, 0.02, 0.6, 0.01);
             }
         }
     }
@@ -483,7 +489,7 @@ public final class Magic {
         player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 10, 0, false, false));
         player.fallDistance = 0;
         if (player.tickCount % 3 == 0) {
-            level.sendParticles(VIOLET, player.getX(), player.getY() + 0.5, player.getZ(), 2, 0.4, 0.1, 0.4, 0);
+            level.sendParticles(SMALL, player.getX(), player.getY() - 0.2, player.getZ(), 2, 0.4, 0.05, 0.4, 0);
         }
     }
 
@@ -516,7 +522,7 @@ public final class Magic {
             if (have >= need) {
                 Mana.drain(player, need);
                 event.setCanceled(true);
-                level.sendParticles(VIOLET, player.getX(), player.getY() + 1, player.getZ(), 12, 0.4, 0.6, 0.4, 0);
+                level.sendParticles(SMALL, player.getX(), player.getY() + 0.5, player.getZ(), 12, 0.4, 0.25, 0.4, 0);
                 level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.SLIME_BLOCK_HIT, SoundSource.PLAYERS, 0.8F, 0.9F);
             } else {
                 Mana.drain(player, have);

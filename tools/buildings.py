@@ -2,6 +2,7 @@
 from nbtlib import String
 import random
 from structures import Build
+from furniture import *
 from city import (ground, roads, lamp, tree, flowers, bench, stairs, slab, window, villager, entity, npc,
                   JOBS, JOB_PROPS, STYLE, C)
 
@@ -97,6 +98,31 @@ def midgar_castle():
         tree(b, tx, 1, tz, rnd)
     flowers(b, 12, 50, 26, 55, rnd); flowers(b, 41, 50, 55, 55, rnd)
     # la realeza y su guardia
+    # salón: estandartes, mesas de banquete y candelabros
+    for z in range(Z0 + 6, Z1 - 3, 6):
+        banner(b, X0 + 1, 7, z, 'east', 'red'); banner(b, X1 - 1, 7, z, 'west', 'red')
+    for x in (X0 + 2, X1 - 2):
+        for z in range(Z0 + 8, Z1 - 4):
+            table(b, x, 1, z, 'dark_oak', 'red_carpet' if z % 2 else 'white_carpet')
+    for x in (X0 + 1, X1 - 1):
+        for z in range(Z0 + 8, Z1 - 4, 2):
+            chair(b, x, 1, z, 'east' if x == X0 + 1 else 'west', 'dark_oak')
+    for z in range(Z0 + 9, Z1 - 4, 4):
+        for x in (X0 + 2, X1 - 2):
+            b.set(x, 3, z, 'cake', bites='0')
+    for z in range(Z0 + 8, Z1 - 3, 8):
+        chandelier(b, 33, 21, z)
+    for x in range(31, 37):
+        banner(b, x, 8, Z0 + 1, 'south', 'red' if x % 2 else 'white')
+    # escalera de mano al piso superior (aposentos reales y biblioteca)
+    ladder(b, X0 + 1, 1, 12, Z1 - 1, 'north')
+    furnish_room(b, X0 + 1, Z0 + 1, X0 + 5, Z0 + 10, 12, rnd, 'bedroom')
+    furnish_room(b, X0 + 1, Z0 + 12, X0 + 5, Z0 + 22, 12, rnd, 'library')
+    furnish_room(b, X1 - 5, Z0 + 1, X1 - 1, Z0 + 10, 12, rnd, 'bedroom')
+    furnish_room(b, X1 - 5, Z0 + 12, X1 - 1, Z0 + 22, 12, rnd, 'office')
+    furnish_room(b, X0 + 7, Z0 + 1, X1 - 7, Z0 + 5, 12, rnd, 'storage')
+    for (x, z) in ((X0 + 3, Z0 + 5), (X1 - 3, Z0 + 5), (X0 + 3, Z0 + 17), (X1 - 3, Z0 + 17)):
+        b.set(x, 21, z, 'lantern', hanging='true', waterlogged='false')
     npc(b, 33, 3, Z0 + 4, 'alexia', 0.0)
     npc(b, 35, 1, Z0 + 8, 'iris', 0.0)
     for x in (29, 38):
@@ -165,13 +191,22 @@ def midgar_cathedral():
         b.box(X1, 4, z, X1, 12, z, 'yellow_stained_glass')
         for x in (X0 + 1, X1 - 1):
             b.box(x, 1, z - 1, x, 15, z - 1, 'quartz_pillar', axis='y')
-    # bóveda
-    w = (X1 - X0) // 2
-    for i in range(w + 1):
+    # bóveda escalonada, cerrada en la cumbrera y en los frontones
+    i = 0
+    while True:
         y = 17 + i // 2
+        left, right = X0 - 1 + i, X1 + 1 - i
+        if left > right:
+            break
         for z in range(Z0 - 1, Z1 + 2):
-            stairs(b, X0 - 1 + i, y, z, 'deepslate_tile', 'east') if i < w else b.set(X0 - 1 + i, y, z, 'deepslate_tiles')
-            stairs(b, X1 + 1 - i, y, z, 'deepslate_tile', 'west') if i < w else None
+            if left < right:
+                stairs(b, left, y, z, 'deepslate_tile', 'east'); stairs(b, right, y, z, 'deepslate_tile', 'west')
+            else:
+                b.set(left, y, z, 'deepslate_tiles')
+        for x in range(max(left + 1, X0), min(right, X1 + 1)):
+            for yy in range(17, y):
+                b.set(x, yy, Z0, 'calcite'); b.set(x, yy, Z1, 'calcite')
+        i += 1
     # rosetón y portada
     for x in range(X0 + 9, X0 + 16):
         for y in range(9, 15):
@@ -194,6 +229,13 @@ def midgar_cathedral():
         b.set(X0 + 12, 1, z, 'red_carpet')
     for z in range(Z0 + 6, Z1 - 2, 8):
         b.set(X0 + 12, 14, z, 'lantern', hanging='true', waterlogged='false')
+    for x in (X0 + 9, X0 + 15):
+        candles(b, x, 2, Z0 + 3, 'white', 4)
+    for z in range(Z0 + 4, Z1 - 3, 6):
+        banner(b, X0 + 1, 9, z, 'east', 'purple'); banner(b, X1 - 1, 9, z, 'west', 'yellow')
+    for z in range(Z0 + 8, Z1 - 4, 8):
+        chandelier(b, X0 + 12, 16, z)
+    b.box(X0 + 2, 1, Z0 + 2, X0 + 3, 3, Z0 + 3, 'note_block', instrument='harp', note='0', powered='false')  # órgano
     villager(b, X0 + 12, 1, Z0 + 7, 'minecraft:cleric')
     b.save_to('city/midgar/cathedral')
 
@@ -249,6 +291,14 @@ def mitsugoshi_building(b, X0, Z0, X1, Z1, floors, rnd, clerks=2):
         for x in range(X0 + 4, X1 - 2, 6):
             for z in range(Z0 + 4, Z1 - 2, 6):
                 b.set(x, f * 5 + 4, z, 'lantern', hanging='true', waterlogged='false')
+    ladder(b, X1 - 1, 1, H, Z0 + 1, 'south')
+    kinds = ['office', 'storage', 'library', 'office', 'bedroom', 'storage']
+    for f in range(1, floors):
+        y = f * 5 + 1
+        furnish_room(b, X0 + 1, Z0 + 1, cx - 2, Z1 - 2, y, rnd, kinds[(2 * f) % len(kinds)], 'dark_oak')
+        furnish_room(b, cx + 2, Z0 + 3, X1 - 2, Z1 - 2, y, rnd, kinds[(2 * f + 1) % len(kinds)], 'dark_oak')
+        for x in range(cx - 1, cx + 2):
+            b.set(x, y, Z1 - 3, 'cake', bites='0') if f == 1 else None
     return cx
 
 
@@ -297,6 +347,19 @@ def midgar_academy():
         b.set(x, 1, 12, 'lectern', facing='south', has_book='false', powered='false')
         for z in (14, 16):
             stairs(b, x, 1, z, 'oak', 'north')
+    # escaleras de mano y pisos superiores
+    ladder(b, 9, 1, 14, 9, 'south'); ladder(b, 9, 1, 14, 21, 'south'); ladder(b, 54, 1, 14, 21, 'south')
+    furnish_room(b, 11, 9, 30, 18, 6, rnd, 'library'); furnish_room(b, 33, 9, 54, 18, 6, rnd, 'library')
+    furnish_room(b, 11, 9, 54, 18, 11, rnd, 'dorm')
+    furnish_room(b, 9, 23, 18, 49, 6, rnd, 'dorm'); furnish_room(b, 9, 23, 18, 49, 11, rnd, 'office')
+    furnish_room(b, 45, 23, 54, 49, 6, rnd, 'dorm'); furnish_room(b, 45, 23, 54, 49, 11, rnd, 'library')
+    for (x0, x1) in ((9, 18), (45, 54)):
+        for z in range(24, 49, 3):
+            for x in range(x0 + 1, x1, 3):
+                chair(b, x, 1, z, 'north', 'oak'); b.set(x, 1, z - 1, 'oak_slab', type='top', waterlogged='false')
+        b.set((x0 + x1) // 2, 1, 22, 'lectern', facing='south', has_book='false', powered='false')
+    for (x, z) in ((20, 12), (40, 12), (13, 35), (50, 35)):
+        b.set(x, 14, z, 'lantern', hanging='true', waterlogged='false'); b.set(x, 9, z, 'lantern', hanging='true', waterlogged='false')
     # campo de entrenamiento de espada
     for x in range(21, 43):
         for z in range(22, 52):
@@ -368,6 +431,20 @@ def oriana_palace():
     stairs(b, 31, 3, 11, 'quartz', 'south'); stairs(b, 34, 3, 11, 'quartz', 'south')
     for x in range(22, 44, 5):
         b.set(x, 7, 20, 'lantern', hanging='true', waterlogged='false')
+    for x in (20, 21, 22, 42, 43, 44):
+        b.box(x, 1, 25, x, 3, 26, 'air'); b.box(x, 9, 25, x, 11, 26, 'air')
+    dining(b, 15, 14, 14, 1, 'dark_oak', 'z', 'white_carpet')
+    for z in range(15, 28, 4):
+        b.set(15, 3, z, 'cake', bites='0')
+    furnish_room(b, 46, 12, 54, 34, 1, rnd, 'library')
+    for (x0, x1) in ((9, 19), (46, 54)):
+        furnish_room(b, x0, 11, x1, 22, 9, rnd, 'bedroom'); furnish_room(b, x0, 26, x1, 35, 9, rnd, 'bedroom')
+    ladder(b, 9, 1, 9, 34, 'north'); ladder(b, 55, 1, 9, 34, 'north'); ladder(b, 23, 1, 9, 28, 'north')
+    for z in (14, 22):
+        chandelier(b, 32, 17, z); chandelier(b, 14, 14, z + 4); chandelier(b, 50, 14, z + 4)
+    for x in range(23, 43, 4):
+        banner(b, x, 6, 9, 'south', 'blue'); banner(b, x, 6, 29, 'north', 'yellow')
+    villager(b, 14, 1, 31); villager(b, 50, 1, 31)
     npc(b, 31, 3, 12, 'rose', 0.0)
     npc(b, 34, 3, 12, 'raphael', 0.0)
     for x in (29, 36):
@@ -419,6 +496,23 @@ def oriana_opera():
                 stairs(b, x, 1 + (z - Z0 - 14) // 4, z, 'dark_oak', 'north')
     for x in range(X0 + 6, X1 - 5, 8):
         b.set(x, 18, cz, 'lantern', hanging='true', waterlogged='false')
+    for x in range(X0 + 3, X1 - 2, 4):
+        for z in range(Z0 + 3, Z1 - 2, 4):
+            b.set(x, 20, z, 'glowstone')
+    for z in range(Z0 + 4, Z1 - 2, 5):
+        b.set(X0 + 1, 7, z, 'lantern', hanging='false', waterlogged='false'); b.set(X1 - 1, 7, z, 'lantern', hanging='false', waterlogged='false')
+        b.set(X0 + 1, 6, z, 'gold_block'); b.set(X1 - 1, 6, z, 'gold_block')
+    for z in range(Z0 + 10, Z1):
+        b.set(cx, 1 + max(0, (z - Z0 - 14) // 4), z, 'red_carpet') if z >= Z0 + 14 else None
+        b.set(cx + 1, 1 + max(0, (z - Z0 - 14) // 4), z, 'red_carpet') if z >= Z0 + 14 else None
+    for x in range(X0 + 7, X1 - 6, 3):
+        b.set(x, 3, Z0 + 9, 'lantern', hanging='false', waterlogged='false')  # candilejas
+    for (x, f) in ((X0 + 2, 'east'), (X1 - 2, 'west')):
+        for z in range(Z0 + 16, Z1 - 4, 6):
+            b.box(x, 9, z, x + (1 if f == 'east' else -1), 9, z + 3, 'dark_oak_planks')
+            for zz in range(z, z + 4):
+                chair(b, x, 10, zz, f, 'dark_oak')
+    chandelier(b, cx, 19, cz); chandelier(b, cx, 19, cz + 10)
     for k in range(3):
         villager(b, X0 + 10 + k * 10, 3, Z0 + 5)
     b.save_to('city/oriana/opera')
@@ -441,6 +535,12 @@ def oriana_gallery():
     for x in (6, 30):
         for z in (6, 30):
             lamp(b, x, 1, z, 'oriana')
+    for (x, z, rot) in ((10, 10, 225.0), (26, 10, 135.0), (10, 26, 315.0), (26, 26, 45.0)):
+        b.set(x, 1, z, 'chiseled_quartz_block')
+        armor_stand(b, x, 2, z, rot, 'minecraft:golden_helmet', 'minecraft:golden_chestplate', 'minecraft:golden_leggings',
+                    'minecraft:golden_boots', 'minecraft:golden_sword')
+    for (x, z) in ((18, 7), (7, 18), (29, 18), (18, 29)):
+        b.set(x, 1, z, 'quartz_pillar', axis='y'); plant(b, x, 2, z, rnd)
     villager(b, 12, 1, 26); villager(b, 24, 1, 10)
     b.save_to('city/oriana/gallery')
 

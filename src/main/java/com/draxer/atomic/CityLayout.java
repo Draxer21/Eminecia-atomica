@@ -12,8 +12,8 @@ public final class CityLayout {
     public static final int CELL = 32;
 
     public enum Kind {
-        MIDGAR("midgar", 16),
-        ORIANA("oriana", 8);
+        MIDGAR("midgar", 8),
+        ORIANA("oriana", 4);
 
         public final String style;
         /** Cuadras por lado. */
@@ -39,49 +39,34 @@ public final class CityLayout {
         this.grid = new String[n][n];
         this.spans = new int[n][n];
         Random random = new Random(seed);
-        walls(n);
+        // La muralla, las torres y las puertas las construye Cities alrededor de la cuadrícula.
         if (kind == Kind.MIDGAR) {
-            big(7, 3, "castle");
-            big(7, 7, "plaza");
-            big(11, 6, "cathedral");
-            big(3, 6, "mitsugoshi_hq");
-            big(7, 11, "academy");
-            for (int[] m : new int[][] {{6, 7}, {9, 7}, {6, 8}, {9, 8}, {5, 10}, {10, 10}}) one(m[0], m[1], "market");
-            for (int[] b : new int[][] {{6, 1}, {9, 14}, {1, 8}, {14, 7}}) one(b[0], b[1], "barracks");
+            big(3, 0, "castle");
+            big(1, 2, "mitsugoshi_hq");
+            big(5, 2, "cathedral");
+            big(3, 3, "plaza");
+            big(3, 5, "academy");
+            for (int[] m : new int[][] {{2, 4}, {5, 4}, {1, 5}}) one(m[0], m[1], "market");
+            for (int[] b : new int[][] {{0, 0}, {7, 7}}) one(b[0], b[1], "barracks");
         } else {
-            big(3, 1, "palace");
-            big(3, 4, "plaza");
-            big(1, 3, "opera");
-            one(5, 3, "gallery");
-            one(6, 3, "gallery");
-            one(5, 5, "mitsugoshi");
-            one(6, 5, "market");
-            one(1, 6, "barracks");
+            big(0, 0, "palace");
+            big(2, 0, "opera");
+            big(1, 2, "plaza");
+            one(0, 2, "mitsugoshi");
+            one(3, 2, "gallery");
+            one(0, 3, "houses_a");
+            one(3, 3, "houses_b");
         }
         // El resto: casas de varios estilos, con algún parque.
         String[] houses = kind == Kind.MIDGAR
                 ? new String[] {"houses_a", "houses_b", "houses_c", "houses_d"}
                 : new String[] {"houses_a", "houses_b", "houses_c"};
-        for (int i = 1; i < n - 1; i++) {
-            for (int j = 1; j < n - 1; j++) {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
                 if (grid[i][j] != null) continue;
                 grid[i][j] = random.nextInt(9) == 0 ? "park" : houses[random.nextInt(houses.length)];
             }
         }
-    }
-
-    private void walls(int n) {
-        int gate = n / 2;
-        for (int k = 1; k < n - 1; k++) {
-            grid[k][0] = k == gate ? "gate_n" : "wall_n";
-            grid[k][n - 1] = k == gate ? "gate_s" : "wall_s";
-            grid[0][k] = k == gate ? "gate_w" : "wall_w";
-            grid[n - 1][k] = k == gate ? "gate_e" : "wall_e";
-        }
-        grid[0][0] = "tower_nw";
-        grid[n - 1][0] = "tower_ne";
-        grid[0][n - 1] = "tower_sw";
-        grid[n - 1][n - 1] = "tower_se";
     }
 
     private static final String COVERED = "";

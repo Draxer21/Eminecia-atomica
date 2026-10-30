@@ -9,6 +9,7 @@ Uso: python3 tools/city.py   (requiere: pip install nbtlib)
 import os, random, sys
 sys.path.insert(0, os.path.dirname(__file__))
 from structures import Build, OUT
+from furniture import *
 import nbtlib
 from nbtlib import Compound, List, Int, String, Double, Byte, Float
 
@@ -144,17 +145,23 @@ def mid_house(b, x0, z0, w, d, wall, roof, frame, rnd, door='north', job=True):
                     b.set(x0, y, z, wall); b.set(x1, y, z, wall)
     dx = x0 + w // 2
     if door == 'north':
-        b.door(dx, 1, z0, 'spruce', 'north'); bz = z1 - 1; bed_f = 'north'
+        b.door(dx, 1, z0, 'spruce', 'north'); zf, zb, inward = z0 + 1, z1 - 1, 'south'
     else:
-        b.door(dx, 1, z1, 'spruce', 'south'); bz = z0 + 1; bed_f = 'south'
-    # cama (cabecera contra la pared del fondo) y puesto de trabajo
-    bx = x0 + 1
-    b.set(bx, 1, bz, 'red_bed' if rnd.random() < 0.5 else 'blue_bed', facing=bed_f, part='head', occupied='false')
-    b.set(bx, 1, bz - 1 if door == 'north' else bz + 1, b.get(bx, 1, bz).split(':')[1], facing=bed_f, part='foot', occupied='false')
+        b.door(dx, 1, z1, 'spruce', 'south'); zf, zb, inward = z1 - 1, z0 + 1, 'north'
+    mid = (z0 + z1) // 2
+    # cama: cabecera contra la pared del fondo
+    bed(b, x0 + 1, 1, zb, 'south' if door == 'north' else 'north', rnd.choice(['red', 'blue', 'green', 'yellow']))
     if job:
         j = rnd.choice(JOBS)
-        b.set(x1 - 1, 1, bz, j, **JOB_PROPS.get(j, {}))
-    b.set(x1 - 1, 1, z0 + 1 if door == 'north' else z1 - 1, 'crafting_table')
+        b.set(x1 - 1, 1, zb, j, **JOB_PROPS.get(j, {}))
+    b.set(x1 - 1, 1, zf, 'crafting_table'); plant(b, x1 - 1, 2, zf, rnd)
+    chest(b, x0 + 1, 1, zf, inward)
+    # alfombra, mesa con vela y sillas, librero
+    rug(b, dx - 1, mid - 1 if door == 'north' else mid, dx + 1, mid if door == 'north' else mid + 1, 1,
+        rnd.choice(['red', 'brown', 'blue', 'green']), 'white')
+    table(b, dx + 1, 1, mid, 'spruce', 'white_carpet')
+    chair(b, dx + 2, 1, mid, 'west', 'spruce') if dx + 2 < x1 - 1 else None
+    b.set(x1 - 1, 1, mid, 'bookshelf'); b.set(x1 - 1, 2, mid, 'bookshelf')
     b.set(x0 + w // 2, 4, z0 + d // 2, 'lantern', hanging='true', waterlogged='false')
 
 
@@ -233,15 +240,29 @@ def haussmann(b, x0, z0, w, d, rnd, facade='smooth_sandstone', floors=4, door='n
         b.door(dx, 1, z0, 'dark_oak', 'north')
     else:
         b.door(dx, 1, z1, 'dark_oak', 'south')
-    for k, bx in enumerate((x0 + 2, x1 - 3)):
-        bz = z1 - 1 if door == 'north' else z0 + 1
-        f = 'north' if door == 'north' else 'south'
-        b.set(bx, 1, bz, 'white_bed', facing=f, part='head', occupied='false')
-        b.set(bx, 1, bz - 1 if door == 'north' else bz + 1, 'white_bed', facing=f, part='foot', occupied='false')
+    zb = z1 - 1 if door == 'north' else z0 + 1
+    head = 'south' if door == 'north' else 'north'
+    for bx in (x0 + 3, x1 - 3):
+        bed(b, bx, 1, zb, head, 'white')
         j = rnd.choice(JOBS)
-        b.set(bx + 2, 1, bz, j, **JOB_PROPS.get(j, {}))
+        b.set(bx + 1, 1, zb, j, **JOB_PROPS.get(j, {}))
+    # planta baja: café con mesas
+    for tx in range(x0 + 6, x1 - 5, 5):
+        table(b, tx, 1, (z0 + z1) // 2, 'dark_oak', 'white_carpet')
+        chair(b, tx - 1, 1, (z0 + z1) // 2, 'east', 'dark_oak'); chair(b, tx + 1, 1, (z0 + z1) // 2, 'west', 'dark_oak')
     for x in range(x0 + 3, x1 - 2, 6):
         b.set(x, 3, z0 + d // 2, 'lantern', hanging='true', waterlogged='false')
+    # escalera de mano en la esquina, atravesando todos los pisos
+    lz = z1 - 1 if door == 'north' else z0 + 1
+    ladder(b, x0 + 1, 1, H, lz, 'north' if door == 'north' else 'south')
+    # pisos superiores: tres departamentos por piso
+    kinds = ['bedroom', 'home', 'bedroom', 'library', 'bedroom', 'home']
+    rooms = [(x0 + 2, x0 + 9), (x0 + 10, x0 + 17), (x0 + 18, x1 - 1)]
+    for f in range(1, floors):
+        y = f * 4 + 2
+        for k, (ra, rb) in enumerate(rooms):
+            furnish_room(b, ra, z0 + 1, rb, z1 - 1, y, rnd, kinds[(f * 3 + k) % len(kinds)], 'dark_oak')
+            b.set((ra + rb) // 2, y + 2, (z0 + z1) // 2, 'lantern', hanging='true', waterlogged='false')
 
 
 def oriana_houses(name, seed, facades):
@@ -327,12 +348,20 @@ def barracks(style, seed):
     b.box(5, 8, 5, 30, 8, 16, 'deepslate_tiles' if style == 'midgar' else 'oxidized_cut_copper')
     for x in range(8, 28, 3):
         window(b, x, 3, 6); window(b, x, 3, 15)
-        b.set(x, 1, 13, 'gray_bed', facing='north', part='head', occupied='false')
-        b.set(x, 1, 12, 'gray_bed', facing='north', part='foot', occupied='false')
+        bed(b, x, 1, 14, 'south', 'gray')
+        chest(b, x + 1, 1, 14, 'north')
     b.door(17, 1, 15, 'spruce', 'south')
     b.set(10, 1, 8, 'smithing_table'); b.set(12, 1, 8, 'grindstone', face='floor', facing='north'); b.set(14, 1, 8, 'fletching_table')
     for x in range(10, 26, 5):
         b.set(x, 5, 10, 'lantern', hanging='true', waterlogged='false')
+    # armería: maniquíes con armadura, yunque y mesa
+    for k, x in enumerate((17, 20, 23, 26)):
+        armor_stand(b, x, 1, 8, 180.0, 'minecraft:iron_helmet', 'minecraft:iron_chestplate', 'minecraft:iron_leggings',
+                    'minecraft:iron_boots', 'minecraft:iron_sword' if k % 2 else 'minecraft:shield')
+    b.set(8, 1, 8, 'anvil', facing='east')
+    dining(b, 9, 10, 6, 1, 'spruce', 'x', 'white_carpet')
+    banner(b, 7, 4, 10, 'east', 'blue' if style == 'midgar' else 'yellow')
+    banner(b, 28, 4, 10, 'west', 'blue' if style == 'midgar' else 'yellow')
     # patio de entrenamiento con dianas de paja
     for x in (9, 14, 19, 24):
         b.box(x, 1, 24, x, 2, 24, 'hay_block', axis='y')
@@ -447,11 +476,6 @@ Build.save_to = save_to
 if __name__ == '__main__':
     import buildings
     for style in ('midgar', 'oriana'):
-        for side in 'nswe':
-            wall_piece(style, side)
-            wall_piece(style, side, gate=True)
-        for corner in ('nw', 'ne', 'sw', 'se'):
-            tower(style, corner)
         park(style, 11)
         market(style, 12)
         barracks(style, 13)
