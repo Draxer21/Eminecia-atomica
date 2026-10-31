@@ -115,7 +115,7 @@ public final class DemoClient {
             case 412 -> shot("allrange_marks");
             case 426 -> shot("allrange_blasts");
             case 440 -> shot("allrange_final");
-            case 456 -> cmd(mc, "tp @s " + ox + ".5 " + (oy + 70) + " " + (oz - 230) + ".5 0 28");
+            case 456 -> cmd(mc, "tp @s " + (ox + 55) + ".5 " + (oy + 25) + " " + (oz - 66) + ".5 -90 50");
             case 490 -> shot("allrange_wave");
             case 500 -> {
                 cmd(mc, "tp @s " + ox + ".5 " + (oy + 2) + " " + (oz - 60) + ".5 0 20");
@@ -174,11 +174,11 @@ public final class DemoClient {
             case 2350 -> shot("skills");
             case 2360 -> mc.gui.setScreen(null);
             // El Santuario (absorbe el poder mágico).
-            case 2380 -> cmd(mc, "draxatomic city view sanctuary overview");
-            case 2540 -> shot("sanctuary");
-            case 2560 -> cmd(mc, "draxatomic city view sanctuary castle");
-            case 2660 -> shot("sanctuary_inside");
-            case 2680 -> shot("end");
+            case 2380 -> cmd(mc, "draxatomic city view sanctuary castle");
+            case 2520 -> shot("sanctuary_inside");
+            case 2540 -> cmd(mc, "draxatomic city view sanctuary overview");
+            case 2700 -> shot("sanctuary");
+            case 2720 -> shot("end");
             default -> {}
         }
     }

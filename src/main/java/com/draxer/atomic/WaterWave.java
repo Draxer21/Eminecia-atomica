@@ -76,6 +76,7 @@ public final class WaterWave {
         if (total > max) {
             for (int i = 0; i < SECTORS; i++) volume[i] = volume[i] * max / total;
         }
+        com.mojang.logging.LogUtils.getLogger().info("Drax Atomic: ola del All-Range con {} bloques de agua", Math.min(total, max));
         WAVES.add(new Wave(level, center, radius, volume, new int[] {delay, 0}));
     }
 
