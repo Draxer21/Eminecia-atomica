@@ -1,6 +1,6 @@
 # Drax Atomic
 
-Mod de NeoForge para Minecraft 26.2 (versión del mod 0.12.1).
+Mod de NeoForge para Minecraft 26.2 (versión del mod 0.12.2).
 
 ## Poder mágico
 
@@ -156,6 +156,7 @@ Los textos (incluida la frase) están en `assets/draxatomic/lang/*.json`.
 ## Historial
 
 - 0.11.0: domo de barrera al cargar los Atomic (marca el área exacta); carga más corta (1,5 s) y más alcance (Atomic 48, hasta 160 con mejoras y compresión); tallado del cráter más rápido.
+- 0.12.2: el constructor de ciudades ya no espera a que se genere el terreno: pide los chunks y construye cuando están listos (arregla un cuelgue del servidor).
 - 0.12.1: en servidores dedicados las capitales y el Santuario se construyen de a poco en los primeros ticks (antes podían hacer que el servidor se diera por colgado al arrancar).
 - 0.12.0: All-Range Atomic nuevo: se paga con poder comprimido, hilos de luz durante la carga, explosiones casi simultáneas y una esfera final gigante que arrasa el terreno; ola que empuja el agua e inunda los alrededores; el Santuario (templo que absorbe el poder mágico).
 - 0.11.1: el domo de barrera ahora es una cúpula de rejilla brillante (meridianos y paralelos con luz propia), visible de lejos, de noche y desde dentro.

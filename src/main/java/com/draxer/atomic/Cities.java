@@ -217,8 +217,6 @@ public final class Cities {
     private static final int WALLS_DONE = -1;
     /** Bloques alrededor de la ciudad que se generan antes de construir (para que nada la pise después). */
     private static final int MARGIN = 48;
-    /** Progreso de la generación previa por ciudad (solo en memoria). */
-    private static final Map<String, Integer> PREPARED = new HashMap<>();
 
     /** Capitales que un servidor dedicado construye de a poco desde el arranque (sin esperar jugadores). */
     private static final List<Site> STARTUP = new ArrayList<>();
@@ -263,7 +261,6 @@ public final class Cities {
             } else if (prepare(level, site, 16)) {
                 if (buildSome(level, site, 2) == 0) buildWalls(level, site);
             }
-            return;
         }
         if (level.getGameTime() % 5 != 0 || level.players().isEmpty()) return;
         for (ServerPlayer player : level.players()) {
@@ -291,28 +288,58 @@ public final class Cities {
         return city != null && city.placed().contains(WALLS_DONE);
     }
 
-    /** Genera hasta {@code budget} chunks del área de la ciudad y su margen; true cuando no falta ninguno. */
+    /** Chunks que el constructor mantiene cargados (se sueltan al terminar la ciudad). */
+    private static final Map<String, java.util.Set<Long>> FORCED = new HashMap<>();
+
+    /**
+     * Pide (sin bloquear) hasta {@code budget} chunks del área de la ciudad y su margen; true cuando
+     * ya están todos cargados. Así el servidor nunca se queda esperando a que se genere un chunk.
+     */
     static boolean prepare(ServerLevel level, Site site, int budget) {
         int x0 = (site.minX() - MARGIN) >> 4;
         int z0 = (site.minZ() - MARGIN) >> 4;
         int x1 = (site.minX() + site.kind().size() + MARGIN) >> 4;
         int z1 = (site.minZ() + site.kind().size() + MARGIN) >> 4;
-        int w = x1 - x0 + 1;
-        int total = w * (z1 - z0 + 1);
-        int index = PREPARED.getOrDefault(site.key(), 0);
-        int done = 0;
-        while (index < total && done < budget) {
-            level.getChunk(x0 + index % w, z0 + index / w);
-            index++;
-            done++;
+        java.util.Set<Long> forced = FORCED.computeIfAbsent(site.key(), k -> new java.util.HashSet<>());
+        boolean ready = true;
+        int requested = 0;
+        for (int cx = x0; cx <= x1; cx++) {
+            for (int cz = z0; cz <= z1; cz++) {
+                if (level.hasChunk(cx, cz)) continue;
+                ready = false;
+                long key = ((long) cx << 32) | (cz & 0xFFFFFFFFL);
+                if (requested < budget && forced.add(key)) {
+                    level.setChunkForced(cx, cz, true);
+                    requested++;
+                }
+            }
         }
-        PREPARED.put(site.key(), index);
-        return index >= total;
+        return ready;
+    }
+
+    /** Suelta los chunks que se mantuvieron cargados para construir esta ciudad. */
+    private static void release(ServerLevel level, Site site) {
+        java.util.Set<Long> forced = FORCED.remove(site.key());
+        if (forced == null) return;
+        for (long key : forced) {
+            level.setChunkForced((int) (key >> 32), (int) key, false);
+        }
+    }
+
+    /** Versión que bloquea hasta generar todo (al crear un mundo de un jugador y con el comando). */
+    private static void prepareNow(ServerLevel level, Site site) {
+        int x0 = (site.minX() - MARGIN) >> 4;
+        int z0 = (site.minZ() - MARGIN) >> 4;
+        int x1 = (site.minX() + site.kind().size() + MARGIN) >> 4;
+        int z1 = (site.minZ() + site.kind().size() + MARGIN) >> 4;
+        for (int cx = x0; cx <= x1; cx++) {
+            for (int cz = z0; cz <= z1; cz++) level.getChunk(cx, cz);
+        }
     }
 
     /** Construye la ciudad completa de una vez (terreno, cuadras y muralla). */
     public static int buildAll(ServerLevel level, Site site) {
-        while (!prepare(level, site, 4096)) { }
+        prepareNow(level, site);
         int total = 0;
         int step;
         do {
@@ -439,6 +466,7 @@ public final class Cities {
         java.util.Set<Integer> placed = new java.util.HashSet<>(city.placed());
         placed.add(WALLS_DONE);
         save(level, site, baseY, placed);
+        release(level, site);
     }
 
     /** Quita todo lo que haya sobre {@code baseY} y rellena con tierra/piedra lo que falte debajo. */
