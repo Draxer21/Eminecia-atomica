@@ -1,6 +1,6 @@
 # Drax Atomic
 
-Mod de NeoForge para Minecraft 26.2 (versión del mod 0.12.3).
+Mod de NeoForge para Minecraft 26.2 (versión del mod 0.13.0).
 
 ## Poder mágico
 
@@ -156,6 +156,7 @@ Los textos (incluida la frase) están en `assets/draxatomic/lang/*.json`.
 ## Historial
 
 - 0.11.0: domo de barrera al cargar los Atomic (marca el área exacta); carga más corta (1,5 s) y más alcance (Atomic 48, hasta 160 con mejoras y compresión); tallado del cráter más rápido.
+- 0.13.0: sobrecompresión: puedes comprimir hasta 3 niveles por encima de tu límite; el cuerpo se daña cada segundo y, al soltar un Atomic, hay 25% por nivel de más de que la técnica se disipe (como Aurora). Si sale, el All-Range llega hasta 192 bloques.
 - 0.12.3: registro de la ola en el log y capturas de prueba nuevas.
 - 0.12.2: el constructor de ciudades ya no espera a que se genere el terreno: pide los chunks y construye cuando están listos (arregla un cuelgue del servidor).
 - 0.12.1: en servidores dedicados las capitales y el Santuario se construyen de a poco en los primeros ticks (antes podían hacer que el servidor se diera por colgado al arrancar).

@@ -123,6 +123,63 @@ public final class Magic {
     }
 
     /** Usa la compresión acumulada: devuelve el multiplicador (1 = nada) y la vacía. */
+    /** Niveles que se pueden comprimir por encima de la tolerancia del cuerpo. */
+    public static final int OVERLOAD_LEVELS = 3;
+    /** Probabilidad, por nivel de más, de que la técnica se disipe al soltarla. */
+    public static final float OVERLOAD_FAIL_CHANCE = 0.25F;
+
+    /** Niveles por encima de lo que el cuerpo tolera (0 = ninguno). */
+    public static int overload(Player player) {
+        return Math.max(0, state(player).compression() - maxCompression(player));
+    }
+
+    /** Mientras haya sobrecompresión: el cuerpo se daña cada segundo y se agrieta con luz. */
+    private static void overloadTick(ServerLevel level, ServerPlayer player) {
+        int over = overload(player);
+        if (over <= 0) return;
+        if (player.tickCount % 4 == 0) {
+            DustParticleOptions crack = new DustParticleOptions(0xFF3B6B, 0.9F);
+            for (int i = 0; i < 2 + over; i++) {
+                level.sendParticles(crack, player.getX() + (player.getRandom().nextDouble() - 0.5) * 0.7,
+                        player.getY() + 0.2 + player.getRandom().nextDouble() * 1.6,
+                        player.getZ() + (player.getRandom().nextDouble() - 0.5) * 0.7, 1, 0, 0, 0, 0);
+            }
+        }
+        if (player.tickCount % 20 == 0) {
+            player.hurtServer(level, level.damageSources().magic(), 1.5F * over);
+            level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.AMETHYST_BLOCK_BREAK,
+                    SoundSource.PLAYERS, 0.8F, 0.5F);
+        }
+    }
+
+    /**
+     * Al soltar una técnica sobrecomprimida: puede que el cuerpo no la tolere y se disipe (como le
+     * pasó a Aurora). Devuelve true si la técnica sale; false si se disipó (ya aplicó el castigo).
+     */
+    public static boolean tryRelease(ServerPlayer player) {
+        int over = overload(player);
+        if (over <= 0 || player.getRandom().nextFloat() >= OVERLOAD_FAIL_CHANCE * over) return true;
+        dissipate((ServerLevel) player.level(), player, over);
+        return false;
+    }
+
+    /** La técnica se deshace: estallido pequeño, daño al lanzador y se pierde toda la compresión. */
+    public static void dissipate(ServerLevel level, LivingEntity caster, int over) {
+        if (caster instanceof Player p) set(p, state(p).withCompression(0));
+        Vec3 c = caster.position().add(0, 1.0, 0);
+        level.sendParticles(ParticleTypes.EXPLOSION, true, true, c.x, c.y, c.z, 3, 0.6, 0.6, 0.6, 0);
+        level.sendParticles(new DustParticleOptions(0xFF3B6B, 1.6F), true, true, c.x, c.y, c.z, 80, 1.5, 1.5, 1.5, 0.2);
+        level.sendParticles(ParticleTypes.REVERSE_PORTAL, true, true, c.x, c.y, c.z, 120, 0.3, 0.3, 0.3, 1.2);
+        level.playSound(null, c.x, c.y, c.z, SoundEvents.GLASS_BREAK, SoundSource.PLAYERS, 2.0F, 0.4F);
+        level.playSound(null, c.x, c.y, c.z, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS, 1.2F, 1.4F);
+        caster.hurtServer(level, level.damageSources().magic(), 4.0F + 4.0F * over);
+        caster.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.WEAKNESS, 200, 1));
+        caster.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.SLOWNESS, 100, 1));
+        if (caster instanceof ServerPlayer sp) {
+            sp.sendOverlayMessage(Component.translatable("message.draxatomic.dissipated").withStyle(ChatFormatting.RED, ChatFormatting.ITALIC));
+        }
+    }
+
     /** Niveles de compresión acumulados. */
     public static int compressionLevel(Player player) {
         return state(player).compression();
@@ -426,15 +483,29 @@ public final class Magic {
                             player.getZ() + Math.sin(a) * r, 1, 0, 0, 0, 0);
                 }
             }
-            if (ticks % interval == 0 && s.compression() < maxCompression(player)) {
+            if (ticks % interval == 0 && s.compression() < maxCompression(player) + OVERLOAD_LEVELS) {
                 if (Mana.drain(player, cost(player, COMPRESS_COST))) {
-                    set(player, s.withCompression(s.compression() + 1));
+                    int next = s.compression() + 1;
+                    set(player, s.withCompression(next));
                     level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.RESPAWN_ANCHOR_CHARGE,
                             SoundSource.PLAYERS, 0.8F, 0.6F + 0.25F * s.compression());
-                    player.sendOverlayMessage(Component.translatable("message.draxatomic.compression", s.compression() + 1,
-                            Math.round((0.6F * (s.compression() + 1)) * 100)).withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD));
+                    int over = next - maxCompression(player);
+                    if (over > 0) {
+                        // Sobrecompresión: el cuerpo empieza a romperse.
+                        level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.GLASS_BREAK,
+                                SoundSource.PLAYERS, 1.0F, 0.5F + 0.1F * over);
+                        player.sendOverlayMessage(Component.translatable("message.draxatomic.overload", next, over,
+                                Math.round(OVERLOAD_FAIL_CHANCE * over * 100)).withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+                    } else {
+                        player.sendOverlayMessage(Component.translatable("message.draxatomic.compression", next,
+                                Math.round((0.6F * next) * 100)).withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD));
+                    }
                 }
             }
+        }
+        overloadTick(level, player);
+        if (t != null) {
+            // nada más mientras se comprime
         } else if (s.compression() > 0) {
             // Si no se usa, la compresión se disipa: un nivel cada 15 s.
             // Dentro del Santuario la magia comprimida es lo único que no se pierde: no se disipa.

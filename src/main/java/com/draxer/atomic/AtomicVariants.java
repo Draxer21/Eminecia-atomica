@@ -51,7 +51,9 @@ public final class AtomicVariants {
     /** Radio del All-Range según los niveles de compresión (mínimo 1): 64 → 86, 109, 131, 154… (tope 160). */
     public static int allRangeRadius(Player player, int compression) {
         int c = Math.max(1, compression);
-        return Math.min(160, Math.round(AtomicConfig.allRangeRadius() * Magic.reach(player) * (1.0F + 0.35F * c)));
+        // Sobrecomprimido (si el cuerpo lo aguanta) supera el tope normal.
+        int cap = compression > Magic.maxCompression(player) ? 192 : 160;
+        return Math.min(cap, Math.round(AtomicConfig.allRangeRadius() * Magic.reach(player) * (1.0F + 0.35F * c)));
     }
 
     private static List<LivingEntity> targets(ServerLevel level, ServerPlayer player, int reach) {

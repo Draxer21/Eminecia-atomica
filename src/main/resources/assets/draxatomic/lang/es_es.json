@@ -179,7 +179,7 @@
   "upgrade.draxatomic.flow": "Flujo",
   "upgrade.draxatomic.flow.desc": "+2 de recarga por segundo por nivel.",
   "upgrade.draxatomic.compression": "Maestría de compresión",
-  "upgrade.draxatomic.compression.desc": "+1 nivel máximo de compresión y comprime más rápido.",
+  "upgrade.draxatomic.compression.desc": "Comprimes más rápido y tu cuerpo tolera un nivel más de compresión (sin sobrecompresión).",
   "upgrade.draxatomic.atomic": "Maestría atómica",
   "upgrade.draxatomic.atomic.desc": "-20% de tiempo de carga de los Atomic por nivel.",
   "gui.draxatomic.skills.title": "Árbol de habilidades",
@@ -202,5 +202,7 @@
   "message.draxatomic.need_compression": "El All-Range Atomic necesita poder comprimido: mantén V para comprimir primero.",
   "message.draxatomic.sanctuary_enter": "El Santuario absorbe tu poder mágico... solo la magia comprimida resiste.",
   "message.draxatomic.sanctuary_leave": "Sales del Santuario: tu poder vuelve a fluir.",
-  "city.draxatomic.sanctuary": "el Santuario"
+  "city.draxatomic.sanctuary": "el Santuario",
+  "message.draxatomic.overload": "¡SOBRECOMPRESIÓN %s! (+%s sobre tu límite: tu cuerpo se daña, %s%% de que la técnica se disipe)",
+  "message.draxatomic.dissipated": "Tu cuerpo no tolera la compresión... la técnica se disipa."
 }

@@ -89,9 +89,11 @@ public final class MagicClient {
         graphics.text(mc.font, Component.literal("✦ ").append(name), x, y - 10, s.on(spell) ? 0xFFB8F5C4 : 0xFFD9B8FF);
         // Compresión: rombos llenos por nivel.
         int max = 3 + s.level(MagicState.Upgrade.COMPRESSION);
-        for (int i = 0; i < max; i++) {
+        // Por encima del límite (sobrecompresión) los rombos salen en rojo.
+        int shown = Math.max(max, s.compression());
+        for (int i = 0; i < shown; i++) {
             int px = x + i * 7;
-            int color = i < s.compression() ? 0xFF8A3BFF : 0x60FFFFFF;
+            int color = i >= max ? 0xFFFF3B6B : i < s.compression() ? 0xFF8A3BFF : 0x60FFFFFF;
             graphics.fill(px + 2, y, px + 4, y + 6, color);
             graphics.fill(px + 1, y + 1, px + 5, y + 5, color);
         }

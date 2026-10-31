@@ -195,6 +195,14 @@ public final class SlimeSwordItem extends Item {
                 releaseUsing(stack, level, entity, 0);
                 return stack;
             }
+            if (mode != SwordMode.RECOVERY_ATOMIC && !Magic.tryRelease(player)) {
+                // Sobrecompresión: el cuerpo no la tolera y la técnica se disipa.
+                player.removeEffect(MobEffects.LEVITATION);
+                player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 100, 0, false, false));
+                BarrierPayload.send(server, player, 0, 0, 0);
+                player.getCooldowns().addCooldown(stack, 160);
+                return stack;
+            }
             Mana.spend(player, cost);
             player.getCooldowns().addCooldown(stack, mode == SwordMode.RECOVERY_ATOMIC ? 100 : AtomicConfig.cooldownTicks());
             player.removeEffect(MobEffects.LEVITATION);

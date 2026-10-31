@@ -179,7 +179,7 @@
   "upgrade.draxatomic.flow": "Flow",
   "upgrade.draxatomic.flow.desc": "+2 regen per second per level.",
   "upgrade.draxatomic.compression": "Compression Mastery",
-  "upgrade.draxatomic.compression.desc": "+1 max compression level and faster compression.",
+  "upgrade.draxatomic.compression.desc": "Compress faster and your body tolerates one more compression level (without overcompression).",
   "upgrade.draxatomic.atomic": "Atomic Mastery",
   "upgrade.draxatomic.atomic.desc": "-20% Atomic charge time per level.",
   "gui.draxatomic.skills.title": "Skill Tree",
@@ -202,5 +202,7 @@
   "message.draxatomic.need_compression": "All-Range Atomic needs compressed power: hold V to compress first.",
   "message.draxatomic.sanctuary_enter": "The Sanctuary drains your magic... only compressed magic resists.",
   "message.draxatomic.sanctuary_leave": "You leave the Sanctuary: your power flows again.",
-  "city.draxatomic.sanctuary": "the Sanctuary"
+  "city.draxatomic.sanctuary": "the Sanctuary",
+  "message.draxatomic.overload": "OVERCOMPRESSION %s! (+%s over your limit: your body is breaking, %s%% chance the technique dissipates)",
+  "message.draxatomic.dissipated": "Your body can't withstand the compression... the technique dissipates."
 }
