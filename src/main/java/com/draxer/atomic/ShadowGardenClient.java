@@ -63,11 +63,14 @@ public final class ShadowGardenClient {
         public String character = "alexia";
     }
 
-    /** Personajes con nombre: textura en textures/entity/npc/<id>.png (reemplazable por tu propia skin). */
+    /**
+     * Personajes con nombre: textura en textures/entity/npc/<id>.png (reemplazable por tu propia skin).
+     * Usan el modelo de jugador, así que sirve cualquier skin moderna de 64×64 con brazos clásicos.
+     */
     public static final class NpcRenderer
             extends HumanoidMobRenderer<StoryNpcEntity, NpcRenderState, HumanoidModel<NpcRenderState>> {
         public NpcRenderer(EntityRendererProvider.Context context) {
-            super(context, new HumanoidModel<>(context.bakeLayer(ModelLayers.ZOMBIE)), 0.5F);
+            super(context, new HumanoidModel<>(context.bakeLayer(ModelLayers.PLAYER)), 0.5F);
         }
 
         @Override

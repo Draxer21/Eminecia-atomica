@@ -189,6 +189,60 @@ def claire_aurora():
     print('skin npc/claire_aurora.png')
 
 
+# Conversión del formato antiguo (64x32, brazo y pierna izquierdos espejados) al moderno
+# de jugador (64x64), igual que hace Minecraft con las skins antiguas.
+LEGACY_COPIES = [
+    (4, 16, 16, 32, 4, 4), (8, 16, 16, 32, 4, 4), (0, 20, 24, 32, 4, 12), (4, 20, 16, 32, 4, 12),
+    (8, 20, 8, 32, 4, 12), (12, 20, 16, 32, 4, 12), (44, 16, -8, 32, 4, 4), (48, 16, -8, 32, 4, 4),
+    (40, 20, 0, 32, 4, 12), (44, 20, -8, 32, 4, 12), (48, 20, -16, 32, 4, 12), (52, 20, -8, 32, 4, 12),
+]
+
+
+def to_modern(path):
+    """Si la mitad de abajo está vacía, la rellena con el brazo y la pierna izquierdos."""
+    im = Image.open(path).convert('RGBA')
+    if im.size != (64, 64):
+        big = Image.new('RGBA', (64, 64), (0, 0, 0, 0)); big.paste(im, (0, 0)); im = big
+    px = im.load()
+    if any(px[x, y][3] for x in range(64) for y in range(32, 64)):
+        return False
+    for sx, sy, dx, dy, w, h in LEGACY_COPIES:
+        region = [[px[sx + i, sy + j] for j in range(h)] for i in range(w)]
+        for i in range(w):
+            for j in range(h):
+                px[sx + dx + (w - 1 - i), sy + dy + j] = region[i][j]
+    im.save(path)
+    return True
+
+
+def slim_to_classic(path, out=None):
+    """Pasa una skin de brazos finos (3 px, tipo Alex) a brazos clásicos (4 px) duplicando una columna."""
+    im = Image.open(path).convert('RGBA')
+    src = im.copy(); s = src.load(); d = im.load()
+    for (ax, ay) in ((40, 16), (32, 48), (40, 32), (48, 48)):   # brazo der., izq. y sus capas
+        for y in range(ay, ay + 16):
+            for x in range(ax, ax + 16):
+                d[x, y] = (0, 0, 0, 0)
+        # caras arriba/abajo (3x4 -> 4x4) y laterales (frente/izq./atrás 3x12 -> 4x12)
+        def col(face_x, width, y0, y1, nx):
+            for y in range(y0, y1):
+                cols = [s[face_x + i, y] for i in range(width)]
+                cols.insert(1, cols[1])
+                for i, c in enumerate(cols):
+                    d[nx + i, y] = c
+        col(ax + 4, 3, ay, ay + 4, ax + 4)         # arriba
+        col(ax + 7, 3, ay, ay + 4, ax + 8)         # abajo
+        for y in range(ay + 4, ay + 16):           # derecha (4 de fondo, igual)
+            for i in range(4):
+                d[ax + i, y] = s[ax + i, y]
+        col(ax + 4, 3, ay + 4, ay + 16, ax + 4)    # frente
+        for y in range(ay + 4, ay + 16):           # izquierda
+            for i in range(4):
+                d[ax + 8 + i, y] = s[ax + 7 + i, y]
+        col(ax + 11, 3, ay + 4, ay + 16, ax + 12)  # atrás
+    im.save(out or path)
+
+
 def item(name, draw):
     im = Image.new('RGBA', (16, 16), (0, 0, 0, 0))
     draw(im.load())
@@ -251,7 +305,14 @@ def queen_blood(p):
 
 
 if __name__ == '__main__':
+    import sys
+    if len(sys.argv) == 3 and sys.argv[1] == 'slim':
+        slim_to_classic(sys.argv[2]); print('convertida a brazos clásicos:', sys.argv[2]); sys.exit()
     servant(); crimson(); elizabeth(); claire_aurora(); mary(); yukime(); juggernaut()
     item('aurora_fragment', aurora_fragment)
+    import glob
+    for f in glob.glob(os.path.join(OUT, 'npc', '*.png')) + glob.glob(os.path.join(OUT, 'vampire', '*.png')):
+        if to_modern(f):
+            print('formato moderno:', os.path.relpath(f, OUT))
     item('blood_vial', vial); item('crimson_chalice', chalice)
     item('crimson_blood', crimson_blood); item('queen_blood', queen_blood)

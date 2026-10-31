@@ -36,7 +36,8 @@ public final class VampireClient {
         private final float size;
 
         public Renderer(EntityRendererProvider.Context context, Identifier skin, float size) {
-            super(context, new HumanoidModel<>(context.bakeLayer(ModelLayers.ZOMBIE)), 0.5F * size);
+            // Modelo de jugador: acepta skins modernas de 64×64 (brazos clásicos).
+            super(context, new HumanoidModel<>(context.bakeLayer(ModelLayers.PLAYER)), 0.5F * size);
             this.skin = skin;
             this.size = size;
         }
