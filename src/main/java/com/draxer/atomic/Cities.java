@@ -220,14 +220,27 @@ public final class Cities {
     /** Progreso de la generación previa por ciudad (solo en memoria). */
     private static final Map<String, Integer> PREPARED = new HashMap<>();
 
-    /** Al crear o abrir el mundo: las capitales más cercanas al origen quedan construidas enteras. */
+    /** Capitales que un servidor dedicado construye de a poco desde el arranque (sin esperar jugadores). */
+    private static final List<Site> STARTUP = new ArrayList<>();
+
+    /**
+     * Al crear o abrir el mundo: las capitales más cercanas al origen quedan construidas enteras.
+     * En un mundo de un jugador se construyen de una vez antes de entrar; en un servidor dedicado se
+     * construyen en los primeros ticks, de a poco, para que el vigilante del servidor no lo dé por colgado.
+     */
     @SubscribeEvent
     public static void onServerStarted(net.neoforged.neoforge.event.server.ServerStartedEvent event) {
+        STARTUP.clear();
         if (!AtomicConfig.cities()) return;
         ServerLevel level = event.getServer().overworld();
+        boolean dedicated = event.getServer().isDedicatedServer();
         for (CityLayout.Kind kind : CityLayout.Kind.values()) {
             nearest(level, kind, BlockPos.ZERO, 2).ifPresent(site -> {
                 if (complete(level, site)) return;
+                if (dedicated) {
+                    STARTUP.add(site);
+                    return;
+                }
                 long t = System.currentTimeMillis();
                 int cells = buildAll(level, site);
                 com.mojang.logging.LogUtils.getLogger().info("Drax Atomic: capital {} construida en X {} Z {} ({} cuadras, {} ms)",
@@ -241,6 +254,17 @@ public final class Cities {
     public static void onServerTick(ServerTickEvent.Post event) {
         if (!AtomicConfig.cities()) return;
         ServerLevel level = event.getServer().overworld();
+        if (!STARTUP.isEmpty()) {
+            Site site = STARTUP.get(0);
+            if (complete(level, site)) {
+                STARTUP.remove(0);
+                com.mojang.logging.LogUtils.getLogger().info("Drax Atomic: capital {} construida en X {} Z {}",
+                        site.kind().style, site.centerX(), site.centerZ());
+            } else if (prepare(level, site, 16)) {
+                if (buildSome(level, site, 2) == 0) buildWalls(level, site);
+            }
+            return;
+        }
         if (level.getGameTime() % 5 != 0 || level.players().isEmpty()) return;
         for (ServerPlayer player : level.players()) {
             for (CityLayout.Kind kind : CityLayout.Kind.values()) {

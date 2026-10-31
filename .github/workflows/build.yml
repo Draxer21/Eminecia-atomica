@@ -114,6 +114,8 @@ jobs:
             grep -E -i -B1 -A4 "draxatomic|missing|unable to|exception|failed|couldn't" client.log \
               | grep -v -E "DEBUG|^\s*at java\.|^\s*at jdk\.|DRAXDEMO" | head -c 40000
             grep -E -i -B1 -A4 "exception|error" server2.log | grep -v -E "DEBUG|^\s*at java\.|^\s*at jdk\." | head -c 20000
+            grep -E "Drax Atomic:|DRAXTEST done|Done \(" server2.log | head -20
+            for f in run/server/crash-reports/*.txt; do [ -f "$f" ] && grep -A45 -E '^"Server thread"|Thread: Server thread' "$f" | head -c 12000; done
             echo '```'
           } > client_report.md
           gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/comments" -F body=@client_report.md
