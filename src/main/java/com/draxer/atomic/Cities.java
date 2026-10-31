@@ -46,6 +46,7 @@ public final class Cities {
     private Cities() {}
 
     static final TagKey<Biome> MIDGAR_BIOMES = TagKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "has_midgar_capital"));
+    static final TagKey<Biome> SANCTUARY_BIOMES = TagKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "has_sanctuary"));
     static final TagKey<Biome> ORIANA_BIOMES = TagKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "has_oriana_capital"));
 
     private static final int MAX_FOUNDATION = 24;
@@ -88,11 +89,19 @@ public final class Cities {
     }
 
     private static int spacing(CityLayout.Kind kind) {
-        return kind == CityLayout.Kind.MIDGAR ? AtomicConfig.midgarSpacing() : AtomicConfig.orianaSpacing();
+        return switch (kind) {
+            case MIDGAR -> AtomicConfig.midgarSpacing();
+            case ORIANA -> AtomicConfig.orianaSpacing();
+            case SANCTUARY -> AtomicConfig.sanctuarySpacing();
+        };
     }
 
     private static long salt(CityLayout.Kind kind) {
-        return kind == CityLayout.Kind.MIDGAR ? 0x5A11D6A2L : 0x0121A4AL;
+        return switch (kind) {
+            case MIDGAR -> 0x5A11D6A2L;
+            case ORIANA -> 0x0121A4AL;
+            case SANCTUARY -> 0x5A4C7A11L;
+        };
     }
 
     /** El sitio candidato de la región (rx, rz), haya o no ciudad (el bioma se mira aparte). */
@@ -114,8 +123,18 @@ public final class Cities {
 
     /** ¿El terreno de la región sirve para esta ciudad? Mira el bioma en el centro y en 8 puntos alrededor. */
     static boolean valid(ServerLevel level, Site site) {
-        return VALID.computeIfAbsent(level.getSeed() + "/" + site.key(), k -> {
-            TagKey<Biome> tag = site.kind() == CityLayout.Kind.MIDGAR ? MIDGAR_BIOMES : ORIANA_BIOMES;
+        String key = level.getSeed() + "/" + site.key();
+        Boolean known = VALID.get(key);
+        if (known != null) return known;
+        boolean ok = computeValid(level, site);
+        VALID.put(key, ok);
+        return ok;
+    }
+
+    private static boolean computeValid(ServerLevel level, Site site) {
+        {
+            TagKey<Biome> tag = site.kind() == CityLayout.Kind.MIDGAR ? MIDGAR_BIOMES
+                    : site.kind() == CityLayout.Kind.SANCTUARY ? SANCTUARY_BIOMES : ORIANA_BIOMES;
             TagKey<Biome> ocean = TagKey.create(Registries.BIOME, Identifier.withDefaultNamespace("is_ocean"));
             int r = site.kind().size() / 2 - 16;
             int y = level.getSeaLevel();
@@ -133,14 +152,19 @@ public final class Cities {
             }
             // Basta con que la mayor parte del terreno sea apto (el resto se aplana igual).
             if (good < 5) return false;
-            // Oriana no se pone encima de una Midgar.
-            if (site.kind() == CityLayout.Kind.ORIANA) {
-                for (Site other : sitesNear(level, CityLayout.Kind.MIDGAR, site.centerX(), site.centerZ(), 600, false)) {
-                    if (Math.abs(other.centerX() - site.centerX()) < 400 && Math.abs(other.centerZ() - site.centerZ()) < 400) return false;
+            // Oriana no se pone encima de una Midgar; el Santuario, sobre ninguna de las dos.
+            for (CityLayout.Kind other : CityLayout.Kind.values()) {
+                if (other.ordinal() >= site.kind().ordinal()) break;
+                // Oriana conserva la regla original (cualquier candidata de Midgar a menos de 400) para no mover las ya generadas.
+                boolean legacy = site.kind() == CityLayout.Kind.ORIANA;
+                int gap = legacy ? 400 : (site.kind().size() + other.size()) / 2 + 150;
+                for (Site o : sitesNear(level, other, site.centerX(), site.centerZ(), gap + 200, false)) {
+                    if (Math.abs(o.centerX() - site.centerX()) < gap && Math.abs(o.centerZ() - site.centerZ()) < gap
+                            && (legacy || valid(level, o))) return false;
                 }
             }
             return true;
-        });
+        }
     }
 
     /** Sitios de este tipo cuyas regiones están a menos de {@code radius} bloques de (x, z). */
@@ -174,6 +198,17 @@ public final class Cities {
             }
         }
         return Optional.ofNullable(best);
+    }
+
+    /** ¿Está dentro de un Santuario (muralla incluida)? Lo usan el maná y la compresión. */
+    public static boolean inSanctuary(ServerLevel level, net.minecraft.world.entity.Entity entity) {
+        if (level.dimension() != net.minecraft.world.level.Level.OVERWORLD || !AtomicConfig.cities()) return false;
+        int half = CityLayout.Kind.SANCTUARY.size() / 2 + 3;
+        for (Site site : sitesNear(level, CityLayout.Kind.SANCTUARY, entity.getBlockX(), entity.getBlockZ(), 80, true)) {
+            if (Math.abs(entity.getX() - site.centerX()) <= half && Math.abs(entity.getZ() - site.centerZ()) <= half
+                    && built(level, site) && entity.getY() > level.getData(STATE).cities().get(site.key()).baseY() - 8) return true;
+        }
+        return false;
     }
 
     // ---------------------------------------------------------------- construcción
@@ -220,6 +255,11 @@ public final class Cities {
                 }
             }
         }
+    }
+
+    private static boolean built(ServerLevel level, Site site) {
+        CityState city = level.getData(STATE).cities().get(site.key());
+        return city != null && city.baseY() != Integer.MIN_VALUE;
     }
 
     public static boolean complete(ServerLevel level, Site site) {

@@ -123,6 +123,11 @@ public final class Magic {
     }
 
     /** Usa la compresión acumulada: devuelve el multiplicador (1 = nada) y la vacía. */
+    /** Niveles de compresión acumulados. */
+    public static int compressionLevel(Player player) {
+        return state(player).compression();
+    }
+
     /** Multiplicador que daría la compresión actual, sin gastarla. */
     public static float peekCompression(Player player) {
         int c = state(player).compression();
@@ -432,7 +437,8 @@ public final class Magic {
             }
         } else if (s.compression() > 0) {
             // Si no se usa, la compresión se disipa: un nivel cada 15 s.
-            int idle = COMPRESSION_IDLE.merge(id, 1, Integer::sum);
+            // Dentro del Santuario la magia comprimida es lo único que no se pierde: no se disipa.
+            int idle = Cities.inSanctuary(level, player) ? 0 : COMPRESSION_IDLE.merge(id, 1, Integer::sum);
             if (player.tickCount % 8 == 0) {
                 level.sendParticles(SMALL_DENSE, player.getX(), player.getY() + 0.1, player.getZ(), s.compression(), 0.4, 0.02, 0.4, 0);
             }

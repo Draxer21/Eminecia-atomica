@@ -64,9 +64,9 @@ public final class AtomicConfig {
             .defineInRange("cooldownSeconds", 10, 0, 3600);
     static { BUILDER.pop().push("all_range_atomic"); }
     private static final ModConfigSpec.IntValue AR_COST = BUILDER
-            .comment("Costo del All-Range Atomic.").defineInRange("cost", 140, 0, 10000);
+            .comment("Sin uso: el All-Range se paga con poder comprimido.").defineInRange("cost", 140, 0, 10000);
     private static final ModConfigSpec.IntValue AR_RADIUS = BUILDER
-            .comment("Radio en el que busca enemigos.").defineInRange("radius", 64, 8, 160);
+            .comment("Radio base (con 1 nivel de compresión: x1,35; cada nivel más suma 0,35).").defineInRange("radius", 64, 8, 160);
     private static final ModConfigSpec.IntValue AR_TARGETS = BUILDER
             .comment("Máximo de enemigos marcados.").defineInRange("maxTargets", 24, 1, 200);
     private static final ModConfigSpec.IntValue AR_BLAST = BUILDER
@@ -75,6 +75,14 @@ public final class AtomicConfig {
             .comment("Daño de cada explosión pequeña.").defineInRange("damage", 60.0, 0.0, 10000.0);
     private static final ModConfigSpec.BooleanValue AR_BREAK = BUILDER
             .comment("Si las explosiones pequeñas rompen el terreno.").define("destroyBlocks", false);
+    private static final ModConfigSpec.DoubleValue AR_FINAL_DAMAGE = BUILDER
+            .comment("Daño de la explosión final (se multiplica por la compresión).").defineInRange("finalDamage", 80.0, 0.0, 100000.0);
+    private static final ModConfigSpec.BooleanValue AR_FINAL_BREAK = BUILDER
+            .comment("Si la explosión final del All-Range borra el terreno (como el Santuario).").define("finalDestroysBlocks", true);
+    private static final ModConfigSpec.BooleanValue AR_WAVE = BUILDER
+            .comment("Si el All-Range empuja el agua cercana hacia fuera y provoca una inundación.").define("waterWave", true);
+    private static final ModConfigSpec.IntValue AR_WAVE_MAX = BUILDER
+            .comment("Máximo de bloques de agua que coloca la ola.").defineInRange("waterWaveMaxBlocks", 24000, 0, 200000);
 
     static { BUILDER.pop().push("recovery_atomic"); }
     private static final ModConfigSpec.IntValue REC_COST = BUILDER
@@ -92,6 +100,9 @@ public final class AtomicConfig {
     private static final ModConfigSpec.IntValue ORIANA_SPACING = BUILDER
             .comment("Tamaño de la región de cada Oriana (128x128): una posible ciudad cada N bloques. Mínimo 600.")
             .defineInRange("orianaSpacing", 1800, 600, 100000);
+    private static final ModConfigSpec.IntValue SANCTUARY_SPACING = BUILDER
+            .comment("Tamaño de la región de cada Santuario (64x64, absorbe el poder mágico): uno cada N bloques. Mínimo 500.")
+            .defineInRange("sanctuarySpacing", 1600, 500, 100000);
 
     static { BUILDER.pop().push("diablos_cult"); }
     private static final ModConfigSpec.BooleanValue CULT_PATROLS = BUILDER
@@ -129,12 +140,17 @@ public final class AtomicConfig {
     public static int allRangeBlastRadius() { return loaded() ? AR_BLAST.getAsInt() : 4; }
     public static float allRangeDamage() { return loaded() ? AR_DAMAGE.get().floatValue() : 60.0F; }
     public static boolean allRangeBreaksBlocks() { return loaded() && AR_BREAK.getAsBoolean(); }
+    public static float allRangeFinalDamage() { return loaded() ? AR_FINAL_DAMAGE.get().floatValue() : 80.0F; }
+    public static boolean allRangeFinalBreaks() { return !loaded() || AR_FINAL_BREAK.getAsBoolean(); }
+    public static boolean allRangeWave() { return !loaded() || AR_WAVE.getAsBoolean(); }
+    public static int allRangeWaveMax() { return loaded() ? AR_WAVE_MAX.getAsInt() : 24000; }
     public static int recoveryCost() { return loaded() ? REC_COST.getAsInt() : 60; }
     public static int recoveryRadius() { return loaded() ? REC_RADIUS.getAsInt() : 32; }
 
     public static boolean cities() { return !loaded() || CITIES.getAsBoolean(); }
     public static int midgarSpacing() { return loaded() ? MIDGAR_SPACING.getAsInt() : 2400; }
     public static int orianaSpacing() { return loaded() ? ORIANA_SPACING.getAsInt() : 1800; }
+    public static int sanctuarySpacing() { return loaded() ? SANCTUARY_SPACING.getAsInt() : 1600; }
 
     public static boolean cultPatrols() { return !loaded() || CULT_PATROLS.getAsBoolean(); }
     public static float patrolChance() { return loaded() ? PATROL_CHANCE.get().floatValue() : 0.25F; }

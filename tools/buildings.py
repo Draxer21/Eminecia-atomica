@@ -1,5 +1,5 @@
 """Edificios grandes de las capitales (64x64 = 2x2 cuadras, salvo los de 32)."""
-from nbtlib import String
+from nbtlib import String, Int
 import random
 from structures import Build
 from furniture import *
@@ -554,6 +554,102 @@ def oriana_mitsugoshi():
     b.save_to('city/oriana/mitsugoshi')
 
 
+# ------------------------------------------------------------------ El Santuario
+
+def sanctuary_temple():
+    """El Santuario (64x64): templo sobre un zócalo, rodeado por un lago sagrado elevado.
+    Dentro, el núcleo que absorbe el poder mágico (catalizador de sculk sobre obsidiana llorosa)."""
+    rnd = random.Random(21)
+    b = Build(B, 40, B)
+    ground(b, B, 'oriana', rnd)
+    paving(b, B, ['calcite', 'polished_diorite', 'calcite', 'smooth_quartz'], rnd, 2, 2, 61, 61)
+    # Caminos desde las cuatro puertas de la muralla (x/z 30..35).
+    for i in range(B):
+        for j in range(30, 36):
+            b.set(i, 0, j, 'polished_andesite'); b.set(j, 0, i, 'polished_andesite')
+    # Lago sagrado: anillo entre [8,55] y el zócalo [14,49]; bordes a y=1..2, agua a y=1..2, fondo de prismarina.
+    for x in range(8, 56):
+        for z in range(8, 56):
+            if 14 <= x <= 49 and 14 <= z <= 49:
+                continue
+            rim = x in (8, 55) or z in (8, 55)
+            b.set(x, 0, z, 'dark_prismarine' if rim else 'prismarine_bricks')
+            for y in (1, 2):
+                b.set(x, y, z, 'polished_diorite' if rim else 'water', **({} if rim else {'level': '0'}))
+    # Zócalo del templo.
+    b.box(14, 1, 14, 49, 3, 49, 'quartz_block')
+    b.walls(14, 3, 14, 49, 3, 49, 'chiseled_quartz_block')
+    # Puentes escalonados sobre el lago, en los cuatro lados.
+    for k, y_top in ((58, 1), (57, 2), (56, 3)):
+        for j in range(30, 36):
+            for (x, z) in ((j, k), (j, 63 - k), (k, j), (63 - k, j)):
+                b.box(x, 1, z, x, y_top, z, 'smooth_quartz')
+    for d in range(8, 14):
+        for j in range(30, 36):
+            for (x, z) in ((j, 63 - d), (j, d), (d, j), (63 - d, j)):
+                b.box(x, 1, z, x, 3, z, 'smooth_quartz')
+    for d in (8, 55):
+        for j in (29, 36):
+            for (x, z) in ((j, d), (d, j)):
+                b.set(x, 3, z, 'polished_diorite'); b.set(x, 4, z, 'soul_lantern', hanging='false', waterlogged='false')
+    # El templo: [18,45], muros hasta y=22.
+    X0, Z0, X1, Z1 = 18, 18, 45, 45
+    b.box(X0, 3, Z0, X1, 3, Z1, 'polished_blackstone')
+    b.walls(X0, 4, Z0, X1, 22, Z1, 'quartz_bricks')
+    b.box(X0 + 1, 4, Z0 + 1, X1 - 1, 22, Z1 - 1, 'air')
+    for c in range(X0, X1 + 1, 3):
+        for (x, z) in ((c, Z0), (c, Z1), (X0, c), (X1, c)):
+            b.box(x, 4, z, x, 22, z, 'quartz_pillar', axis='y')
+    for c in range(X0 + 2, X1 - 1, 3):
+        for (x, z) in ((c, Z0), (c, Z1), (X0, c), (X1, c)):
+            b.box(x, 9, z, x, 17, z, 'purple_stained_glass')
+    # Líneas de oro hacia el núcleo.
+    for i in range(X0 + 1, X1):
+        b.set(i, 3, 31, 'gold_block'); b.set(31, 3, i, 'gold_block'); b.set(i, 3, 32, 'gold_block'); b.set(32, 3, i, 'gold_block')
+    # Portada sur (6 de ancho).
+    b.box(30, 4, Z1, 35, 10, Z1, 'air')
+    for x in (29, 36):
+        b.box(x, 4, Z1, x, 11, Z1, 'chiseled_quartz_block')
+    b.box(29, 11, Z1, 36, 11, Z1, 'chiseled_quartz_block')
+    # Columnata interior.
+    for x in (22, 41):
+        for z in range(22, 42, 5):
+            b.box(x, 4, z, x, 21, z, 'quartz_pillar', axis='y')
+            b.set(x, 21, z, 'chiseled_quartz_block')
+            b.set(x, 20, z + 1 if z + 1 < 42 else z - 1, 'soul_lantern', hanging='true', waterlogged='false')
+    # Techo: pirámide escalonada de purpur con remate de amatista.
+    k = 0
+    while X0 - 1 + k <= X1 + 1 - k:
+        b.walls(X0 - 1 + k, 23 + k, Z0 - 1 + k, X1 + 1 - k, 23 + k, Z1 + 1 - k, 'purpur_block')
+        if k == 0:
+            b.box(X0, 23, Z0, X1, 23, Z1, 'purpur_block')
+        k += 1
+    b.set(31, 23 + k, 31, 'amethyst_block'); b.set(32, 23 + k, 32, 'amethyst_block')
+    # El núcleo del Santuario.
+    b.box(28, 4, 28, 35, 4, 35, 'polished_blackstone_bricks')
+    b.box(29, 5, 29, 34, 5, 34, 'crying_obsidian')
+    b.box(30, 6, 30, 33, 6, 33, 'crying_obsidian')
+    for (x, z) in ((31, 31), (32, 31), (31, 32), (32, 32)):
+        b.set(x, 7, z, 'sculk_catalyst', bloom='false')
+    for (x, z) in ((28, 28), (35, 28), (28, 35), (35, 35)):
+        b.box(x, 5, z, x, 8, z, 'polished_blackstone_wall', up='true', north='none', south='none', east='none', west='none', waterlogged='false')
+        b.set(x, 9, z, 'soul_lantern', hanging='false', waterlogged='false')
+    # El sculk se extiende por el suelo alrededor del núcleo.
+    for _ in range(90):
+        x = rnd.randint(X0 + 2, X1 - 2); z = rnd.randint(Z0 + 2, Z1 - 4)
+        if 27 <= x <= 36 and 27 <= z <= 36:
+            continue
+        if b.get(x, 3, z) == 'minecraft:polished_blackstone':
+            b.set(x, 3, z, 'sculk')
+    for z in range(Z0 + 4, Z1 - 2, 6):
+        banner(b, X0 + 1, 14, z, 'east', 'purple'); banner(b, X1 - 1, 14, z, 'west', 'purple')
+    # Guardianes del culto.
+    entity(b, 30, 4, 40, 'draxatomic:diablos_cultist', {'Kind': Int(0)})
+    entity(b, 34, 4, 40, 'draxatomic:diablos_cultist', {'Kind': Int(1)})
+    villager(b, 26, 4, 38, 'minecraft:cleric')
+    b.save_to('city/sanctuary/temple')
+
+
 def build_all():
     midgar_castle()
     midgar_plaza('midgar')
@@ -565,3 +661,4 @@ def build_all():
     oriana_opera()
     oriana_gallery()
     oriana_mitsugoshi()
+    sanctuary_temple()

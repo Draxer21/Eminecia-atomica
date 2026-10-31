@@ -29,8 +29,9 @@ import net.neoforged.neoforge.network.PacketDistributor;
 /**
  * Las variantes del Atomic:
  * <ul>
- *   <li><b>All-Range Atomic:</b> marca a cada enemigo en un radio enorme y hace caer una pequeña
- *   explosión atómica sobre cada uno, una tras otra. No rompe el terreno por defecto.</li>
+ *   <li><b>All-Range Atomic:</b> se paga con poder comprimido. Marca a cada enemigo en un radio enorme,
+ *   hace estallar una explosión sobre cada uno y termina en una esfera gigante que arrasa todo y
+ *   empuja el agua hacia fuera.</li>
  *   <li><b>Recovery Atomic:</b> una esfera de luz que cura por completo al lanzador, a sus aliados
  *   y a los demás jugadores cercanos, y les quita los efectos negativos.</li>
  * </ul>
@@ -39,7 +40,6 @@ import net.neoforged.neoforge.network.PacketDistributor;
 public final class AtomicVariants {
     private AtomicVariants() {}
 
-    private static final int STRIKE_GAP = 3;
     private static final int MARK_TICKS = 16;
 
     private record Strike(ServerLevel level, UUID caster, LivingEntity target, int radius, float damage, int[] delay) {}
@@ -48,23 +48,96 @@ public final class AtomicVariants {
 
     // ---------------------------------------------------------------- All-Range Atomic
 
-    /** Devuelve cuántos objetivos encontró (0 = no se lanza y no gasta poder). */
-    public static int allRange(ServerLevel level, ServerPlayer player) {
-        int reach = Math.round(AtomicConfig.allRangeRadius() * Magic.reach(player));
+    /** Radio del All-Range según los niveles de compresión (mínimo 1): 64 → 86, 109, 131, 154… (tope 160). */
+    public static int allRangeRadius(Player player, int compression) {
+        int c = Math.max(1, compression);
+        return Math.min(160, Math.round(AtomicConfig.allRangeRadius() * Magic.reach(player) * (1.0F + 0.35F * c)));
+    }
+
+    private static List<LivingEntity> targets(ServerLevel level, ServerPlayer player, int reach) {
         List<LivingEntity> targets = level.getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(reach),
-                e -> e.isAlive() && isHostileTo(e, player));
+                e -> e.isAlive() && isHostileTo(e, player) && e.distanceToSqr(player) <= (double) reach * reach);
         targets.sort(Comparator.comparingDouble(e -> e.distanceToSqr(player)));
         int max = AtomicConfig.allRangeMaxTargets();
-        if (targets.size() > max) targets = new ArrayList<>(targets.subList(0, max));
-        if (targets.isEmpty()) return 0;
-        float comp = Magic.consumeCompression(player);
-        int blastRadius = Math.round(AtomicConfig.allRangeBlastRadius() * (1.0F + (comp - 1.0F) * 0.4F));
-        float damage = AtomicConfig.allRangeDamage() * comp * Magic.power(player);
+        return targets.size() > max ? new ArrayList<>(targets.subList(0, max)) : targets;
+    }
 
-        for (int i = 0; i < targets.size(); i++) {
-            STRIKES.add(new Strike(level, player.getUUID(), targets.get(i), blastRadius, damage, new int[] {MARK_TICKS + i * STRIKE_GAP}));
+    /** Durante la carga: hilos de luz desde el lanzador hasta cada enemigo que quedará marcado. */
+    public static void lockOn(ServerLevel level, ServerPlayer player) {
+        int reach = allRangeRadius(player, Magic.compressionLevel(player));
+        Vec3 from = player.position().add(0, 1.2, 0);
+        DustParticleOptions thread = new DustParticleOptions(0xB07CFF, 0.9F);
+        for (LivingEntity target : targets(level, player, reach)) {
+            Vec3 to = target.position().add(0, target.getBbHeight() * 0.5, 0);
+            Vec3 d = to.subtract(from);
+            double len = d.length();
+            double step = Math.max(1.5, len / 40.0);
+            for (double t = 1.0; t < len; t += step) {
+                Vec3 p = from.add(d.scale(t / len));
+                level.sendParticles(thread, true, false, p.x, p.y, p.z, 1, 0, 0, 0, 0);
+            }
+            level.sendParticles(new DustParticleOptions(0x5FE6FF, 1.2F), true, false, to.x, to.y, to.z, 4, 0.3, 0.3, 0.3, 0);
         }
-        return targets.size();
+    }
+
+    /**
+     * El All-Range Atomic, pagado con poder comprimido: cada enemigo marcado recibe su propia
+     * explosión casi a la vez y, enseguida, todo estalla en una esfera enorme centrada en el
+     * lanzador que borra el terreno (como el Santuario) y empuja el agua cercana hacia fuera.
+     */
+    public static int allRange(ServerLevel level, ServerPlayer player) {
+        int compression = Magic.compressionLevel(player);
+        int reach = allRangeRadius(player, compression);
+        List<LivingEntity> targets = targets(level, player, reach);
+        float comp = Magic.consumeCompression(player);
+        float power = Magic.power(player);
+        int blastRadius = Math.round(AtomicConfig.allRangeBlastRadius() * (1.0F + (comp - 1.0F) * 0.4F));
+        float damage = AtomicConfig.allRangeDamage() * comp * power;
+        Vec3 center = player.position().add(0, 1.0, 0);
+
+        // Destello inicial: rayos desde el lanzador hacia todas direcciones.
+        DustParticleOptions ray = new DustParticleOptions(0xD9B8FF, 2.0F);
+        for (int i = 0; i < 48; i++) {
+            double a = i * Math.PI * 2 / 48;
+            double up = (i % 3 - 1) * 0.25;
+            for (double t = 2; t < Math.min(reach, 60); t += 2.5) {
+                level.sendParticles(ray, true, false, center.x + Math.cos(a) * t, center.y + up * t, center.z + Math.sin(a) * t, 1, 0, 0, 0, 0);
+            }
+        }
+        for (int i = 0; i < targets.size(); i++) {
+            STRIKES.add(new Strike(level, player.getUUID(), targets.get(i), blastRadius, damage, new int[] {MARK_TICKS + i}));
+        }
+        float finalDamage = AtomicConfig.allRangeFinalDamage() * comp * power;
+        FINALES.add(new Finale(level, player.getUUID(), center, reach, finalDamage, new int[] {MARK_TICKS + targets.size() + 8}));
+        return Math.max(1, targets.size());
+    }
+
+    private record Finale(ServerLevel level, UUID caster, Vec3 center, int radius, float damage, int[] delay) {}
+
+    private static final List<Finale> FINALES = new ArrayList<>();
+
+    private static void finaleTick() {
+        Iterator<Finale> it = FINALES.iterator();
+        while (it.hasNext()) {
+            Finale f = it.next();
+            int left = --f.delay()[0];
+            ServerLevel level = f.level();
+            if (left > 0) {
+                // La luz se concentra en el centro antes de estallar.
+                if (left % 2 == 0) {
+                    level.sendParticles(ParticleTypes.END_ROD, true, true, f.center().x, f.center().y, f.center().z,
+                            12, 1.5, 1.5, 1.5, 0.15);
+                    level.sendParticles(ParticleTypes.REVERSE_PORTAL, true, true, f.center().x, f.center().y, f.center().z,
+                            30, 6, 6, 6, 0.4);
+                }
+                continue;
+            }
+            it.remove();
+            if (!(level.getEntity(f.caster()) instanceof ServerPlayer caster)) continue;
+            long[] water = AtomicConfig.allRangeWave() ? WaterWave.measure(level, f.center(), f.radius()) : null;
+            AtomicBlast.detonateAt(level, caster, f.center(), f.radius(), f.damage(), AtomicConfig.allRangeFinalBreaks(), true);
+            if (water != null) WaterWave.start(level, f.center(), f.radius(), water, AtomicBlast.EXPAND_TICKS + 4);
+        }
     }
 
     /** Enemigos: monstruos, criaturas que atacan al lanzador o a sus aliadas, y a quien él atacó. */
@@ -78,6 +151,7 @@ public final class AtomicVariants {
 
     @SubscribeEvent
     public static void onServerTick(ServerTickEvent.Post event) {
+        if (!FINALES.isEmpty()) finaleTick();
         if (STRIKES.isEmpty()) return;
         Iterator<Strike> it = STRIKES.iterator();
         while (it.hasNext()) {

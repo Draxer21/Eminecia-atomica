@@ -49,7 +49,9 @@ public final class SlimeSwordItem extends Item {
             SwordMode next = SwordMode.of(stack).next();
             SwordMode.set(stack, next);
             if (!level.isClientSide()) {
-                player.sendOverlayMessage(Component.translatable("message.draxatomic.mode", next.title(), next.cost()));
+                player.sendOverlayMessage(next == SwordMode.ALL_RANGE_ATOMIC
+                        ? Component.translatable("message.draxatomic.mode_compressed", next.title())
+                        : Component.translatable("message.draxatomic.mode", next.title(), next.cost()));
                 level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.AMETHYST_BLOCK_CHIME,
                         SoundSource.PLAYERS, 1.0F, 0.6F + next.ordinal() * 0.2F);
             }
@@ -62,6 +64,12 @@ public final class SlimeSwordItem extends Item {
             if (!level.isClientSide()) {
                 player.sendOverlayMessage(Component.translatable("message.draxatomic.no_power", cost)
                         .withStyle(ChatFormatting.RED));
+            }
+            return InteractionResult.FAIL;
+        }
+        if (mode == SwordMode.ALL_RANGE_ATOMIC && Magic.compressionLevel(player) <= 0) {
+            if (!level.isClientSide()) {
+                player.sendOverlayMessage(Component.translatable("message.draxatomic.need_compression").withStyle(ChatFormatting.RED));
             }
             return InteractionResult.FAIL;
         }
@@ -112,7 +120,7 @@ public final class SlimeSwordItem extends Item {
             SwordMode mode = SwordMode.of(stack);
             float comp = Magic.peekCompression(player);
             int radius = switch (mode) {
-                case ALL_RANGE_ATOMIC -> Math.round(AtomicConfig.allRangeRadius() * Magic.reach(player));
+                case ALL_RANGE_ATOMIC -> AtomicVariants.allRangeRadius(player, Magic.compressionLevel(player));
                 case RECOVERY_ATOMIC -> Math.round(AtomicConfig.recoveryRadius() * Magic.reach(player));
                 default -> AtomicBlast.atomicRadius(player, comp);
             };
@@ -138,6 +146,7 @@ public final class SlimeSwordItem extends Item {
         if (elapsed == Math.round(total * 0.55F)) phrase(player, "message.draxatomic.phrase_2");
 
         aura(server, player, elapsed, progress, SwordMode.of(stack));
+        if (SwordMode.of(stack) == SwordMode.ALL_RANGE_ATOMIC && elapsed % 4 == 2) AtomicVariants.lockOn(server, player);
     }
 
     /** Círculo mágico a los pies que gira y se cierra, más energía que fluye hacia el jugador. */
@@ -180,9 +189,9 @@ public final class SlimeSwordItem extends Item {
                 releaseUsing(stack, level, entity, 0);
                 return stack;
             }
-            if (mode == SwordMode.ALL_RANGE_ATOMIC && AtomicVariants.allRange(server, player) == 0) {
-                // Nadie a quien apuntar: no se gasta el poder.
-                player.sendOverlayMessage(Component.translatable("message.draxatomic.no_targets").withStyle(ChatFormatting.GRAY));
+            if (mode == SwordMode.ALL_RANGE_ATOMIC && Magic.compressionLevel(player) <= 0) {
+                // La compresión se disipó durante la carga.
+                player.sendOverlayMessage(Component.translatable("message.draxatomic.need_compression").withStyle(ChatFormatting.RED));
                 releaseUsing(stack, level, entity, 0);
                 return stack;
             }
@@ -195,6 +204,7 @@ public final class SlimeSwordItem extends Item {
             finalWord(server, player, mode);
             if (mode == SwordMode.ATOMIC) AtomicBlast.detonate(server, player);
             else if (mode == SwordMode.RECOVERY_ATOMIC) AtomicVariants.recovery(server, player);
+            else if (mode == SwordMode.ALL_RANGE_ATOMIC) AtomicVariants.allRange(server, player);
         }
         return stack;
     }
@@ -224,7 +234,7 @@ public final class SlimeSwordItem extends Item {
 
     /** La palabra final, en grande, para todos los que estén cerca. */
     private static void finalWord(ServerLevel level, ServerPlayer caster, SwordMode mode) {
-        double reach = Math.max(AtomicConfig.radius() * 4.0, AtomicConfig.allRangeRadius() * 2.0);
+        double reach = Math.max(AtomicConfig.radius() * 4.0, 320.0);
         ChatFormatting color = mode == SwordMode.RECOVERY_ATOMIC ? ChatFormatting.GREEN : ChatFormatting.LIGHT_PURPLE;
         Component title = Component.translatable("message.draxatomic.title." + mode.id())
                 .withStyle(color, ChatFormatting.BOLD);

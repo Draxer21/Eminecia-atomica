@@ -35,7 +35,7 @@ public enum SwordMode {
             case DASH -> AtomicConfig.dashCost();
             case BLADE_RAIN -> AtomicConfig.rainCost();
             case ATOMIC -> AtomicConfig.atomicCost();
-            case ALL_RANGE_ATOMIC -> AtomicConfig.allRangeCost();
+            case ALL_RANGE_ATOMIC -> 0; // se paga con poder comprimido
             case RECOVERY_ATOMIC -> AtomicConfig.recoveryCost();
         };
     }

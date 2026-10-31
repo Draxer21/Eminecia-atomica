@@ -1,6 +1,6 @@
 # Drax Atomic
 
-Mod de NeoForge para Minecraft 26.2 (versión del mod 0.11.1).
+Mod de NeoForge para Minecraft 26.2 (versión del mod 0.12.0).
 
 ## Poder mágico
 
@@ -16,7 +16,7 @@ Espada de nivel netherita (no se quema en lava). **Shift + clic derecho** cambia
 | Corte instantáneo | Clic derecho: avanzas ~8 bloques de golpe cortando todo lo que atraviesas | 20 |
 | Lluvia de cuchillas | Clic derecho al suelo: 6 oleadas de agujas de slime en un área de radio 5 | 35 |
 | Atomic | Mantén clic derecho 1,5 s: domo de barrera violeta, levitación, la frase y la explosión atómica (radio 48) | 100 |
-| All-Range Atomic | Mantén clic derecho 2 s: marca a cada enemigo en 64 bloques (hasta 24) y cae un Atomic pequeño sobre cada uno; no rompe el terreno | 140 |
+| All-Range Atomic | Comprime tu poder (V) y mantén clic derecho 2 s: hilos de luz fijan a cada enemigo (hasta 24), estallan uno tras otro y todo termina en una esfera gigante (86 bloques con 1 nivel de compresión, +22 por nivel, tope 160) que arrasa el terreno y empuja el agua hacia fuera, inundando los alrededores | Poder comprimido |
 | Recovery Atomic | Mantén clic derecho 1 s: esfera de luz verde (radio 32) que cura por completo a ti, tus aliadas y los jugadores cercanos, y quita efectos negativos | 60 |
 
 Soltar el Atomic antes de tiempo lo cancela sin gastar poder. Tú, tus mascotas, tu equipo y los jugadores en creativo no reciben daño.
@@ -113,7 +113,8 @@ Al crear o abrir el mundo se construyen enteras la Midgar y la Oriana más cerca
 - **Capital de Oriana (128×128):** palacio con cúpula, comedor, biblioteca, aposentos y salón de baile; ópera iluminada con palcos; galería con pirámide de vidrio y estatuas; plaza, sucursal de Mitsugoshi y edificios parisinos de varios pisos con departamentos amueblados.
 - Todos los edificios de varios pisos tienen escalera de mano.
 - **Guardias del reino:** patrullan, pelean contra monstruos y el Culto de Diablos, y no atacan a los aldeanos.
-- Comandos: `/draxatomic city locate midgar|oriana`. En creativo: `/draxatomic city tp midgar|oriana`, `/draxatomic city build` y `/draxatomic city view <ciudad> overview|castle|street`.
+- **El Santuario (64×64):** templo amurallado rodeado por un lago sagrado, con el núcleo de sculk en el centro y guardianes del Culto. Dentro, tu poder mágico se drena rápido; solo la magia comprimida resiste (y no se disipa). Como Cid: comprime antes de entrar y suelta un All-Range desde dentro.
+- Comandos: `/draxatomic city locate midgar|oriana|sanctuary`. En creativo: `/draxatomic city tp midgar|oriana|sanctuary`, `/draxatomic city build` y `/draxatomic city view <ciudad> overview|castle|street`.
 - Se configura en `[cities]`: activar/desactivar y cada cuántos bloques puede haber una ciudad.
 
 ## Personajes y misiones
@@ -155,6 +156,7 @@ Los textos (incluida la frase) están en `assets/draxatomic/lang/*.json`.
 ## Historial
 
 - 0.11.0: domo de barrera al cargar los Atomic (marca el área exacta); carga más corta (1,5 s) y más alcance (Atomic 48, hasta 160 con mejoras y compresión); tallado del cráter más rápido.
+- 0.12.0: All-Range Atomic nuevo: se paga con poder comprimido, hilos de luz durante la carga, explosiones casi simultáneas y una esfera final gigante que arrasa el terreno; ola que empuja el agua e inunda los alrededores; el Santuario (templo que absorbe el poder mágico).
 - 0.11.1: el domo de barrera ahora es una cúpula de rejilla brillante (meridianos y paralelos con luz propia), visible de lejos, de noche y desde dentro.
 - 0.10.0: Midgar 256×256 y Oriana 128×128, construidas al crear el mundo; muralla nueva; interiores amueblados; arreglos (terreno flotante, techo de la catedral, pisos sin acceso, ópera oscura, partículas frente a la cámara).
 - 0.9.1: Midgar aparece con más frecuencia; HUD de poder junto a la barra rápida; pantalla de habilidades más compacta.

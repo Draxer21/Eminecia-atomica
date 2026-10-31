@@ -13,7 +13,9 @@ public final class CityLayout {
 
     public enum Kind {
         MIDGAR("midgar", 8),
-        ORIANA("oriana", 4);
+        ORIANA("oriana", 4),
+        /** El Santuario: un templo amurallado de 64×64 que absorbe el poder mágico. */
+        SANCTUARY("sanctuary", 2);
 
         public final String style;
         /** Cuadras por lado. */
@@ -48,6 +50,8 @@ public final class CityLayout {
             big(3, 5, "academy");
             for (int[] m : new int[][] {{2, 4}, {5, 4}, {1, 5}}) one(m[0], m[1], "market");
             for (int[] b : new int[][] {{0, 0}, {7, 7}}) one(b[0], b[1], "barracks");
+        } else if (kind == Kind.SANCTUARY) {
+            big(0, 0, "temple");
         } else {
             big(0, 0, "palace");
             big(2, 0, "opera");

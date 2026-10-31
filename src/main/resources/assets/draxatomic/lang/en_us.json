@@ -61,7 +61,7 @@
   "message.draxatomic.full.recovery_atomic": "I am recovery atomic.",
   "mode.draxatomic.all_range_atomic": "All-Range Atomic",
   "mode.draxatomic.recovery_atomic": "Recovery Atomic",
-  "tooltip.draxatomic.slime_sword.help.all_range_atomic": "Hold right-click: mark every nearby enemy and drop an Atomic on each one.",
+  "tooltip.draxatomic.slime_sword.help.all_range_atomic": "Compress your power (V) and hold right click: marks every enemy, blows them up and ends in a giant sphere that razes everything and pushes the water away.",
   "tooltip.draxatomic.slime_sword.help.recovery_atomic": "Hold right-click: a sphere of light fully heals you and your allies.",
   "message.draxatomic.no_targets": "No enemies in range.",
   "block.draxatomic.mitsugoshi_counter": "Mitsugoshi Counter",
@@ -197,5 +197,10 @@
   "message.draxatomic.skill_point": "You earned a skill point! (K)",
   "message.draxatomic.sense": "You sense %s enemies.",
   "message.draxatomic.forge": "Repaired %s pieces.",
-  "message.draxatomic.summon": "%s members arrive."
+  "message.draxatomic.summon": "%s members arrive.",
+  "message.draxatomic.mode_compressed": "Mode: %s (paid with compressed power: hold V first)",
+  "message.draxatomic.need_compression": "All-Range Atomic needs compressed power: hold V to compress first.",
+  "message.draxatomic.sanctuary_enter": "The Sanctuary drains your magic... only compressed magic resists.",
+  "message.draxatomic.sanctuary_leave": "You leave the Sanctuary: your power flows again.",
+  "city.draxatomic.sanctuary": "the Sanctuary"
 }

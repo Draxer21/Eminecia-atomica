@@ -125,12 +125,35 @@ public final class Mana {
         PacketDistributor.sendToPlayer(player, new ManaPayload(value, max(player)));
     }
 
+    private static final java.util.Set<java.util.UUID> IN_SANCTUARY = new java.util.HashSet<>();
+
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
         if (!(event.getEntity() instanceof ServerPlayer player) || player.tickCount % 10 != 0) return;
-        if (player.isUsingItem() && player.getUseItem().getItem() instanceof SlimeSwordItem) return; // no recarga mientras canaliza
         int current = get(player);
         int max = max(player);
+        // El Santuario absorbe el poder mágico de quien entra (la magia comprimida resiste).
+        boolean inside = player.level() instanceof net.minecraft.server.level.ServerLevel sl && Cities.inSanctuary(sl, player);
+        if (inside != IN_SANCTUARY.contains(player.getUUID())) {
+            if (inside) {
+                IN_SANCTUARY.add(player.getUUID());
+                player.sendOverlayMessage(net.minecraft.network.chat.Component.translatable("message.draxatomic.sanctuary_enter")
+                        .withStyle(net.minecraft.ChatFormatting.DARK_AQUA, net.minecraft.ChatFormatting.ITALIC));
+            } else {
+                IN_SANCTUARY.remove(player.getUUID());
+                player.sendOverlayMessage(net.minecraft.network.chat.Component.translatable("message.draxatomic.sanctuary_leave")
+                        .withStyle(net.minecraft.ChatFormatting.GRAY));
+            }
+        }
+        if (inside) {
+            if (current > 0) {
+                set(player, Math.max(0, current - Math.max(2, max / 40)));
+                ((net.minecraft.server.level.ServerLevel) player.level()).sendParticles(net.minecraft.core.particles.ParticleTypes.SCULK_SOUL,
+                        player.getX(), player.getY() + 1.0, player.getZ(), 2, 0.3, 0.5, 0.3, 0.02);
+            }
+            return;
+        }
+        if (player.isUsingItem() && player.getUseItem().getItem() instanceof SlimeSwordItem) return; // no recarga mientras canaliza
         int regen = regenPerSecond(player);
         if (current < max && regen > 0) {
             // Medio segundo de recarga; los impares se reparten entre ticks pares e impares.

@@ -102,9 +102,9 @@ public final class SelfTest {
                 LOG.info("DRAXTEST city {} {}", kind, site.map(s -> s.centerX() + "," + s.centerZ() + " cells=" + Cities.total(s)).orElse("NONE"));
             }
             // Coloca algunas cuadras grandes en una zona cargada a la fuerza.
-            commands.performPrefixedCommand(source, "forceload add 5000 5000 5200 5070");
+            commands.performPrefixedCommand(source, "forceload add 5000 5000 5350 5070");
             int k = 0;
-            for (String t : new String[] {"city/midgar/castle", "city/oriana/palace", "city/midgar/houses_a", "city/oriana/houses_a"}) {
+            for (String t : new String[] {"city/midgar/castle", "city/oriana/palace", "city/midgar/houses_a", "city/oriana/houses_a", "city/sanctuary/temple"}) {
                 Cities.placeCell(level, t, 5000 + k * 70, 90, 5000, 64, 1L);
                 LOG.info("DRAXTEST placed {}", t);
                 k++;
@@ -117,7 +117,7 @@ public final class SelfTest {
             var fake = FakePlayerFactory.getMinecraft(level);
             fake.snapTo(base.getX() + 0.5, base.getY(), base.getZ() + 0.5, 0, 0);
             AtomicBlast.detonate(level, fake);
-            LOG.info("DRAXTEST allRange targets={}", AtomicVariants.allRange(level, fake));
+            LOG.info("DRAXTEST allRange targets={} radius={}", AtomicVariants.allRange(level, fake), AtomicVariants.allRangeRadius(fake, 1));
             AtomicVariants.recovery(level, fake);
             SlimeSkills.whip(level, fake);
             SlimeSkills.dash(level, fake);

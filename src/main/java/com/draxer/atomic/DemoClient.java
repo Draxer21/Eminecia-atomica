@@ -107,16 +107,23 @@ public final class DemoClient {
                     cmd(mc, "summon minecraft:zombie " + (ox - 10 + i * 4) + " " + oy + " " + (oz - 50) + " {NoAI:1b}");
                 }
                 cmd(mc, "fill " + (ox - 15) + " " + (oy - 1) + " " + (oz - 55) + " " + (ox + 15) + " " + (oy - 1) + " " + (oz - 45) + " minecraft:stone");
+                // Un estanque dentro del alcance, para la ola.
+                cmd(mc, "fill " + (ox + 18) + " " + (oy - 3) + " " + (oz - 82) + " " + (ox + 50) + " " + (oy - 1) + " " + (oz - 50) + " minecraft:stone");
+                cmd(mc, "fill " + (ox + 19) + " " + (oy - 2) + " " + (oz - 81) + " " + (ox + 49) + " " + (oy - 1) + " " + (oz - 51) + " minecraft:water");
             }
             case 400 -> cmd(mc, "draxatomic test allrange");
             case 412 -> shot("allrange_marks");
-            case 434 -> shot("allrange_blasts");
-            case 470 -> {
+            case 426 -> shot("allrange_blasts");
+            case 440 -> shot("allrange_final");
+            case 456 -> cmd(mc, "tp @s " + ox + ".5 " + (oy + 70) + " " + (oz - 230) + ".5 0 28");
+            case 490 -> shot("allrange_wave");
+            case 500 -> {
+                cmd(mc, "tp @s " + ox + ".5 " + (oy + 2) + " " + (oz - 60) + ".5 0 20");
                 cmd(mc, "effect give @s minecraft:poison 30 0");
                 cmd(mc, "draxatomic test recovery");
             }
-            case 478 -> shot("recovery");
-            case 500 -> {
+            case 508 -> shot("recovery");
+            case 520 -> {
                 cmd(mc, "forceload add " + (ox + 180) + " " + (oz - 30) + " " + (ox + 240) + " " + (oz + 30));
                 cmd(mc, "tp @s " + (ox + 206) + " 140 " + (oz - 22) + " 0 40");
             }
@@ -166,7 +173,12 @@ public final class DemoClient {
             case 2330 -> mc.gui.setScreen(new SkillScreen());
             case 2350 -> shot("skills");
             case 2360 -> mc.gui.setScreen(null);
-            case 2380 -> shot("end");
+            // El Santuario (absorbe el poder mágico).
+            case 2380 -> cmd(mc, "draxatomic city view sanctuary overview");
+            case 2540 -> shot("sanctuary");
+            case 2560 -> cmd(mc, "draxatomic city view sanctuary castle");
+            case 2660 -> shot("sanctuary_inside");
+            case 2680 -> shot("end");
             default -> {}
         }
     }

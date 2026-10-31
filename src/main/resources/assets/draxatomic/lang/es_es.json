@@ -61,7 +61,7 @@
   "message.draxatomic.full.recovery_atomic": "I am recovery atomic.",
   "mode.draxatomic.all_range_atomic": "All-Range Atomic",
   "mode.draxatomic.recovery_atomic": "Recovery Atomic",
-  "tooltip.draxatomic.slime_sword.help.all_range_atomic": "Mantén clic derecho: marca a cada enemigo cercano y descarga un Atomic sobre cada uno.",
+  "tooltip.draxatomic.slime_sword.help.all_range_atomic": "Comprime tu poder (V) y mantén clic derecho: marca a cada enemigo, los hace estallar y termina en una esfera gigante que arrasa todo y empuja el agua.",
   "tooltip.draxatomic.slime_sword.help.recovery_atomic": "Mantén clic derecho: una esfera de luz te cura por completo a ti y a tus aliados.",
   "message.draxatomic.no_targets": "No hay enemigos a tu alcance.",
   "block.draxatomic.mitsugoshi_counter": "Mostrador Mitsugoshi",
@@ -197,5 +197,10 @@
   "message.draxatomic.skill_point": "¡Ganaste un punto de habilidad! (K)",
   "message.draxatomic.sense": "Detectas %s enemigos.",
   "message.draxatomic.forge": "Reparaste %s piezas.",
-  "message.draxatomic.summon": "Llegan %s integrantes."
+  "message.draxatomic.summon": "Llegan %s integrantes.",
+  "message.draxatomic.mode_compressed": "Modo: %s (se paga con poder comprimido: mantén V antes)",
+  "message.draxatomic.need_compression": "El All-Range Atomic necesita poder comprimido: mantén V para comprimir primero.",
+  "message.draxatomic.sanctuary_enter": "El Santuario absorbe tu poder mágico... solo la magia comprimida resiste.",
+  "message.draxatomic.sanctuary_leave": "Sales del Santuario: tu poder vuelve a fluir.",
+  "city.draxatomic.sanctuary": "el Santuario"
 }
