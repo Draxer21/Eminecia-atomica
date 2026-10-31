@@ -279,8 +279,8 @@ public final class Cities {
                 STARTUP.remove(0);
                 com.mojang.logging.LogUtils.getLogger().info("Drax Atomic: capital {} construida en X {} Z {}",
                         site.kind().style, site.centerX(), site.centerZ());
-            } else if (prepare(level, site, 16)) {
-                if (buildSome(level, site, 2) == 0) buildWalls(level, site);
+            } else if (prepare(level, site, 6) && level.getGameTime() % 2 == 0) {
+                if (buildSome(level, site, 1) == 0) buildWalls(level, site);
             }
         }
         if (level.getGameTime() % 5 != 0 || level.players().isEmpty()) return;
@@ -290,7 +290,7 @@ public final class Cities {
                 for (Site site : sitesNear(level, kind, player.getBlockX(), player.getBlockZ(), reach, true)) {
                     if (Math.abs(site.centerX() - player.getX()) > reach || Math.abs(site.centerZ() - player.getZ()) > reach) continue;
                     if (complete(level, site)) continue;
-                    if (!prepare(level, site, 12)) return;        // primero el terreno, de a poco
+                    if (!prepare(level, site, 6)) return;         // primero el terreno, de a poco
                     if (buildSome(level, site, 3) > 0) return;     // luego unas cuadras por pasada
                     buildWalls(level, site);
                     return;
@@ -323,16 +323,21 @@ public final class Cities {
         int z1 = (site.minZ() + site.kind().size() + MARGIN) >> 4;
         java.util.Set<Long> forced = FORCED.computeIfAbsent(site.key(), k -> new java.util.HashSet<>());
         boolean ready = true;
-        int requested = 0;
+        // {@code budget} = chunks pedidos que pueden estar generándose a la vez; así el servidor
+        // no se satura generando cientos de chunks de golpe.
+        int pending = 0;
+        for (long key : forced) {
+            if (!level.hasChunk((int) (key >> 32), (int) key)) pending++;
+        }
         for (int cx = x0; cx <= x1; cx++) {
             for (int cz = z0; cz <= z1; cz++) {
                 if (level.hasChunk(cx, cz)) continue;
                 ready = false;
                 long key = ((long) cx << 32) | (cz & 0xFFFFFFFFL);
-                if (requested < budget && forced.add(key)) {
+                if (pending < budget && forced.add(key)) {
                     // Solo el ticket: setChunkForced además espera a que el chunk se genere.
                     level.getChunkSource().updateChunkForced(new net.minecraft.world.level.ChunkPos(cx, cz), true);
-                    requested++;
+                    pending++;
                 }
             }
         }
