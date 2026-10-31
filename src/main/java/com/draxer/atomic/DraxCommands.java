@@ -45,7 +45,8 @@ public final class DraxCommands {
                         .then(Commands.literal("locate")
                                 .then(Commands.literal("midgar").executes(c -> locate(c.getSource(), CityLayout.Kind.MIDGAR, false)))
                                 .then(Commands.literal("oriana").executes(c -> locate(c.getSource(), CityLayout.Kind.ORIANA, false)))
-                                .then(Commands.literal("sanctuary").executes(c -> locate(c.getSource(), CityLayout.Kind.SANCTUARY, false))))
+                                .then(Commands.literal("sanctuary").executes(c -> locate(c.getSource(), CityLayout.Kind.SANCTUARY, false)))
+                                .then(Commands.literal("lawless").executes(c -> locate(c.getSource(), CityLayout.Kind.LAWLESS, false))))
                         .then(Commands.literal("build").executes(c -> buildHere(c.getSource())))
                         .then(Commands.literal("view")
                                 .then(Commands.literal("midgar")
@@ -58,11 +59,16 @@ public final class DraxCommands {
                                         .then(Commands.literal("street").executes(c -> view(c.getSource(), CityLayout.Kind.ORIANA, "street"))))
                                 .then(Commands.literal("sanctuary")
                                         .then(Commands.literal("overview").executes(c -> view(c.getSource(), CityLayout.Kind.SANCTUARY, "overview")))
-                                        .then(Commands.literal("castle").executes(c -> view(c.getSource(), CityLayout.Kind.SANCTUARY, "castle")))))
+                                        .then(Commands.literal("castle").executes(c -> view(c.getSource(), CityLayout.Kind.SANCTUARY, "castle"))))
+                                .then(Commands.literal("lawless")
+                                        .then(Commands.literal("overview").executes(c -> view(c.getSource(), CityLayout.Kind.LAWLESS, "overview")))
+                                        .then(Commands.literal("castle").executes(c -> view(c.getSource(), CityLayout.Kind.LAWLESS, "castle")))
+                                        .then(Commands.literal("street").executes(c -> view(c.getSource(), CityLayout.Kind.LAWLESS, "street")))))
                         .then(Commands.literal("tp")
                                 .then(Commands.literal("midgar").executes(c -> locate(c.getSource(), CityLayout.Kind.MIDGAR, true)))
                                 .then(Commands.literal("oriana").executes(c -> locate(c.getSource(), CityLayout.Kind.ORIANA, true)))
-                                .then(Commands.literal("sanctuary").executes(c -> locate(c.getSource(), CityLayout.Kind.SANCTUARY, true)))))
+                                .then(Commands.literal("sanctuary").executes(c -> locate(c.getSource(), CityLayout.Kind.SANCTUARY, true)))
+                                .then(Commands.literal("lawless").executes(c -> locate(c.getSource(), CityLayout.Kind.LAWLESS, true)))))
                 .then(Commands.literal("mana").executes(context -> {
                     ServerPlayer player = creative(context.getSource());
                     if (player == null) return 0;
@@ -173,6 +179,15 @@ public final class DraxCommands {
         float pitch;
         switch (where) {
             case "castle" -> {
+                if (kind == CityLayout.Kind.LAWLESS) {
+                    // Frente a la Torre Carmesí, mirando hacia arriba.
+                    x = site.minX() + CityLayout.CELL + 32.0;
+                    z = site.minZ() + CityLayout.CELL + 62.5;
+                    y = baseY + 3;
+                    yaw = 180.0F;
+                    pitch = -28.0F;
+                    break;
+                }
                 if (kind == CityLayout.Kind.SANCTUARY) {
                     // Dentro del templo, frente al núcleo.
                     x = site.minX() + 32.0;

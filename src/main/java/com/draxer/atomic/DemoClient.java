@@ -184,7 +184,16 @@ public final class DemoClient {
                 cmd(mc, "draxatomic test vampires");
             }
             case 2780 -> shot("vampires");
-            case 2800 -> shot("end");
+            // La Ciudad sin Ley y la Torre Carmesí.
+            case 2800 -> {
+                cmd(mc, "kill @e[type=!minecraft:player]");
+                cmd(mc, "time set 6000");
+                cmd(mc, "draxatomic city view lawless overview");
+            }
+            case 2980 -> shot("lawless");
+            case 3000 -> cmd(mc, "draxatomic city view lawless castle");
+            case 3100 -> shot("crimson_tower");
+            case 3120 -> shot("end");
             default -> {}
         }
     }

@@ -103,6 +103,9 @@ public final class AtomicConfig {
     private static final ModConfigSpec.IntValue SANCTUARY_SPACING = BUILDER
             .comment("Tamaño de la región de cada Santuario (64x64, absorbe el poder mágico): uno cada N bloques. Mínimo 500.")
             .defineInRange("sanctuarySpacing", 1600, 500, 100000);
+    private static final ModConfigSpec.IntValue LAWLESS_SPACING = BUILDER
+            .comment("Tamaño de la región de cada Ciudad sin Ley (128x128): una cada N bloques. Mínimo 600.")
+            .defineInRange("lawlessSpacing", 2200, 600, 100000);
 
     static { BUILDER.pop().push("diablos_cult"); }
     private static final ModConfigSpec.BooleanValue CULT_PATROLS = BUILDER
@@ -159,6 +162,7 @@ public final class AtomicConfig {
     public static int midgarSpacing() { return loaded() ? MIDGAR_SPACING.getAsInt() : 2400; }
     public static int orianaSpacing() { return loaded() ? ORIANA_SPACING.getAsInt() : 1800; }
     public static int sanctuarySpacing() { return loaded() ? SANCTUARY_SPACING.getAsInt() : 1600; }
+    public static int lawlessSpacing() { return loaded() ? LAWLESS_SPACING.getAsInt() : 2200; }
 
     public static boolean cultPatrols() { return !loaded() || CULT_PATROLS.getAsBoolean(); }
     public static float patrolChance() { return loaded() ? PATROL_CHANCE.get().floatValue() : 0.25F; }

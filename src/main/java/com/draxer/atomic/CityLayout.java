@@ -15,7 +15,9 @@ public final class CityLayout {
         MIDGAR("midgar", 8),
         ORIANA("oriana", 4),
         /** El Santuario: un templo amurallado de 64×64 que absorbe el poder mágico. */
-        SANCTUARY("sanctuary", 2);
+        SANCTUARY("sanctuary", 2),
+        /** La Ciudad sin Ley (128×128) con la Torre Carmesí en el centro. */
+        LAWLESS("lawless", 4);
 
         public final String style;
         /** Cuadras por lado. */
@@ -52,6 +54,11 @@ public final class CityLayout {
             for (int[] b : new int[][] {{0, 0}, {7, 7}}) one(b[0], b[1], "barracks");
         } else if (kind == Kind.SANCTUARY) {
             big(0, 0, "temple");
+        } else if (kind == Kind.LAWLESS) {
+            big(1, 1, "crimson_tower");
+            one(0, 0, "tavern");
+            one(3, 0, "market");
+            one(0, 3, "arena");
         } else {
             big(0, 0, "palace");
             big(2, 0, "opera");
@@ -64,11 +71,12 @@ public final class CityLayout {
         // El resto: casas de varios estilos, con algún parque.
         String[] houses = kind == Kind.MIDGAR
                 ? new String[] {"houses_a", "houses_b", "houses_c", "houses_d"}
+                : kind == Kind.LAWLESS ? new String[] {"slums_a", "slums_b", "slums_c"}
                 : new String[] {"houses_a", "houses_b", "houses_c"};
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 if (grid[i][j] != null) continue;
-                grid[i][j] = random.nextInt(9) == 0 ? "park" : houses[random.nextInt(houses.length)];
+                grid[i][j] = random.nextInt(9) == 0 && kind != Kind.LAWLESS ? "park" : houses[random.nextInt(houses.length)];
             }
         }
     }

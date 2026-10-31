@@ -229,5 +229,7 @@
   "spell.draxatomic.bat_form": "Bat Form",
   "spell.draxatomic.bat_form.desc": "Dissolve into bats: fly, turn invisible and become nearly untouchable for a few seconds.",
   "spell.draxatomic.blood_drain": "Blood Drain",
-  "spell.draxatomic.blood_drain.desc": "Sustained: your hits heal you for a quarter of the damage dealt."
+  "spell.draxatomic.blood_drain.desc": "Sustained: your hits heal you for a quarter of the damage dealt.",
+  "city.draxatomic.lawless": "the Lawless City",
+  "message.draxatomic.queen_stirs": "Crimson's blood soaks the coffin atop the Crimson Tower... something awakens."
 }

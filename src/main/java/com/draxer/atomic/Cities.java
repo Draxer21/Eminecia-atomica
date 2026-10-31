@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.neoforged.bus.api.IEventBus;
@@ -47,6 +48,7 @@ public final class Cities {
 
     static final TagKey<Biome> MIDGAR_BIOMES = TagKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "has_midgar_capital"));
     static final TagKey<Biome> SANCTUARY_BIOMES = TagKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "has_sanctuary"));
+    static final TagKey<Biome> LAWLESS_BIOMES = TagKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "has_lawless_city"));
     static final TagKey<Biome> ORIANA_BIOMES = TagKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "has_oriana_capital"));
 
     private static final int MAX_FOUNDATION = 24;
@@ -93,6 +95,7 @@ public final class Cities {
             case MIDGAR -> AtomicConfig.midgarSpacing();
             case ORIANA -> AtomicConfig.orianaSpacing();
             case SANCTUARY -> AtomicConfig.sanctuarySpacing();
+            case LAWLESS -> AtomicConfig.lawlessSpacing();
         };
     }
 
@@ -101,6 +104,7 @@ public final class Cities {
             case MIDGAR -> 0x5A11D6A2L;
             case ORIANA -> 0x0121A4AL;
             case SANCTUARY -> 0x5A4C7A11L;
+            case LAWLESS -> 0x1A31E55CL;
         };
     }
 
@@ -134,7 +138,8 @@ public final class Cities {
     private static boolean computeValid(ServerLevel level, Site site) {
         {
             TagKey<Biome> tag = site.kind() == CityLayout.Kind.MIDGAR ? MIDGAR_BIOMES
-                    : site.kind() == CityLayout.Kind.SANCTUARY ? SANCTUARY_BIOMES : ORIANA_BIOMES;
+                    : site.kind() == CityLayout.Kind.SANCTUARY ? SANCTUARY_BIOMES
+                    : site.kind() == CityLayout.Kind.LAWLESS ? LAWLESS_BIOMES : ORIANA_BIOMES;
             TagKey<Biome> ocean = TagKey.create(Registries.BIOME, Identifier.withDefaultNamespace("is_ocean"));
             int r = site.kind().size() / 2 - 16;
             int y = level.getSeaLevel();
@@ -198,6 +203,22 @@ public final class Cities {
             }
         }
         return Optional.ofNullable(best);
+    }
+
+    /** La Ciudad sin Ley en la que está esta posición (muralla incluida), si hay una construida. */
+    public static Optional<Site> lawlessAt(ServerLevel level, double x, double z) {
+        if (level.dimension() != net.minecraft.world.level.Level.OVERWORLD || !AtomicConfig.cities()) return Optional.empty();
+        int half = CityLayout.Kind.LAWLESS.size() / 2 + 3;
+        for (Site site : sitesNear(level, CityLayout.Kind.LAWLESS, (int) x, (int) z, 140, true)) {
+            if (Math.abs(x - site.centerX()) <= half && Math.abs(z - site.centerZ()) <= half && built(level, site)) return Optional.of(site);
+        }
+        return Optional.empty();
+    }
+
+    /** Dónde despierta Elizabeth: junto a su ataúd, en lo alto de la Torre Carmesí. */
+    public static Vec3 coffin(ServerLevel level, Site site) {
+        int baseY = level.getData(STATE).cities().get(site.key()).baseY();
+        return new Vec3(site.minX() + CityLayout.CELL + 31.5, baseY + 52, site.minZ() + CityLayout.CELL + 36.5);
     }
 
     /** ¿Está dentro de un Santuario (muralla incluida)? Lo usan el maná y la compresión. */
@@ -396,14 +417,15 @@ public final class Cities {
         if (city == null || city.placed().contains(WALLS_DONE)) return;
         int baseY = city.baseY();
         boolean midgar = site.kind() == CityLayout.Kind.MIDGAR;
-        BlockState wall = (midgar ? Blocks.STONE_BRICKS : Blocks.QUARTZ_BRICKS).defaultBlockState();
-        BlockState wall2 = (midgar ? Blocks.CRACKED_STONE_BRICKS : Blocks.SMOOTH_QUARTZ).defaultBlockState();
-        BlockState cap = (midgar ? Blocks.CHISELED_STONE_BRICKS : Blocks.CHISELED_QUARTZ_BLOCK).defaultBlockState();
-        BlockState roof = (midgar ? Blocks.DEEPSLATE_TILES : Blocks.DARK_PRISMARINE).defaultBlockState();
-        BlockState road = (midgar ? Blocks.STONE_BRICKS : Blocks.POLISHED_ANDESITE).defaultBlockState();
-        BlockState grass = Blocks.GRASS_BLOCK.defaultBlockState();
-        BlockState lantern = Blocks.LANTERN.defaultBlockState();
-        int height = midgar ? 10 : 8;
+        boolean lawless = site.kind() == CityLayout.Kind.LAWLESS;
+        BlockState wall = (midgar ? Blocks.STONE_BRICKS : lawless ? Blocks.POLISHED_BLACKSTONE_BRICKS : Blocks.QUARTZ_BRICKS).defaultBlockState();
+        BlockState wall2 = (midgar ? Blocks.CRACKED_STONE_BRICKS : lawless ? Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS : Blocks.SMOOTH_QUARTZ).defaultBlockState();
+        BlockState cap = (midgar ? Blocks.CHISELED_STONE_BRICKS : lawless ? Blocks.CHISELED_POLISHED_BLACKSTONE : Blocks.CHISELED_QUARTZ_BLOCK).defaultBlockState();
+        BlockState roof = (midgar ? Blocks.DEEPSLATE_TILES : lawless ? Blocks.NETHER_BRICKS : Blocks.DARK_PRISMARINE).defaultBlockState();
+        BlockState road = (midgar ? Blocks.STONE_BRICKS : lawless ? Blocks.COBBLED_DEEPSLATE : Blocks.POLISHED_ANDESITE).defaultBlockState();
+        BlockState grass = (lawless ? Blocks.COARSE_DIRT : Blocks.GRASS_BLOCK).defaultBlockState();
+        BlockState lantern = (lawless ? Blocks.SOUL_LANTERN : Blocks.LANTERN).defaultBlockState();
+        int height = midgar || lawless ? 10 : 8;
         int size = site.kind().size();
         int x0 = site.minX();
         int z0 = site.minZ();

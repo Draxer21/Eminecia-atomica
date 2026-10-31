@@ -28,6 +28,9 @@ STYLE = {
     'oriana': dict(road=['polished_andesite', 'smooth_stone', 'polished_andesite', 'polished_diorite'], curb='smooth_stone',
                    wall='quartz_bricks', wall2='smooth_quartz', cap='chiseled_quartz_block', tower_roof='oxidized_cut_copper',
                    lamp_post='iron_bars'),
+    'lawless': dict(road=['cobblestone', 'mossy_cobblestone', 'gravel', 'andesite', 'cobbled_deepslate'], curb='cobbled_deepslate',
+                    wall='polished_blackstone_bricks', wall2='cracked_polished_blackstone_bricks', cap='chiseled_polished_blackstone',
+                    tower_roof='nether_bricks', lamp_post='dark_oak_fence'),
 }
 
 

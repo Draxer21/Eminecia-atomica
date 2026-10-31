@@ -327,6 +327,9 @@ public class BloodLordEntity extends Monster {
         if (level() instanceof ServerLevel level) {
             bats(level, position().add(0, 1, 0), 60);
             tell(level, "message.draxatomic." + lord.name().toLowerCase() + "_defeated", ChatFormatting.LIGHT_PURPLE);
+            if (lord == Lord.CRIMSON) {
+                Cities.lawlessAt(level, getX(), getZ()).ifPresent(site -> Vampires.awakenQueen(level, Cities.coffin(level, site)));
+            }
         }
         super.die(source);
     }

@@ -35,7 +35,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
@@ -109,10 +109,56 @@ public final class Vampires {
     // ---------------------------------------------------------------- siervos nocturnos
 
     /** De noche aparecen pequeños grupos de siervos vampiro cerca de los jugadores. */
+    private record Awakening(ServerLevel level, net.minecraft.world.phys.Vec3 at, int[] delay) {}
+
+    private static final java.util.List<Awakening> AWAKENINGS = new java.util.ArrayList<>();
+
+    /** La sangre de Crimson empapa el ataúd: Elizabeth despierta en lo alto de la Torre Carmesí. */
+    static void awakenQueen(ServerLevel level, net.minecraft.world.phys.Vec3 at) {
+        AWAKENINGS.add(new Awakening(level, at, new int[] {80}));
+        for (ServerPlayer player : level.players()) {
+            if (player.distanceToSqr(at) < 128 * 128) {
+                player.sendSystemMessage(Component.translatable("message.draxatomic.queen_stirs").withStyle(ChatFormatting.DARK_RED));
+            }
+        }
+    }
+
+    private static void awakeningTick() {
+        java.util.Iterator<Awakening> it = AWAKENINGS.iterator();
+        while (it.hasNext()) {
+            Awakening a = it.next();
+            int left = --a.delay()[0];
+            ServerLevel level = a.level();
+            if (left > 0) {
+                if (left % 4 == 0) level.sendParticles(BLOOD, true, true, a.at().x, a.at().y + 0.5, a.at().z, 20, 0.8, 0.4, 0.8, 0.02);
+                continue;
+            }
+            it.remove();
+            BloodLordEntity queen = ELIZABETH.value().create(level, EntitySpawnReason.TRIGGERED);
+            if (queen == null) continue;
+            queen.snapTo(a.at().x, a.at().y, a.at().z, 180.0F, 0);
+            level.addFreshEntity(queen);
+            queen.announce();
+        }
+    }
+
     @SubscribeEvent
     public static void onServerTick(ServerTickEvent.Post event) {
+        if (!AWAKENINGS.isEmpty()) awakeningTick();
         if (!AtomicConfig.vampires()) return;
         ServerLevel level = event.getServer().overworld();
+        // En la Ciudad sin Ley, de noche, los siervos salen de los callejones mucho más seguido.
+        if (level.getGameTime() % 200 == 100 && !level.isBrightOutside()) {
+            for (ServerPlayer player : level.players()) {
+                if (player.isSpectator() || Cities.lawlessAt(level, player.getX(), player.getZ()).isEmpty()) continue;
+                if (level.getEntitiesOfClass(VampireEntity.class, player.getBoundingBox().inflate(48)).size() >= 10) continue;
+                RandomSource r = level.getRandom();
+                double angle = r.nextDouble() * Math.PI * 2;
+                int cx = (int) (player.getX() + Math.cos(angle) * 18);
+                int cz = (int) (player.getZ() + Math.sin(angle) * 18);
+                for (int i = 0; i < 2; i++) spawnServant(level, cx + r.nextInt(5) - 2, cz + r.nextInt(5) - 2, null);
+            }
+        }
         if (level.getGameTime() % 800 != 400 || level.isBrightOutside()) return;
         RandomSource random = level.getRandom();
         for (ServerPlayer player : level.players()) {
@@ -143,10 +189,10 @@ public final class Vampires {
 
     /** Con "Drenaje de sangre" activo, tus golpes te curan un cuarto del daño hecho. */
     @SubscribeEvent
-    public static void onDamage(LivingDamageEvent.Post event) {
+    public static void onDamage(LivingIncomingDamageEvent event) {
         if (!(event.getSource().getEntity() instanceof ServerPlayer player) || event.getEntity() == player) return;
         if (!Magic.state(player).on(MagicState.Spell.BLOOD_DRAIN)) return;
-        float heal = event.getNewDamage() * 0.25F;
+        float heal = event.getAmount() * 0.25F;
         if (heal <= 0) return;
         player.heal(heal);
         LivingEntity victim = event.getEntity();

@@ -229,5 +229,7 @@
   "spell.draxatomic.bat_form": "Forma de murciélagos",
   "spell.draxatomic.bat_form.desc": "Te deshaces en murciélagos: vuelas, eres invisible y casi intocable unos segundos.",
   "spell.draxatomic.blood_drain": "Drenaje de sangre",
-  "spell.draxatomic.blood_drain.desc": "Sostenido: tus golpes te curan un cuarto del daño que hacen."
+  "spell.draxatomic.blood_drain.desc": "Sostenido: tus golpes te curan un cuarto del daño que hacen.",
+  "city.draxatomic.lawless": "la Ciudad sin Ley",
+  "message.draxatomic.queen_stirs": "La sangre de Crimson empapa el ataúd en lo alto de la Torre Carmesí... algo despierta."
 }

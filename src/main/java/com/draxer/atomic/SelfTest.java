@@ -103,9 +103,9 @@ public final class SelfTest {
                 LOG.info("DRAXTEST city {} {}", kind, site.map(s -> s.centerX() + "," + s.centerZ() + " cells=" + Cities.total(s)).orElse("NONE"));
             }
             // Coloca algunas cuadras grandes en una zona cargada a la fuerza.
-            commands.performPrefixedCommand(source, "forceload add 5000 5000 5350 5070");
+            commands.performPrefixedCommand(source, "forceload add 5000 5000 5420 5070");
             int k = 0;
-            for (String t : new String[] {"city/midgar/castle", "city/oriana/palace", "city/midgar/houses_a", "city/oriana/houses_a", "city/sanctuary/temple"}) {
+            for (String t : new String[] {"city/midgar/castle", "city/oriana/palace", "city/midgar/houses_a", "city/oriana/houses_a", "city/sanctuary/temple", "city/lawless/crimson_tower"}) {
                 Cities.placeCell(level, t, 5000 + k * 70, 90, 5000, 64, 1L);
                 LOG.info("DRAXTEST placed {}", t);
                 k++;
