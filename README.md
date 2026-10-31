@@ -1,6 +1,6 @@
 # Drax Atomic
 
-Mod de NeoForge para Minecraft 26.2 (versión del mod 0.16.3).
+Mod de NeoForge para Minecraft 26.2 (versión del mod 0.16.4).
 
 ## Poder mágico
 
@@ -163,6 +163,7 @@ Los textos (incluida la frase) están en `assets/draxatomic/lang/*.json`.
 ## Historial
 
 - 0.11.0: domo de barrera al cargar los Atomic (marca el área exacta); carga más corta (1,5 s) y más alcance (Atomic 48, hasta 160 con mejoras y compresión); tallado del cráter más rápido.
+- 0.16.4: skins nuevas de Eta y de Gamma (también la Gamma de la tienda Mitsugoshi).
 - 0.16.3: skins nuevas de Alexia, Claire, Aurora, Iris, Mary, Rose, Crimson, Elizabeth y de las Siete Sombras (pasadas a brazos clásicos); las Sombras usan el modelo de jugador y sus archivos se llaman como ellas (`shadow_garden/alpha.png` … `eta.png`).
 - 0.16.2: el constructor de ciudades pide los chunks de verdad sin esperar (otro cuelgue del servidor dedicado al construir la Ciudad sin Ley).
 - 0.16.1: los personajes y los vampiros usan el modelo de jugador: aceptan skins modernas de 64×64 (brazos clásicos). Las skins incluidas se pasaron a ese formato; `tools/skins.py slim <archivo>` convierte una skin de brazos finos a clásicos.
