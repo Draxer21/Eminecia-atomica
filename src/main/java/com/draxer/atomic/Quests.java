@@ -86,7 +86,24 @@ public final class Quests {
                     r("minecraft:diamond", 8)),
             // Rey Raphael
             bring("raphael_tribute", "raphael", "draxatomic:diablos_drop", 20, 0,
-                    r("minecraft:emerald", 64), r("minecraft:gold_block", 4)));
+                    r("minecraft:emerald", 64), r("minecraft:gold_block", 4)),
+            // Mary, la cazadora de vampiros (Ciudad sin Ley)
+            kill("mary_servants", "mary", "draxatomic:vampire_servant", 15, 0,
+                    r("draxatomic:blood_vial", 4), r("minecraft:emerald", 16)),
+            kill("mary_crimson", "mary", "draxatomic:crimson", 1, 25,
+                    r("minecraft:diamond", 6)),
+            kill("mary_queen", "mary", "draxatomic:elizabeth", 1, 50,
+                    r("minecraft:netherite_ingot", 2)),
+            kill("mary_aurora", "mary", "draxatomic:aurora", 1, 50,
+                    r("minecraft:enchanted_golden_apple", 1)),
+            // Yukime, la Zorra de las Nieves
+            bring("yukime_vials", "yukime", "draxatomic:blood_vial", 10, 0,
+                    r("minecraft:emerald", 32), r("minecraft:gold_block", 2)),
+            // Juggernaut
+            kill("juggernaut_pit", "juggernaut", "enemy", 30, 0,
+                    r("minecraft:netherite_ingot", 1), r("minecraft:iron_block", 8)),
+            kill("juggernaut_cult", "juggernaut", "draxatomic:diablos_cultist", 15, 0,
+                    r("minecraft:emerald", 24)));
 
     public static Quest byId(String id) {
         for (Quest q : ALL) if (q.id().equals(id)) return q;

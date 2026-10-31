@@ -27,6 +27,8 @@ public final class VampireClient {
         event.registerEntityRenderer(Vampires.SERVANT.value(), c -> new Renderer<>(c, texture("servant"), 1.0F));
         event.registerEntityRenderer(Vampires.CRIMSON.value(), c -> new Renderer<>(c, texture("crimson"), 1.05F));
         event.registerEntityRenderer(Vampires.ELIZABETH.value(), c -> new Renderer<>(c, texture("elizabeth"), 1.1F));
+        event.registerEntityRenderer(Vampires.AURORA.value(), c -> new Renderer<>(c,
+                Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "textures/entity/npc/claire_aurora.png"), 1.0F));
     }
 
     public static final class Renderer<T extends Mob> extends HumanoidMobRenderer<T, HumanoidRenderState, HumanoidModel<HumanoidRenderState>> {

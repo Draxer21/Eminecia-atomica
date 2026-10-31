@@ -7,7 +7,7 @@ import os, random, sys
 sys.path.insert(0, os.path.dirname(__file__))
 from structures import Build
 from furniture import *
-from city import (ground, roads, lamp, stairs, slab, villager, entity, mid_house, market, C, STYLE)
+from city import (ground, roads, lamp, stairs, slab, villager, entity, npc, mid_house, market, C, STYLE)
 from nbtlib import Int
 
 S = 'lawless'
@@ -96,6 +96,7 @@ def tavern():
         b.set(x, 6, 18, 'soul_lantern', hanging='true', waterlogged='false')
     villager(b, 17, 1, Z0 + 2, 'minecraft:butcher', 'swamp')
     villager(b, 12, 1, 18, 'minecraft:none', 'taiga')
+    npc(b, 22, 1, 19, 'mary', 0.0)
     red_lamp(b, 14, 1, Z1 + 2)
     b.save_to(f'city/{S}/tavern')
 
@@ -123,6 +124,7 @@ def arena():
     b.box(cx - 1, 1, cz + 8, cx + 1, 6, cz + 13, 'air')      # entrada sur
     b.box(cx - 1, 0, cz + 8, cx + 1, 0, cz + 13, 'cobbled_deepslate')
     villager(b, cx - 5, 6, cz - 11, 'minecraft:none', 'swamp'); villager(b, cx + 6, 6, cz - 11, 'minecraft:none', 'taiga')
+    npc(b, cx, 1, cz + 3, 'juggernaut', 180.0)
     b.save_to(f'city/{S}/arena')
 
 
@@ -234,7 +236,7 @@ def build_all():
         slums(name, 300 + k)
     tavern()
     arena()
-    market(S, 34)
+    market(S, 34, lambda b: npc(b, 18, 1, 13, 'yukime', 0.0))
     crimson_tower()
 
 

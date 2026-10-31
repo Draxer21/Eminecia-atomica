@@ -84,6 +84,7 @@ public final class Magic {
         MagicState s = state(player);
         List<Integer> levels = new ArrayList<>();
         for (MagicState.Upgrade u : MagicState.Upgrade.values()) levels.add(s.level(u));
+        levels.add(player.getData(Vampires.TOLERANCE)); // al final: tolerancia extra (Fragmentos de Aurora)
         PacketDistributor.sendToPlayer(player, new MagicPayloads.Sync(s.spell(), s.compression(), s.toggles(), s.points(), s.xp(), levels));
     }
 
@@ -119,7 +120,7 @@ public final class Magic {
     }
 
     public static int maxCompression(Player player) {
-        return 3 + state(player).level(MagicState.Upgrade.COMPRESSION);
+        return 3 + state(player).level(MagicState.Upgrade.COMPRESSION) + player.getData(Vampires.TOLERANCE);
     }
 
     /** Usa la compresión acumulada: devuelve el multiplicador (1 = nada) y la vacía. */

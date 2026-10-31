@@ -133,6 +133,48 @@ def elizabeth():
     s.save('vampire/elizabeth.png')
 
 
+def mary():
+    s = Skin(14)
+    s.head('#F2E2DA'); s.hair('#1A1218', long=True)
+    s.eyes('#A0102A')
+    s.rect(11, 14, 2, 1, '#A04050', 0)
+    s.body('#2A1A22'); s.rect(22, 20, 4, 12, '#5A0A1A', 4)     # abrigo con chaleco carmesí
+    s.rect(20, 26, 8, 1, '#3A2A1A', 0); s.dot(24, 26, '#C9A030')  # cinturón
+    s.arm('#2A1A22'); s.rect(44, 30, 4, 2, '#F2E2DA', 4)
+    s.leg('#1A1218'); s.rect(4, 28, 4, 4, '#3A2A1A', 4)
+    s.save('npc/mary.png')
+
+
+def yukime():
+    s = Skin(15)
+    s.head('#F6ECE6'); s.hair('#F4F4FA', long=True)
+    s.rect(8, 0, 2, 2, '#F4F4FA', 0); s.rect(14, 0, 2, 2, '#F4F4FA', 0)   # orejas de zorra
+    s.dot(9, 1, '#F0B0C0'); s.dot(14, 1, '#F0B0C0')
+    s.eyes('#5FB0E0')
+    s.rect(11, 14, 2, 1, '#D07080', 0)
+    s.body('#E8E8F4'); s.rect(20, 26, 8, 1, '#5FB0E0', 0)      # kimono blanco, obi celeste
+    s.rect(23, 20, 2, 6, '#C8C8DC', 4)
+    s.arm('#E8E8F4'); s.rect(44, 30, 4, 2, '#F6ECE6', 4)
+    s.leg('#D8D8E8')
+    s.save('npc/yukime.png')
+
+
+def juggernaut():
+    s = Skin(16)
+    s.head('#B88A68'); s.rect(8, 0, 8, 8, '#3A2A1A', 6)          # rapado
+    s.rect(24, 8, 8, 2, '#3A2A1A', 6)
+    s.eyes('#3A2010')
+    s.rect(9, 11, 6, 1, '#2A1A10', 0)                             # ceño
+    s.rect(10, 14, 4, 2, '#4A3020', 6)                            # barba
+    s.rect(14, 12, 1, 3, '#8A5A48', 0)                            # cicatriz
+    s.body('#B88A68'); s.rect(20, 28, 8, 4, '#3A2A1A', 4)        # torso desnudo, cinturón
+    s.rect(23, 28, 2, 2, '#C9A030', 0)
+    s.rect(22, 22, 1, 4, '#9A7058', 0); s.rect(25, 22, 1, 4, '#9A7058', 0)
+    s.arm('#B88A68'); s.rect(44, 28, 4, 4, '#5A4030', 4)          # muñequeras
+    s.leg('#3A2A1A')
+    s.save('npc/juggernaut.png')
+
+
 def claire_aurora():
     """Claire poseída por Aurora: ojos violeta brillantes y marcas que le suben por el cuello."""
     base = Image.open(os.path.join(OUT, 'npc/claire.png')).convert('RGBA')
@@ -188,6 +230,19 @@ def crimson_blood(p):
     p[6, 6] = hexc('#FF6070'); p[6, 7] = hexc('#FF6070')
 
 
+def aurora_fragment(p):
+    pts = [(8, 1), (7, 2), (8, 2), (9, 2), (6, 3), (7, 3), (8, 3), (9, 3), (10, 3)]
+    for y in range(4, 12):
+        w = 3 if y < 8 else 3 - (y - 7)
+        for x in range(8 - w, 9 + w):
+            pts.append((x, y))
+    for (x, y) in pts:
+        p[x, y] = hexc('#8A3BFF') if (x + y) % 3 else hexc('#C9A0FF')
+    for (x, y) in ((8, 4), (7, 6), (9, 8), (8, 10)):
+        p[x, y] = hexc('#FF3B6B')
+    p[7, 4] = hexc('#F0E0FF')
+
+
 def queen_blood(p):
     crimson_blood(p)
     for x in range(5, 11):
@@ -196,6 +251,7 @@ def queen_blood(p):
 
 
 if __name__ == '__main__':
-    servant(); crimson(); elizabeth(); claire_aurora()
+    servant(); crimson(); elizabeth(); claire_aurora(); mary(); yukime(); juggernaut()
+    item('aurora_fragment', aurora_fragment)
     item('blood_vial', vial); item('crimson_chalice', chalice)
     item('crimson_blood', crimson_blood); item('queen_blood', queen_blood)

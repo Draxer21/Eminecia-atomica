@@ -313,7 +313,7 @@ def park(style, seed):
     b.save_to(f'city/{style}/park')
 
 
-def market(style, seed):
+def market(style, seed, extra=None):
     rnd = random.Random(seed)
     b = Build(C, 10, C)
     ground(b, C, style, rnd, 'stone_bricks' if style == 'midgar' else 'polished_andesite')
@@ -336,6 +336,8 @@ def market(style, seed):
     b.box(16, 1, 16, 17, 1, 17, 'water', level='0')
     for k in range(3):
         villager(b, 9 + k * 7, 1, 13)
+    if extra:
+        extra(b)
     b.save_to(f'city/{style}/market')
 
 

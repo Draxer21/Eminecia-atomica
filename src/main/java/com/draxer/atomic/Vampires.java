@@ -72,6 +72,23 @@ public final class Vampires {
                     .clientTrackingRange(12)
                     .build(key("elizabeth")));
 
+    public static final DeferredHolder<EntityType<?>, EntityType<AuroraEntity>> AURORA = ShadowGarden.ENTITY_TYPES.register("aurora", () ->
+            EntityType.Builder.of(AuroraEntity::new, MobCategory.MONSTER)
+                    .sized(0.6F, 1.8F)
+                    .fireImmune()
+                    .clientTrackingRange(12)
+                    .build(key("aurora")));
+
+    /** Fragmento de Aurora: tu cuerpo tolera un nivel más de compresión (hasta 2). */
+    public static final DeferredHolder<Item, Item> AURORA_FRAGMENT = DraxAtomic.ITEMS.registerItem("aurora_fragment",
+            properties -> new AuroraFragmentItem(properties.stacksTo(4).rarity(Rarity.EPIC).fireResistant()));
+
+    /** Niveles extra de tolerancia a la compresión ganados con Fragmentos de Aurora. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> TOLERANCE = Mana.ATTACHMENTS.register("compression_tolerance",
+            () -> AttachmentType.builder(() -> 0).serialize(Codec.INT.fieldOf("value")).copyOnDeath().build());
+
+    public static final int MAX_TOLERANCE = 2;
+
     /** Vial de sangre: lo sueltan los vampiros; cura y devuelve un poco de poder. */
     public static final DeferredHolder<Item, Item> BLOOD_VIAL = DraxAtomic.ITEMS.registerItem("blood_vial",
             properties -> new VialItem(properties.stacksTo(16).rarity(Rarity.UNCOMMON)));
@@ -97,6 +114,7 @@ public final class Vampires {
         event.put(SERVANT.value(), VampireEntity.createAttributes().build());
         event.put(CRIMSON.value(), BloodLordEntity.createAttributes(BloodLordEntity.Lord.CRIMSON).build());
         event.put(ELIZABETH.value(), BloodLordEntity.createAttributes(BloodLordEntity.Lord.ELIZABETH).build());
+        event.put(AURORA.value(), AuroraEntity.createAttributes().build());
     }
 
     public static boolean knowsBloodMagic(Player player) {
@@ -109,13 +127,23 @@ public final class Vampires {
     // ---------------------------------------------------------------- siervos nocturnos
 
     /** De noche aparecen pequeños grupos de siervos vampiro cerca de los jugadores. */
-    private record Awakening(ServerLevel level, net.minecraft.world.phys.Vec3 at, int[] delay) {}
+    private record Awakening(ServerLevel level, net.minecraft.world.phys.Vec3 at, int[] delay, boolean aurora) {}
+
+    /** Tras la caída de la Reina, Claire sube a la torre... y Aurora toma su cuerpo. */
+    static void possessClaire(ServerLevel level, net.minecraft.world.phys.Vec3 at) {
+        AWAKENINGS.add(new Awakening(level, at, new int[] {140}, true));
+        for (ServerPlayer player : level.players()) {
+            if (player.distanceToSqr(at) < 128 * 128) {
+                player.sendSystemMessage(Component.translatable("message.draxatomic.claire_arrives").withStyle(ChatFormatting.DARK_RED));
+            }
+        }
+    }
 
     private static final java.util.List<Awakening> AWAKENINGS = new java.util.ArrayList<>();
 
     /** La sangre de Crimson empapa el ataúd: Elizabeth despierta en lo alto de la Torre Carmesí. */
     static void awakenQueen(ServerLevel level, net.minecraft.world.phys.Vec3 at) {
-        AWAKENINGS.add(new Awakening(level, at, new int[] {80}));
+        AWAKENINGS.add(new Awakening(level, at, new int[] {80}, false));
         for (ServerPlayer player : level.players()) {
             if (player.distanceToSqr(at) < 128 * 128) {
                 player.sendSystemMessage(Component.translatable("message.draxatomic.queen_stirs").withStyle(ChatFormatting.DARK_RED));
@@ -130,10 +158,19 @@ public final class Vampires {
             int left = --a.delay()[0];
             ServerLevel level = a.level();
             if (left > 0) {
-                if (left % 4 == 0) level.sendParticles(BLOOD, true, true, a.at().x, a.at().y + 0.5, a.at().z, 20, 0.8, 0.4, 0.8, 0.02);
+                if (left % 4 == 0) level.sendParticles(a.aurora() ? new DustParticleOptions(0x8A3BFF, 1.3F) : BLOOD, true, true,
+                        a.at().x, a.at().y + 0.5, a.at().z, 20, 0.8, 0.4, 0.8, 0.02);
                 continue;
             }
             it.remove();
+            if (a.aurora()) {
+                AuroraEntity aurora = AURORA.value().create(level, EntitySpawnReason.TRIGGERED);
+                if (aurora == null) continue;
+                aurora.snapTo(a.at().x, a.at().y, a.at().z, 180.0F, 0);
+                level.addFreshEntity(aurora);
+                aurora.announce();
+                continue;
+            }
             BloodLordEntity queen = ELIZABETH.value().create(level, EntitySpawnReason.TRIGGERED);
             if (queen == null) continue;
             queen.snapTo(a.at().x, a.at().y, a.at().z, 180.0F, 0);
@@ -275,6 +312,36 @@ public final class Vampires {
         public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay display,
                                     Consumer<Component> tooltip, TooltipFlag flag) {
             tooltip.accept(Component.translatable("tooltip.draxatomic.crimson_blood").withStyle(ChatFormatting.DARK_RED));
+        }
+    }
+
+    public static final class AuroraFragmentItem extends Item {
+        public AuroraFragmentItem(Properties properties) {
+            super(properties);
+        }
+
+        @Override
+        public InteractionResult use(Level level, Player player, InteractionHand hand) {
+            if (player instanceof ServerPlayer sp) {
+                int now = sp.getData(TOLERANCE);
+                if (now >= MAX_TOLERANCE) {
+                    sp.sendOverlayMessage(Component.translatable("message.draxatomic.tolerance_max").withStyle(ChatFormatting.GRAY));
+                    return InteractionResult.FAIL;
+                }
+                sp.setData(TOLERANCE, now + 1);
+                Magic.sync(sp);
+                level.playSound(null, sp.getX(), sp.getY(), sp.getZ(), SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.PLAYERS, 1.5F, 0.6F);
+                ((ServerLevel) level).sendParticles(new DustParticleOptions(0x8A3BFF, 1.4F), sp.getX(), sp.getY() + 1, sp.getZ(), 40, 0.4, 0.8, 0.4, 0.05);
+                sp.sendOverlayMessage(Component.translatable("message.draxatomic.tolerance_up", Magic.maxCompression(sp)).withStyle(ChatFormatting.LIGHT_PURPLE));
+                player.getItemInHand(hand).consume(1, player);
+            }
+            return InteractionResult.SUCCESS;
+        }
+
+        @Override
+        public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay display,
+                                    Consumer<Component> tooltip, TooltipFlag flag) {
+            tooltip.accept(Component.translatable("tooltip.draxatomic.aurora_fragment").withStyle(ChatFormatting.LIGHT_PURPLE));
         }
     }
 

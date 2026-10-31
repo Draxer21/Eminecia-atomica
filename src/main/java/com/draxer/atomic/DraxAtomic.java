@@ -54,6 +54,7 @@ public final class DraxAtomic {
             event.accept(Vampires.CHALICE.value());
             event.accept(Vampires.CRIMSON_BLOOD.value());
             event.accept(Vampires.QUEEN_BLOOD.value());
+            event.accept(Vampires.AURORA_FRAGMENT.value());
         }
         if (event.getTabKey() == CreativeModeTabs.FOOD_AND_DRINKS) {
             event.accept(Mitsugoshi.CHOCOLATE.value());

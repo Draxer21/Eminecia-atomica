@@ -79,7 +79,7 @@ public final class SelfTest {
         step("entities", () -> {
             for (var type : new net.minecraft.world.entity.EntityType<?>[] {
                     ShadowGarden.ALLY.value(), Cult.CULTIST.value(), Cult.KNIGHT.value(),
-                    Vampires.SERVANT.value(), Vampires.CRIMSON.value(), Vampires.ELIZABETH.value()}) {
+                    Vampires.SERVANT.value(), Vampires.CRIMSON.value(), Vampires.ELIZABETH.value(), Vampires.AURORA.value()}) {
                 var entity = type.create(level, EntitySpawnReason.COMMAND);
                 if (entity == null) {
                     LOG.info("DRAXTEST entity {} NULL", type);

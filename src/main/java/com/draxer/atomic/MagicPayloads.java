@@ -60,6 +60,12 @@ public final class MagicPayloads {
             return TYPE;
         }
 
+        /** Niveles extra de tolerancia a la compresión (va al final de la lista). */
+        public int tolerance() {
+            int n = MagicState.Upgrade.values().length;
+            return levels.size() > n ? levels.get(n) : 0;
+        }
+
         public int level(MagicState.Upgrade upgrade) {
             return upgrade.ordinal() < levels.size() ? levels.get(upgrade.ordinal()) : 0;
         }

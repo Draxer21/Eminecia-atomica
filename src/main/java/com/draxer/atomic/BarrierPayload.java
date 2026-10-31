@@ -45,6 +45,15 @@ public record BarrierPayload(int owner, double x, double y, double z, int radius
         sendAt(level, caster, caster.position().add(0, 1.0, 0), radius, ticks, color);
     }
 
+    /** El domo de cualquier entidad (lo usa Aurora). */
+    public static void sendFrom(ServerLevel level, int owner, net.minecraft.world.phys.Vec3 at, int radius, int ticks, int color) {
+        BarrierPayload payload = new BarrierPayload(owner, at.x, at.y, at.z, radius, ticks, color);
+        double reach = radius + 160;
+        for (ServerPlayer p : level.players()) {
+            if (p.distanceToSqr(at) < reach * reach) PacketDistributor.sendToPlayer(p, payload);
+        }
+    }
+
     /** Igual, pero con el centro en otro punto (pruebas para verlo desde fuera). */
     public static void sendAt(ServerLevel level, ServerPlayer caster, net.minecraft.world.phys.Vec3 at, int radius, int ticks, int color) {
         BarrierPayload payload = new BarrierPayload(caster.getId(), at.x, at.y, at.z, radius, ticks, color);

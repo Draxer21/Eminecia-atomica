@@ -110,6 +110,21 @@ public final class DraxCommands {
                             AtomicVariants.recovery((ServerLevel) player.level(), player);
                             return 1;
                         }))
+                        .then(Commands.literal("aurora").executes(context -> {
+                            // Aurora (en el cuerpo de Claire) 10 bloques delante; empieza herida para que intente el All-Range.
+                            ServerPlayer player = creative(context.getSource());
+                            if (player == null) return 0;
+                            ServerLevel level = (ServerLevel) player.level();
+                            Vec3 at = player.position().add(player.getLookAngle().multiply(1, 0, 1).normalize().scale(10));
+                            AuroraEntity aurora = Vampires.AURORA.value().create(level, EntitySpawnReason.COMMAND);
+                            if (aurora == null) return 0;
+                            aurora.snapTo(at.x, player.getY(), at.z, player.getYRot() + 180.0F, 0.0F);
+                            aurora.setHealth(aurora.getMaxHealth() * 0.6F);
+                            aurora.setTarget(player);
+                            level.addFreshEntity(aurora);
+                            aurora.announce();
+                            return 1;
+                        }))
                         .then(Commands.literal("vampires").executes(context -> {
                             // Dos siervos, Crimson y Elizabeth en fila frente al jugador.
                             ServerPlayer player = creative(context.getSource());

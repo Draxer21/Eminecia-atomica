@@ -193,7 +193,15 @@ public final class DemoClient {
             case 2980 -> shot("lawless");
             case 3000 -> cmd(mc, "draxatomic city view lawless castle");
             case 3100 -> shot("crimson_tower");
-            case 3120 -> shot("end");
+            // Aurora (en el cuerpo de Claire) intenta el All-Range y se disipa.
+            case 3120 -> {
+                cmd(mc, "time set 18000");
+                cmd(mc, "tp @s " + ox + ".5 " + (oy + 2) + " " + (oz - 20) + ".5 0 0");
+                cmd(mc, "draxatomic test aurora");
+            }
+            case 3200 -> shot("aurora_charge");
+            case 3250 -> shot("aurora_dissipates");
+            case 3270 -> shot("end");
             default -> {}
         }
     }
