@@ -165,7 +165,7 @@ public final class Magic {
 
     /** La técnica se deshace: estallido pequeño, daño al lanzador y se pierde toda la compresión. */
     public static void dissipate(ServerLevel level, LivingEntity caster, int over) {
-        if (caster instanceof Player p) set(p, state(p).withCompression(0));
+        if (caster instanceof ServerPlayer p) set(p, state(p).withCompression(0));
         Vec3 c = caster.position().add(0, 1.0, 0);
         level.sendParticles(ParticleTypes.EXPLOSION, true, true, c.x, c.y, c.z, 3, 0.6, 0.6, 0.6, 0);
         level.sendParticles(new DustParticleOptions(0xFF3B6B, 1.6F), true, true, c.x, c.y, c.z, 80, 1.5, 1.5, 1.5, 0.2);
