@@ -108,6 +108,18 @@ public final class SlimeSwordItem extends Item {
         float progress = Math.min(1.0F, elapsed / (float) total);
 
         if (elapsed == 1) {
+            // El domo de barrera: marca el área exacta que alcanzará el ataque.
+            SwordMode mode = SwordMode.of(stack);
+            float comp = Magic.peekCompression(player);
+            int radius = switch (mode) {
+                case ALL_RANGE_ATOMIC -> Math.round(AtomicConfig.allRangeRadius() * Magic.reach(player));
+                case RECOVERY_ATOMIC -> Math.round(AtomicConfig.recoveryRadius() * Magic.reach(player));
+                default -> AtomicBlast.atomicRadius(player, comp);
+            };
+            BarrierPayload.send(server, player, radius, total + 50,
+                    mode == SwordMode.RECOVERY_ATOMIC ? AtomicPayload.RECOVERY : AtomicPayload.VIOLET);
+            server.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.RESPAWN_ANCHOR_SET_SPAWN,
+                    SoundSource.PLAYERS, 1.5F, 0.6F);
             player.addEffect(new MobEffectInstance(MobEffects.LEVITATION, total, 0, false, false));
             server.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BEACON_ACTIVATE,
                     SoundSource.PLAYERS, 1.5F, 0.6F);
@@ -193,6 +205,7 @@ public final class SlimeSwordItem extends Item {
         if (level instanceof ServerLevel server && entity instanceof ServerPlayer player) {
             player.removeEffect(MobEffects.LEVITATION);
             player.getCooldowns().addCooldown(stack, 40);
+            BarrierPayload.send(server, player, 0, 0, 0);
             server.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BEACON_DEACTIVATE,
                     SoundSource.PLAYERS, 1.0F, 0.8F);
             server.sendParticles(ParticleTypes.SMOKE, player.getX(), player.getY() + 1.0, player.getZ(),

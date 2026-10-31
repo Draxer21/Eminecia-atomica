@@ -45,8 +45,8 @@ public final class AtomicConfig {
             .comment("Poder mágico que consume el Atomic. Con el valor por defecto necesitas la barra llena.")
             .defineInRange("cost", 100, 0, 10000);
     private static final ModConfigSpec.IntValue RADIUS = BUILDER
-            .comment("Radio de la explosión en bloques. Radios grandes tardan un poco más en tallar el cráter.")
-            .defineInRange("radius", 24, 4, 64);
+            .comment("Radio de la explosión en bloques. Radios grandes tardan unos segundos en tallar el cráter.")
+            .defineInRange("radius", 48, 4, 128);
     private static final ModConfigSpec.DoubleValue DAMAGE = BUILDER
             .comment("Daño en el centro de la explosión (baja hasta la mitad en el borde). Ignora armadura.")
             .defineInRange("damage", 150.0, 0.0, 10000.0);
@@ -58,7 +58,7 @@ public final class AtomicConfig {
             .define("protectContainers", true);
     private static final ModConfigSpec.DoubleValue CHARGE_SECONDS = BUILDER
             .comment("Segundos que hay que mantener clic derecho para cargar el ataque.")
-            .defineInRange("chargeSeconds", 3.0, 1.0, 10.0);
+            .defineInRange("chargeSeconds", 1.5, 0.5, 10.0);
     private static final ModConfigSpec.IntValue COOLDOWN_SECONDS = BUILDER
             .comment("Enfriamiento de la espada tras el Atomic, en segundos.")
             .defineInRange("cooldownSeconds", 10, 0, 3600);
@@ -66,7 +66,7 @@ public final class AtomicConfig {
     private static final ModConfigSpec.IntValue AR_COST = BUILDER
             .comment("Costo del All-Range Atomic.").defineInRange("cost", 140, 0, 10000);
     private static final ModConfigSpec.IntValue AR_RADIUS = BUILDER
-            .comment("Radio en el que busca enemigos.").defineInRange("radius", 40, 8, 128);
+            .comment("Radio en el que busca enemigos.").defineInRange("radius", 64, 8, 160);
     private static final ModConfigSpec.IntValue AR_TARGETS = BUILDER
             .comment("Máximo de enemigos marcados.").defineInRange("maxTargets", 24, 1, 200);
     private static final ModConfigSpec.IntValue AR_BLAST = BUILDER
@@ -80,7 +80,7 @@ public final class AtomicConfig {
     private static final ModConfigSpec.IntValue REC_COST = BUILDER
             .comment("Costo del Recovery Atomic.").defineInRange("cost", 60, 0, 10000);
     private static final ModConfigSpec.IntValue REC_RADIUS = BUILDER
-            .comment("Radio de curación.").defineInRange("radius", 20, 4, 64);
+            .comment("Radio de curación.").defineInRange("radius", 32, 4, 96);
 
     static { BUILDER.pop().push("cities"); }
     private static final ModConfigSpec.BooleanValue CITIES = BUILDER
@@ -124,13 +124,13 @@ public final class AtomicConfig {
     public static int rainRadius() { return loaded() ? RAIN_RADIUS.getAsInt() : 5; }
 
     public static int allRangeCost() { return loaded() ? AR_COST.getAsInt() : 140; }
-    public static int allRangeRadius() { return loaded() ? AR_RADIUS.getAsInt() : 40; }
+    public static int allRangeRadius() { return loaded() ? AR_RADIUS.getAsInt() : 64; }
     public static int allRangeMaxTargets() { return loaded() ? AR_TARGETS.getAsInt() : 24; }
     public static int allRangeBlastRadius() { return loaded() ? AR_BLAST.getAsInt() : 4; }
     public static float allRangeDamage() { return loaded() ? AR_DAMAGE.get().floatValue() : 60.0F; }
     public static boolean allRangeBreaksBlocks() { return loaded() && AR_BREAK.getAsBoolean(); }
     public static int recoveryCost() { return loaded() ? REC_COST.getAsInt() : 60; }
-    public static int recoveryRadius() { return loaded() ? REC_RADIUS.getAsInt() : 20; }
+    public static int recoveryRadius() { return loaded() ? REC_RADIUS.getAsInt() : 32; }
 
     public static boolean cities() { return !loaded() || CITIES.getAsBoolean(); }
     public static int midgarSpacing() { return loaded() ? MIDGAR_SPACING.getAsInt() : 2400; }
@@ -140,10 +140,10 @@ public final class AtomicConfig {
     public static float patrolChance() { return loaded() ? PATROL_CHANCE.get().floatValue() : 0.25F; }
 
     public static int atomicCost() { return loaded() ? ATOMIC_COST.getAsInt() : 100; }
-    public static int radius() { return loaded() ? RADIUS.getAsInt() : 24; }
+    public static int radius() { return loaded() ? RADIUS.getAsInt() : 48; }
     public static float damage() { return loaded() ? DAMAGE.get().floatValue() : 150.0F; }
     public static boolean destroyBlocks() { return !loaded() || DESTROY_BLOCKS.getAsBoolean(); }
     public static boolean protectContainers() { return !loaded() || PROTECT_CONTAINERS.getAsBoolean(); }
-    public static int chargeTicks() { return loaded() ? (int) Math.round(CHARGE_SECONDS.get() * 20) : 60; }
+    public static int chargeTicks() { return loaded() ? (int) Math.round(CHARGE_SECONDS.get() * 20) : 30; }
     public static int cooldownTicks() { return loaded() ? COOLDOWN_SECONDS.getAsInt() * 20 : 200; }
 }

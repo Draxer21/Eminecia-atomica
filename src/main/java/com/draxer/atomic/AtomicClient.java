@@ -38,6 +38,11 @@ public final class AtomicClient {
     private record Blast(double x, double y, double z, int radius, int color, boolean big, int[] age) {}
 
     private static final List<Blast> BLASTS = new ArrayList<>();
+
+    /** Domos de barrera activos: life[0] = ticks restantes, life[1] = edad. */
+    private record Barrier(int owner, double x, double y, double z, int radius, int color, int[] life) {}
+
+    private static final List<Barrier> BARRIERS = new ArrayList<>();
     /** Intensidad del destello 0..1 y del temblor 0..1; decaen cada tick. */
     private static float flash;
     private static float shake;
@@ -46,6 +51,11 @@ public final class AtomicClient {
     public static void registerPayloads(RegisterClientPayloadHandlersEvent event) {
         event.register(AtomicPayload.TYPE, (payload, context) -> start(payload));
         event.register(ManaPayload.TYPE, (payload, context) -> ManaPayload.latest = payload);
+        event.register(BarrierPayload.TYPE, (payload, context) -> {
+            BARRIERS.removeIf(b -> b.owner() == payload.owner());
+            if (payload.ticks() > 0) BARRIERS.add(new Barrier(payload.owner(), payload.x(), payload.y(), payload.z(),
+                    payload.radius(), payload.color(), new int[] {payload.ticks(), 0}));
+        });
     }
 
     @SubscribeEvent
@@ -77,12 +87,14 @@ public final class AtomicClient {
         ClientLevel level = mc.level;
         if (level == null || mc.player == null) {
             BLASTS.clear();
+            BARRIERS.clear();
             flash = 0;
             shake = 0;
             return;
         }
         if (mc.isPaused()) return;
         doubleJump(mc);
+        tickBarriers(level);
         flash = Math.max(0, flash - 0.06F);
         shake = Math.max(0, shake - 0.025F);
         Iterator<Blast> it = BLASTS.iterator();
@@ -213,5 +225,44 @@ public final class AtomicClient {
             net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(DoubleJumpPayload.INSTANCE);
         }
         jumpWasDown = jump;
+    }
+
+    // ---------------------------------------------------------------- domo de barrera
+
+    /** Esfera translúcida de puntos de luz que se cierra al aparecer y se desvanece al final. */
+    private static void tickBarriers(ClientLevel level) {
+        if (BARRIERS.isEmpty()) return;
+        RandomSource random = level.getRandom();
+        Iterator<Barrier> it = BARRIERS.iterator();
+        while (it.hasNext()) {
+            Barrier b = it.next();
+            int left = --b.life()[0];
+            int age = ++b.life()[1];
+            if (left <= 0) {
+                it.remove();
+                continue;
+            }
+            // Aparece desde un radio mayor y se asienta en el suyo.
+            double r = b.radius() * (1.0 + 0.25 * Math.max(0, 1.0 - age / 8.0));
+            DustParticleOptions shell = new DustParticleOptions(b.color(), b.radius() > 40 ? 3.0F : 2.0F);
+            DustParticleOptions edge = new DustParticleOptions(0xD9B8FF, 1.5F);
+            int points = Mth.clamp((int) (r * r * 0.12), 60, 700);
+            if (left < 20) points = points * left / 20;
+            for (int i = 0; i < points; i++) {
+                double u = random.nextDouble() * 2 - 1;
+                double a = random.nextDouble() * Math.PI * 2;
+                double s = Math.sqrt(1 - u * u);
+                level.addAlwaysVisibleParticle(i % 4 == 0 ? edge : shell,
+                        b.x() + s * Math.cos(a) * r, b.y() + u * r, b.z() + s * Math.sin(a) * r, 0, 0, 0);
+            }
+            // Anillo brillante a la altura del lanzador.
+            if (age % 2 == 0) {
+                int ring = Mth.clamp((int) (r * 2), 32, 240);
+                for (int i = 0; i < ring; i++) {
+                    double a = i * Math.PI * 2 / ring + age * 0.02;
+                    level.addAlwaysVisibleParticle(edge, b.x() + Math.cos(a) * r, b.y(), b.z() + Math.sin(a) * r, 0, 0, 0);
+                }
+            }
+        }
     }
 }

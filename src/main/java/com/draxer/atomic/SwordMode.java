@@ -49,7 +49,7 @@ public enum SwordMode {
         int base = AtomicConfig.chargeTicks();
         return switch (this) {
             case ALL_RANGE_ATOMIC -> Math.round(base * 1.35F);
-            case RECOVERY_ATOMIC -> Math.max(20, Math.round(base * 0.65F));
+            case RECOVERY_ATOMIC -> Math.max(12, Math.round(base * 0.65F));
             default -> base;
         };
     }

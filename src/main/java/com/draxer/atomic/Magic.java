@@ -123,6 +123,12 @@ public final class Magic {
     }
 
     /** Usa la compresión acumulada: devuelve el multiplicador (1 = nada) y la vacía. */
+    /** Multiplicador que daría la compresión actual, sin gastarla. */
+    public static float peekCompression(Player player) {
+        int c = state(player).compression();
+        return c <= 0 ? 1.0F : 1.0F + 0.6F * c;
+    }
+
     public static float consumeCompression(ServerPlayer player) {
         MagicState s = state(player);
         if (s.compression() <= 0) return 1.0F;

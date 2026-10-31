@@ -71,6 +71,12 @@ public final class DraxCommands {
                             AtomicBlast.detonate((ServerLevel) player.level(), player);
                             return 1;
                         }))
+                        .then(Commands.literal("barrier").executes(context -> {
+                            ServerPlayer player = creative(context.getSource());
+                            if (player == null) return 0;
+                            BarrierPayload.send((ServerLevel) player.level(), player, AtomicBlast.atomicRadius(player, 1.0F), 100, AtomicPayload.VIOLET);
+                            return 1;
+                        }))
                         .then(Commands.literal("atomicfar").executes(context -> {
                             // El Atomic completo 45 bloques delante, para verlo desde fuera.
                             ServerPlayer player = creative(context.getSource());

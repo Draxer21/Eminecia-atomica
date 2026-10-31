@@ -42,7 +42,7 @@ public final class AtomicBlast {
     /** Duración de la expansión de la esfera, en ticks (también la usa el cliente). */
     public static final int EXPAND_TICKS = 24;
     /** Máximo de bloques borrados por tick; lo que sobre se termina en los ticks siguientes. */
-    private static final int MAX_REMOVALS_PER_TICK = 40_000;
+    private static final int MAX_REMOVALS_PER_TICK = 80_000;
 
     private static final List<AtomicBlast> ACTIVE = new ArrayList<>();
 
@@ -54,7 +54,7 @@ public final class AtomicBlast {
     private final boolean carve;
     private final boolean protectContainers;
     private final Set<UUID> hit = new HashSet<>();
-    private final List<BlockPos> pending = new ArrayList<>();
+    private final it.unimi.dsi.fastutil.longs.LongArrayList pending = new it.unimi.dsi.fastutil.longs.LongArrayList();
     private int age;
     /** Radio (al cuadrado) ya procesado por el tallado del cráter. */
     private double carvedSq = -1;
@@ -72,11 +72,16 @@ public final class AtomicBlast {
         this.big = big;
     }
 
+    /** Radio final del Atomic con mejoras y compresión (tope: 160). */
+    public static int atomicRadius(net.minecraft.world.entity.player.Player caster, float comp) {
+        return Math.min(160, Math.round(AtomicConfig.radius() * Magic.reach(caster) * (1.0F + (comp - 1.0F) * 0.4F)));
+    }
+
     /** El Atomic normal, centrado en quien lo lanza. */
     public static void detonate(ServerLevel level, ServerPlayer caster) {
         // La compresión agranda la esfera y multiplica el daño; el árbol de habilidades también.
         float comp = Magic.consumeCompression(caster);
-        int radius = Math.min(96, Math.round(AtomicConfig.radius() * Magic.reach(caster) * (1.0F + (comp - 1.0F) * 0.4F)));
+        int radius = atomicRadius(caster, comp);
         AtomicBlast blast = new AtomicBlast(level, caster.getUUID(), caster.position().add(0, 1.0, 0),
                 radius, AtomicConfig.damage() * comp * Magic.power(caster), AtomicConfig.destroyBlocks(), true);
         ACTIVE.add(blast);
@@ -195,14 +200,19 @@ public final class AtomicBlast {
         int cx = Mth.floor(center.x);
         int cy = Mth.floor(center.y);
         int cz = Mth.floor(center.z);
+        // Por columna: solo los dy de la cáscara entre el radio ya tallado y el nuevo.
         for (int dx = -r; dx <= r; dx++) {
-            for (int dy = -r; dy <= r; dy++) {
-                int y = cy + dy;
-                if (y < level.getMinY() || y >= level.getMaxY()) continue;
-                for (int dz = -r; dz <= r; dz++) {
-                    double d2 = dx * dx + dy * dy + dz * dz;
-                    if (d2 > outerSq || d2 <= carvedSq) continue;
-                    pending.add(new BlockPos(cx + dx, y, cz + dz));
+            for (int dz = -r; dz <= r; dz++) {
+                double h2 = dx * dx + dz * dz;
+                if (h2 > outerSq) continue;
+                int outer = (int) Math.floor(Math.sqrt(outerSq - h2));
+                double innerSq = carvedSq - h2;
+                int inner = innerSq < 0 ? -1 : (int) Math.floor(Math.sqrt(innerSq));
+                for (int dy = -outer; dy <= outer; dy++) {
+                    if (Math.abs(dy) <= inner && dx * dx + dy * dy + dz * dz <= carvedSq) continue;
+                    int y = cy + dy;
+                    if (y < level.getMinY() || y >= level.getMaxY()) continue;
+                    pending.add(BlockPos.asLong(cx + dx, y, cz + dz));
                 }
             }
         }
@@ -213,7 +223,7 @@ public final class AtomicBlast {
         int done = 0;
         int flags = Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE;
         while (!pending.isEmpty() && done < MAX_REMOVALS_PER_TICK) {
-            BlockPos pos = pending.remove(pending.size() - 1);
+            BlockPos pos = BlockPos.of(pending.removeLong(pending.size() - 1));
             done++;
             if (!level.isLoaded(pos)) continue;
             BlockState state = level.getBlockState(pos);

@@ -1,6 +1,6 @@
 # Drax Atomic
 
-Mod de NeoForge para Minecraft 26.2 (versión del mod 0.10.0).
+Mod de NeoForge para Minecraft 26.2 (versión del mod 0.11.0).
 
 ## Poder mágico
 
@@ -15,9 +15,9 @@ Espada de nivel netherita (no se quema en lava). **Shift + clic derecho** cambia
 | Látigo de slime | Clic derecho: la hoja se estira ~10 bloques y golpea todo en línea, acercando a los enemigos | 8 |
 | Corte instantáneo | Clic derecho: avanzas ~8 bloques de golpe cortando todo lo que atraviesas | 20 |
 | Lluvia de cuchillas | Clic derecho al suelo: 6 oleadas de agujas de slime en un área de radio 5 | 35 |
-| Atomic | Mantén clic derecho 3 s: círculo mágico, levitación, la frase y la explosión atómica | 100 |
-| All-Range Atomic | Mantén clic derecho 4 s: marca a cada enemigo en 40 bloques (hasta 24) y cae un Atomic pequeño sobre cada uno; no rompe el terreno | 140 |
-| Recovery Atomic | Mantén clic derecho 2 s: esfera de luz verde que cura por completo a ti, tus aliadas y los jugadores cercanos, y quita efectos negativos | 60 |
+| Atomic | Mantén clic derecho 1,5 s: domo de barrera violeta, levitación, la frase y la explosión atómica (radio 48) | 100 |
+| All-Range Atomic | Mantén clic derecho 2 s: marca a cada enemigo en 64 bloques (hasta 24) y cae un Atomic pequeño sobre cada uno; no rompe el terreno | 140 |
+| Recovery Atomic | Mantén clic derecho 1 s: esfera de luz verde (radio 32) que cura por completo a ti, tus aliadas y los jugadores cercanos, y quita efectos negativos | 60 |
 
 Soltar el Atomic antes de tiempo lo cancela sin gastar poder. Tú, tus mascotas, tu equipo y los jugadores en creativo no reciben daño.
 
@@ -154,6 +154,7 @@ Los textos (incluida la frase) están en `assets/draxatomic/lang/*.json`.
 
 ## Historial
 
+- 0.11.0: domo de barrera al cargar los Atomic (marca el área exacta); carga más corta (1,5 s) y más alcance (Atomic 48, hasta 160 con mejoras y compresión); tallado del cráter más rápido.
 - 0.10.0: Midgar 256×256 y Oriana 128×128, construidas al crear el mundo; muralla nueva; interiores amueblados; arreglos (terreno flotante, techo de la catedral, pisos sin acceso, ópera oscura, partículas frente a la cámara).
 - 0.9.1: Midgar aparece con más frecuencia; HUD de poder junto a la barra rápida; pantalla de habilidades más compacta.
 - 0.9.0: sistema de magia (12 hechizos, compresión, proyección, árbol de habilidades), técnicas de la Shadow Garden y robo de poder del Caballero.
