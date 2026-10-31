@@ -244,24 +244,43 @@ public final class AtomicClient {
             }
             // Aparece desde un radio mayor y se asienta en el suyo.
             double r = b.radius() * (1.0 + 0.25 * Math.max(0, 1.0 - age / 8.0));
-            DustParticleOptions shell = new DustParticleOptions(b.color(), b.radius() > 40 ? 3.0F : 2.0F);
-            DustParticleOptions edge = new DustParticleOptions(0xD9B8FF, 1.5F);
-            int points = Mth.clamp((int) (r * r * 0.12), 60, 700);
-            if (left < 20) points = points * left / 20;
-            for (int i = 0; i < points; i++) {
-                double u = random.nextDouble() * 2 - 1;
+            DustParticleOptions line = new DustParticleOptions(b.color(), 4.0F);
+            DustParticleOptions glow = new DustParticleOptions(0xE6D2FF, 2.5F);
+            double fade = left < 20 ? left / 20.0 : 1.0;
+            double spin = age * 0.015;
+            // Rejilla del domo (meridianos y paralelos): se lee como una cúpula incluso de lejos o desde dentro.
+            if (age % 2 == 0) {
+                int meridians = 18;
+                double step = 1.6 / r; // ~1.6 bloques entre partículas
+                for (int m = 0; m < meridians; m++) {
+                    double lon = m * Math.PI * 2 / meridians + spin;
+                    double cos = Math.cos(lon);
+                    double sin = Math.sin(lon);
+                    for (double lat = -0.12; lat < Math.PI / 2; lat += step) {
+                        if (random.nextDouble() > fade) continue;
+                        double h = Math.cos(lat);
+                        level.addAlwaysVisibleParticle(line, b.x() + cos * h * r, b.y() + Math.sin(lat) * r, b.z() + sin * h * r, 0, 0, 0);
+                    }
+                }
+                for (double lat : new double[] {0.0, 0.35, 0.7, 1.05, 1.35}) {
+                    double h = Math.cos(lat) * r;
+                    int n = Mth.clamp((int) (h * Math.PI * 2 / 1.6), 12, 400);
+                    for (int i = 0; i < n; i++) {
+                        if (random.nextDouble() > fade) continue;
+                        double a = i * Math.PI * 2 / n - spin;
+                        level.addAlwaysVisibleParticle(lat == 0.0 ? glow : line,
+                                b.x() + Math.cos(a) * h, b.y() + Math.sin(lat) * r, b.z() + Math.sin(a) * h, 0, 0, 0);
+                    }
+                }
+            }
+            // Brillo disperso sobre la superficie (luz propia, se ve de noche y bajo tierra).
+            int sparks = (int) (Mth.clamp(r * r * 0.03, 20, 220) * fade);
+            for (int i = 0; i < sparks; i++) {
+                double u = random.nextDouble() * 1.1 - 0.1;
                 double a = random.nextDouble() * Math.PI * 2;
                 double s = Math.sqrt(1 - u * u);
-                level.addAlwaysVisibleParticle(i % 4 == 0 ? edge : shell,
+                level.addAlwaysVisibleParticle(ParticleTypes.END_ROD,
                         b.x() + s * Math.cos(a) * r, b.y() + u * r, b.z() + s * Math.sin(a) * r, 0, 0, 0);
-            }
-            // Anillo brillante a la altura del lanzador.
-            if (age % 2 == 0) {
-                int ring = Mth.clamp((int) (r * 2), 32, 240);
-                for (int i = 0; i < ring; i++) {
-                    double a = i * Math.PI * 2 / ring + age * 0.02;
-                    level.addAlwaysVisibleParticle(edge, b.x() + Math.cos(a) * r, b.y(), b.z() + Math.sin(a) * r, 0, 0, 0);
-                }
             }
         }
     }

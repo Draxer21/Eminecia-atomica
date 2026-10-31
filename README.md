@@ -1,6 +1,6 @@
 # Drax Atomic
 
-Mod de NeoForge para Minecraft 26.2 (versión del mod 0.11.0).
+Mod de NeoForge para Minecraft 26.2 (versión del mod 0.11.1).
 
 ## Poder mágico
 
@@ -155,6 +155,7 @@ Los textos (incluida la frase) están en `assets/draxatomic/lang/*.json`.
 ## Historial
 
 - 0.11.0: domo de barrera al cargar los Atomic (marca el área exacta); carga más corta (1,5 s) y más alcance (Atomic 48, hasta 160 con mejoras y compresión); tallado del cráter más rápido.
+- 0.11.1: el domo de barrera ahora es una cúpula de rejilla brillante (meridianos y paralelos con luz propia), visible de lejos, de noche y desde dentro.
 - 0.10.0: Midgar 256×256 y Oriana 128×128, construidas al crear el mundo; muralla nueva; interiores amueblados; arreglos (terreno flotante, techo de la catedral, pisos sin acceso, ópera oscura, partículas frente a la cámara).
 - 0.9.1: Midgar aparece con más frecuencia; HUD de poder junto a la barra rápida; pantalla de habilidades más compacta.
 - 0.9.0: sistema de magia (12 hechizos, compresión, proyección, árbol de habilidades), técnicas de la Shadow Garden y robo de poder del Caballero.

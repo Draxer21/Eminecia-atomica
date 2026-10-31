@@ -42,10 +42,15 @@ public record BarrierPayload(int owner, double x, double y, double z, int radius
 
     /** Envía el domo a todos los que puedan verlo. */
     public static void send(ServerLevel level, ServerPlayer caster, int radius, int ticks, int color) {
-        BarrierPayload payload = new BarrierPayload(caster.getId(), caster.getX(), caster.getY() + 1.0, caster.getZ(), radius, ticks, color);
+        sendAt(level, caster, caster.position().add(0, 1.0, 0), radius, ticks, color);
+    }
+
+    /** Igual, pero con el centro en otro punto (pruebas para verlo desde fuera). */
+    public static void sendAt(ServerLevel level, ServerPlayer caster, net.minecraft.world.phys.Vec3 at, int radius, int ticks, int color) {
+        BarrierPayload payload = new BarrierPayload(caster.getId(), at.x, at.y, at.z, radius, ticks, color);
         double reach = radius + 160;
         for (ServerPlayer p : level.players()) {
-            if (p.distanceToSqr(caster) < reach * reach) PacketDistributor.sendToPlayer(p, payload);
+            if (p.distanceToSqr(at) < reach * reach) PacketDistributor.sendToPlayer(p, payload);
         }
     }
 }

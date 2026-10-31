@@ -95,7 +95,7 @@ public final class DemoClient {
                 cmd(mc, "draxatomic mana");
             }
             case 300 -> cmd(mc, "draxatomic test barrier");
-            case 312 -> shot("barrier");
+            case 316 -> shot("barrier");
             case 320 -> cmd(mc, "draxatomic test atomicfar");
             case 330 -> shot("atomic_flash");
             case 338 -> shot("atomic_sphere");

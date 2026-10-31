@@ -74,7 +74,9 @@ public final class DraxCommands {
                         .then(Commands.literal("barrier").executes(context -> {
                             ServerPlayer player = creative(context.getSource());
                             if (player == null) return 0;
-                            BarrierPayload.send((ServerLevel) player.level(), player, AtomicBlast.atomicRadius(player, 1.0F), 100, AtomicPayload.VIOLET);
+                            // El domo 75 bloques delante, para verlo desde fuera.
+                            Vec3 at = player.position().add(player.getLookAngle().multiply(1, 0, 1).normalize().scale(75));
+                            BarrierPayload.sendAt((ServerLevel) player.level(), player, at, AtomicBlast.atomicRadius(player, 1.0F), 100, AtomicPayload.VIOLET);
                             return 1;
                         }))
                         .then(Commands.literal("atomicfar").executes(context -> {
