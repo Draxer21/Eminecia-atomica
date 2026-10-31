@@ -178,7 +178,13 @@ public final class DemoClient {
             case 2520 -> shot("sanctuary_inside");
             case 2540 -> cmd(mc, "draxatomic city view sanctuary overview");
             case 2700 -> shot("sanctuary");
-            case 2720 -> shot("end");
+            // Los vampiros: dos siervos, Crimson y Elizabeth.
+            case 2720 -> {
+                cmd(mc, "tp @s " + ox + ".5 " + (oy + 1) + " " + (oz - 20) + ".5 0 8");
+                cmd(mc, "draxatomic test vampires");
+            }
+            case 2780 -> shot("vampires");
+            case 2800 -> shot("end");
             default -> {}
         }
     }

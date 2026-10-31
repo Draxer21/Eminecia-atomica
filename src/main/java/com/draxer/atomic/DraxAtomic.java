@@ -31,6 +31,7 @@ public final class DraxAtomic {
         Mana.init(modEventBus);
         SlimeSuit.init();
         Cult.init(modEventBus);
+        Vampires.init(modEventBus);
         ShadowGarden.init(modEventBus);
         Mitsugoshi.init(modEventBus);
         Cities.init(modEventBus);
@@ -49,6 +50,10 @@ public final class DraxAtomic {
             event.accept(Cult.FRAGMENT.value());
             event.accept(Cult.SEAL.value());
             event.accept(Cult.HEART.value());
+            event.accept(Vampires.BLOOD_VIAL.value());
+            event.accept(Vampires.CHALICE.value());
+            event.accept(Vampires.CRIMSON_BLOOD.value());
+            event.accept(Vampires.QUEEN_BLOOD.value());
         }
         if (event.getTabKey() == CreativeModeTabs.FOOD_AND_DRINKS) {
             event.accept(Mitsugoshi.CHOCOLATE.value());

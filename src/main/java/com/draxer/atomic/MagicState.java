@@ -71,7 +71,11 @@ public record MagicState(int spell, int compression, int toggles, int points, in
         SHADOW_STEALTH("shadow_stealth", 10, true),
         CONCEAL("conceal", 0, true),
         AWAKENING("awakening", 0, true),
-        OVERLOAD("overload", 0, true);
+        OVERLOAD("overload", 0, true),
+        // Magia de sangre (se aprende bebiendo la Sangre de Crimson).
+        BLOOD_LANCE("blood_lance", 25, false),
+        BAT_FORM("bat_form", 30, false),
+        BLOOD_DRAIN("blood_drain", 10, true);
 
         private final String id;
         private final int cost;
@@ -94,6 +98,11 @@ public record MagicState(int spell, int compression, int toggles, int points, in
 
         public boolean toggle() {
             return toggle;
+        }
+
+        /** Hechizos de sangre: hace falta conocer la magia de sangre. */
+        public boolean blood() {
+            return this == BLOOD_LANCE || this == BAT_FORM || this == BLOOD_DRAIN;
         }
 
         public int bit() {

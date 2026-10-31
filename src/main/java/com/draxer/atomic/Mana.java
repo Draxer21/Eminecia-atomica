@@ -101,6 +101,11 @@ public final class Mana {
     }
 
     /** El Caballero de la Mesa Redonda te roba poder con sus golpes. */
+    /** Devuelve poder (sin pasar del máximo). */
+    public static void restore(ServerPlayer player, int amount) {
+        set(player, Math.min(max(player), get(player) + amount));
+    }
+
     public static void steal(ServerPlayer player, int amount) {
         if (player.isCreative()) return;
         set(player, get(player) - amount);

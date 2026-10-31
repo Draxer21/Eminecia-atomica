@@ -1,6 +1,6 @@
 # Drax Atomic
 
-Mod de NeoForge para Minecraft 26.2 (versión del mod 0.13.0).
+Mod de NeoForge para Minecraft 26.2 (versión del mod 0.14.0).
 
 ## Poder mágico
 
@@ -113,6 +113,7 @@ Al crear o abrir el mundo se construyen enteras la Midgar y la Oriana más cerca
 - **Capital de Oriana (128×128):** palacio con cúpula, comedor, biblioteca, aposentos y salón de baile; ópera iluminada con palcos; galería con pirámide de vidrio y estatuas; plaza, sucursal de Mitsugoshi y edificios parisinos de varios pisos con departamentos amueblados.
 - Todos los edificios de varios pisos tienen escalera de mano.
 - **Guardias del reino:** patrullan, pelean contra monstruos y el Culto de Diablos, y no atacan a los aldeanos.
+- **Vampiros:** de noche aparecen siervos vampiro. Usa el **Cáliz carmesí** (lo sueltan a veces) sobre el suelo, de noche, para invocar a **Crimson**; al vencerlo suelta la **Sangre de Crimson**, que enseña la magia de sangre. **Elizabeth**, la Reina de la Sangre, despierta la Luna Roja al bajar de la mitad de vida y suelta la **Sangre de la Reina** (+100 de poder máximo y 3 puntos). En creativo: `/draxatomic test vampires`.
 - **El Santuario (64×64):** templo amurallado rodeado por un lago sagrado, con el núcleo de sculk en el centro y guardianes del Culto. Dentro, tu poder mágico se drena rápido; solo la magia comprimida resiste (y no se disipa). Como Cid: comprime antes de entrar y suelta un All-Range desde dentro.
 - Comandos: `/draxatomic city locate midgar|oriana|sanctuary`. En creativo: `/draxatomic city tp midgar|oriana|sanctuary`, `/draxatomic city build` y `/draxatomic city view <ciudad> overview|castle|street`.
 - Se configura en `[cities]`: activar/desactivar y cada cuántos bloques puede haber una ciudad.
@@ -156,6 +157,7 @@ Los textos (incluida la frase) están en `assets/draxatomic/lang/*.json`.
 ## Historial
 
 - 0.11.0: domo de barrera al cargar los Atomic (marca el área exacta); carga más corta (1,5 s) y más alcance (Atomic 48, hasta 160 con mejoras y compresión); tallado del cráter más rápido.
+- 0.14.0: vampiros. Siervos vampiro de noche (se curan al morder, arden al sol, sueltan viales de sangre y a veces el Cáliz carmesí); Crimson (jefe: lanzas y látigo de sangre, forma de murciélagos, roba vida y poder); Elizabeth, la Reina de la Sangre (jefa: Luna Roja bajo la mitad de vida, ráfagas de lanzas y pilares de sangre). La Sangre de Crimson enseña la magia de sangre: Lanza de sangre, Forma de murciélagos y Drenaje de sangre.
 - 0.13.0: sobrecompresión: puedes comprimir hasta 3 niveles por encima de tu límite; el cuerpo se daña cada segundo y, al soltar un Atomic, hay 25% por nivel de más de que la técnica se disipe (como Aurora). Si sale, el All-Range llega hasta 192 bloques.
 - 0.12.3: registro de la ola en el log y capturas de prueba nuevas.
 - 0.12.2: el constructor de ciudades ya no espera a que se genere el terreno: pide los chunks y construye cuando están listos (arregla un cuelgue del servidor).

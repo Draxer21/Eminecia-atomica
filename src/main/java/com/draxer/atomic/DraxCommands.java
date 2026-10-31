@@ -104,6 +104,12 @@ public final class DraxCommands {
                             AtomicVariants.recovery((ServerLevel) player.level(), player);
                             return 1;
                         }))
+                        .then(Commands.literal("vampires").executes(context -> {
+                            // Dos siervos, Crimson y Elizabeth en fila frente al jugador.
+                            ServerPlayer player = creative(context.getSource());
+                            if (player == null) return 0;
+                            return summonVampires((ServerLevel) player.level(), player);
+                        }))
                         .then(Commands.literal("garden").executes(context -> {
                             ServerPlayer player = creative(context.getSource());
                             if (player == null) return 0;
@@ -207,6 +213,25 @@ public final class DraxCommands {
         }
         player.teleportTo(level, x, y, z, java.util.Set.of(), yaw, pitch, true);
         return 1;
+    }
+
+    static int summonVampires(ServerLevel level, ServerPlayer player) {
+        Vec3 look = player.getLookAngle().multiply(1, 0, 1).normalize();
+        Vec3 side = new Vec3(-look.z, 0, look.x);
+        Vec3 center = player.position().add(look.scale(6));
+        net.minecraft.world.entity.EntityType<?>[] types = {Vampires.SERVANT.value(), Vampires.CRIMSON.value(),
+                Vampires.ELIZABETH.value(), Vampires.SERVANT.value()};
+        int count = 0;
+        for (int i = 0; i < types.length; i++) {
+            Vec3 at = center.add(side.scale((i - 1.5) * 1.8));
+            var e = types[i].create(level, EntitySpawnReason.COMMAND);
+            if (!(e instanceof net.minecraft.world.entity.Mob mob)) continue;
+            mob.snapTo(at.x, player.getY(), at.z, player.getYRot() + 180.0F, 0.0F);
+            mob.setNoAi(true);
+            mob.setYHeadRot(player.getYRot() + 180.0F);
+            if (level.addFreshEntity(mob)) count++;
+        }
+        return count;
     }
 
     /** Las siete integrantes en fila frente al jugador, mirándolo. */

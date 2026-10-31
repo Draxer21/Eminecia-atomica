@@ -78,7 +78,8 @@ public final class SelfTest {
         BlockPos base = new BlockPos(2000, 120, 2000);
         step("entities", () -> {
             for (var type : new net.minecraft.world.entity.EntityType<?>[] {
-                    ShadowGarden.ALLY.value(), Cult.CULTIST.value(), Cult.KNIGHT.value()}) {
+                    ShadowGarden.ALLY.value(), Cult.CULTIST.value(), Cult.KNIGHT.value(),
+                    Vampires.SERVANT.value(), Vampires.CRIMSON.value(), Vampires.ELIZABETH.value()}) {
                 var entity = type.create(level, EntitySpawnReason.COMMAND);
                 if (entity == null) {
                     LOG.info("DRAXTEST entity {} NULL", type);

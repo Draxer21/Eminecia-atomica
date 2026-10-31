@@ -263,6 +263,10 @@ public final class Magic {
     static void cast(ServerPlayer player, MagicState.Spell spell) {
         ServerLevel level = (ServerLevel) player.level();
         MagicState s = state(player);
+        if (spell.blood() && !Vampires.knowsBloodMagic(player) && !player.isCreative()) {
+            player.sendOverlayMessage(Component.translatable("message.draxatomic.blood_unknown").withStyle(ChatFormatting.DARK_RED));
+            return;
+        }
         if (spell.toggle()) {
             boolean active = s.on(spell);
             if (!active) {
@@ -300,7 +304,70 @@ public final class Magic {
             case MANA_SENSE -> sense(level, player);
             case SLIME_FORGE -> forge(level, player);
             case SUMMON_GARDEN -> summonGarden(level, player);
+            case BLOOD_LANCE -> bloodLance(level, player);
+            case BAT_FORM -> batForm(level, player);
             default -> {}
+        }
+    }
+
+    /** Lanza de sangre: atraviesa en línea recta y te cura con parte del daño. */
+    private static void bloodLance(ServerLevel level, ServerPlayer player) {
+        Vec3 look = player.getLookAngle();
+        Vec3 from = player.getEyePosition().add(0, -0.2, 0);
+        Vec3 to = from.add(look.scale(28 * reach(player)));
+        BlockHitResult hit = level.clip(new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
+        if (hit.getType() != HitResult.Type.MISS) to = hit.getLocation();
+        double length = from.distanceTo(to);
+        for (double d = 1; d < length; d += 0.35) {
+            Vec3 p = from.add(look.scale(d));
+            level.sendParticles(Vampires.BLOOD, true, false, p.x, p.y, p.z, 1, 0.03, 0.03, 0.03, 0);
+        }
+        float damage = 12.0F * power(player);
+        float healed = 0;
+        Vec3 dir = to.subtract(from);
+        for (Entity e : level.getEntities(player, new AABB(from, to).inflate(1.2))) {
+            if (!(e instanceof LivingEntity) || SlimeSkills.isFriend(e, player)) continue;
+            Vec3 c = e.getBoundingBox().getCenter();
+            double t = Math.max(0, Math.min(1, c.subtract(from).dot(dir) / dir.lengthSqr()));
+            if (c.distanceTo(from.add(dir.scale(t))) > 0.8 + e.getBbWidth()) continue;
+            e.hurtServer(level, level.damageSources().indirectMagic(player, player), damage);
+            healed += damage * 0.3F;
+            level.sendParticles(Vampires.BLOOD_DARK, c.x, c.y, c.z, 12, 0.3, 0.3, 0.3, 0.05);
+        }
+        if (healed > 0) player.heal(Math.min(10.0F, healed));
+        level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.EVOKER_CAST_SPELL, SoundSource.PLAYERS, 1.0F, 0.6F);
+    }
+
+    /** Forma de murciélagos: te deshaces en murciélagos y vuelas unos segundos sin poder ser tocado. */
+    private static void batForm(ServerLevel level, ServerPlayer player) {
+        BloodLordEntity.bats(level, player.position().add(0, 1, 0), 30);
+        player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 60, 0, false, false));
+        player.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 30, 1, false, false));
+        player.addEffect(new MobEffectInstance(MobEffects.SPEED, 80, 2, false, false));
+        player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 100, 0, false, false));
+        player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 60, 4, false, false));
+        Vec3 push = player.getLookAngle().multiply(1.6, 0, 1.6);
+        player.push(push.x, 0.5, push.z);
+        player.hurtMarked = true;
+        BAT_TRAIL.put(player.getUUID(), 60);
+        loseTrail(level, player, 0);
+    }
+
+    /** Ticks que le quedan al rastro de murciélagos de cada jugador. */
+    private static final Map<UUID, Integer> BAT_TRAIL = new HashMap<>();
+
+    private static void batTrailTick(ServerLevel level, ServerPlayer player) {
+        Integer left = BAT_TRAIL.get(player.getUUID());
+        if (left == null) return;
+        if (left <= 0) {
+            BAT_TRAIL.remove(player.getUUID());
+            BloodLordEntity.bats(level, player.position().add(0, 1, 0), 16);
+            return;
+        }
+        BAT_TRAIL.put(player.getUUID(), left - 1);
+        if (left % 2 == 0) {
+            level.sendParticles(Vampires.BLOOD_DARK, player.getX(), player.getY() + 1, player.getZ(), 4, 0.5, 0.5, 0.5, 0.02);
+            level.sendParticles(ParticleTypes.SMOKE, player.getX(), player.getY() + 1, player.getZ(), 3, 0.4, 0.4, 0.4, 0.01);
         }
     }
 
@@ -459,6 +526,7 @@ public final class Magic {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         ServerLevel level = (ServerLevel) player.level();
         compressionTick(level, player);
+        batTrailTick(level, player);
         if (player.tickCount % 20 == 0) togglesTick(level, player);
         glide(level, player);
     }
@@ -535,6 +603,10 @@ public final class Magic {
         if (state(player).on(MagicState.Spell.CONCEAL)) {
             if (player.tickCount % 40 == 0 && !Mana.drain(player, 1)) off(player, MagicState.Spell.CONCEAL);
             else loseTrail(level, player, 10);
+        }
+        if (state(player).on(MagicState.Spell.BLOOD_DRAIN)) {
+            if (!Mana.drain(player, 2)) off(player, MagicState.Spell.BLOOD_DRAIN);
+            else level.sendParticles(Vampires.BLOOD, player.getX(), player.getY() + 0.1, player.getZ(), 4, 0.5, 0.02, 0.5, 0);
         }
         if (state(player).on(MagicState.Spell.AWAKENING)) {
             int drain = Math.max(1, Mana.max(player) / 20);

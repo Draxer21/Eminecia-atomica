@@ -111,6 +111,14 @@ public final class AtomicConfig {
     private static final ModConfigSpec.DoubleValue PATROL_CHANCE = BUILDER
             .comment("Probabilidad (cada 30 s de noche, por jugador) de que aparezca una patrulla.")
             .defineInRange("patrolChance", 0.25, 0.0, 1.0);
+
+    static { BUILDER.pop().push("vampires"); }
+    private static final ModConfigSpec.BooleanValue VAMPIRES = BUILDER
+            .comment("Si es true, aparecen siervos vampiro de noche cerca de los jugadores.")
+            .define("nightServants", true);
+    private static final ModConfigSpec.DoubleValue VAMPIRE_CHANCE = BUILDER
+            .comment("Probabilidad (cada ~40 s de noche, por jugador) de que aparezca un grupo de siervos.")
+            .defineInRange("servantChance", 0.2, 0.0, 1.0);
     static { BUILDER.pop(); }
 
     public static final ModConfigSpec SPEC = BUILDER.build();
@@ -154,6 +162,8 @@ public final class AtomicConfig {
 
     public static boolean cultPatrols() { return !loaded() || CULT_PATROLS.getAsBoolean(); }
     public static float patrolChance() { return loaded() ? PATROL_CHANCE.get().floatValue() : 0.25F; }
+    public static boolean vampires() { return !loaded() || VAMPIRES.getAsBoolean(); }
+    public static float vampireChance() { return loaded() ? VAMPIRE_CHANCE.get().floatValue() : 0.2F; }
 
     public static int atomicCost() { return loaded() ? ATOMIC_COST.getAsInt() : 100; }
     public static int radius() { return loaded() ? RADIUS.getAsInt() : 48; }
