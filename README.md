@@ -1,6 +1,6 @@
 # Drax Atomic
 
-Mod de NeoForge para Minecraft 26.2 (versión del mod 0.16.2).
+Mod de NeoForge para Minecraft 26.2 (versión del mod 0.16.3).
 
 ## Poder mágico
 
@@ -116,7 +116,7 @@ Al crear o abrir el mundo se construyen enteras la Midgar y la Oriana más cerca
 - **Vampiros:** de noche aparecen siervos vampiro. Usa el **Cáliz carmesí** (lo sueltan a veces) sobre el suelo, de noche, para invocar a **Crimson**; al vencerlo suelta la **Sangre de Crimson**, que enseña la magia de sangre. **Elizabeth**, la Reina de la Sangre, despierta la Luna Roja al bajar de la mitad de vida y suelta la **Sangre de la Reina** (+100 de poder máximo y 3 puntos). En creativo: `/draxatomic test vampires`.
 - **La Ciudad sin Ley (128×128):** barrios oscuros, taberna, mercado negro, el foso de Juggernaut y, en el centro, la **Torre Carmesí** (6 pisos con escalera de mano): vestíbulo, biblioteca, depósito de sangre, dormitorios, el salón del trono de **Crimson** y la cripta de **Elizabeth**. Si vences a Crimson dentro de la ciudad, su sangre despierta a la Reina. Comandos: `/draxatomic city locate|tp lawless`, `/draxatomic city view lawless overview|castle|street`.
 - **Aurora:** después de vencer a Elizabeth en la Ciudad sin Ley, Claire sube a la torre con los ojos violeta. Aurora intenta el All-Range Atomic: un domo que tiembla, el cuerpo de Claire se agrieta y la técnica se disipa; aprovecha mientras está aturdida. En creativo: `/draxatomic test aurora`.
-- **Skins propias:** reemplaza el PNG del personaje por cualquier skin de jugador de 64×64 con brazos clásicos (Steve). Claire `npc/claire.png`, Aurora `npc/claire_aurora.png`, Mary `npc/mary.png`, Yukime `npc/yukime.png`, Juggernaut `npc/juggernaut.png`, Elizabeth `vampire/elizabeth.png`, Crimson `vampire/crimson.png` (dentro de `src/main/resources/assets/draxatomic/textures/entity/`). Si la skin es de brazos finos (Alex): `python3 tools/skins.py slim <archivo.png>`.
+- **Skins propias:** reemplaza el PNG del personaje por cualquier skin de jugador de 64×64 con brazos clásicos (Steve). Claire `npc/claire.png`, Aurora `npc/claire_aurora.png`, Mary `npc/mary.png`, Yukime `npc/yukime.png`, Juggernaut `npc/juggernaut.png`, Elizabeth `vampire/elizabeth.png`, Crimson `vampire/crimson.png`, las Siete Sombras `shadow_garden/alpha.png` … `shadow_garden/eta.png` (dentro de `src/main/resources/assets/draxatomic/textures/entity/`). Si la skin es de brazos finos (Alex): `python3 tools/skins.py slim <archivo.png>`.
 - **El Santuario (64×64):** templo amurallado rodeado por un lago sagrado, con el núcleo de sculk en el centro y guardianes del Culto. Dentro, tu poder mágico se drena rápido; solo la magia comprimida resiste (y no se disipa). Como Cid: comprime antes de entrar y suelta un All-Range desde dentro.
 - Comandos: `/draxatomic city locate midgar|oriana|sanctuary`. En creativo: `/draxatomic city tp midgar|oriana|sanctuary`, `/draxatomic city build` y `/draxatomic city view <ciudad> overview|castle|street`.
 - Se configura en `[cities]`: activar/desactivar y cada cuántos bloques puede haber una ciudad.
@@ -163,6 +163,7 @@ Los textos (incluida la frase) están en `assets/draxatomic/lang/*.json`.
 ## Historial
 
 - 0.11.0: domo de barrera al cargar los Atomic (marca el área exacta); carga más corta (1,5 s) y más alcance (Atomic 48, hasta 160 con mejoras y compresión); tallado del cráter más rápido.
+- 0.16.3: skins nuevas de Alexia, Claire, Aurora, Iris, Mary, Rose, Crimson, Elizabeth y de las Siete Sombras (pasadas a brazos clásicos); las Sombras usan el modelo de jugador y sus archivos se llaman como ellas (`shadow_garden/alpha.png` … `eta.png`).
 - 0.16.2: el constructor de ciudades pide los chunks de verdad sin esperar (otro cuelgue del servidor dedicado al construir la Ciudad sin Ley).
 - 0.16.1: los personajes y los vampiros usan el modelo de jugador: aceptan skins modernas de 64×64 (brazos clásicos). Las skins incluidas se pasaron a ese formato; `tools/skins.py slim <archivo>` convierte una skin de brazos finos a clásicos.
 - 0.16.0: Aurora en el cuerpo de Claire: tras caer Elizabeth en la Ciudad sin Ley, Claire sube a la torre poseída; herida, intenta el All-Range Atomic con un domo inestable, su cuerpo no tolera la compresión y la técnica se disipa (queda aturdida y recibe el doble de daño). Suelta el Fragmento de Aurora (+1 nivel de tolerancia a la compresión, hasta 2). Nuevos personajes con misiones: Mary (taberna), Yukime (mercado) y Juggernaut (el foso).

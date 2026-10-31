@@ -70,13 +70,13 @@ public final class ShadowGarden {
 
     /** Las siete integrantes y su estilo de combate. */
     public enum Member {
-        ALPHA("alpha", "noctis", Role.SWORD, 0x2B2F8A),
-        BETA("beta", "lyra", Role.ARCHER, 0x6FA8D9),
-        GAMMA("gamma", "selene", Role.HEALER, 0xE8E8F0),
-        DELTA("delta", "nyx", Role.BERSERKER, 0xA02A2A),
-        EPSILON("epsilon", "vesper", Role.MAGE, 0xC9B26A),
-        ZETA("zeta", "umbra", Role.STEALTH, 0x1A1A1A),
-        ETA("eta", "iris", Role.GUARDIAN, 0x6A4BA8);
+        ALPHA("alpha", "alpha", Role.SWORD, 0x2B2F8A),
+        BETA("beta", "beta", Role.ARCHER, 0x6FA8D9),
+        GAMMA("gamma", "gamma", Role.HEALER, 0xE8E8F0),
+        DELTA("delta", "delta", Role.BERSERKER, 0xA02A2A),
+        EPSILON("epsilon", "epsilon", Role.MAGE, 0xC9B26A),
+        ZETA("zeta", "zeta", Role.STEALTH, 0x1A1A1A),
+        ETA("eta", "eta", Role.GUARDIAN, 0x6A4BA8);
 
         public final String id;
         /** Nombre del archivo de textura. */

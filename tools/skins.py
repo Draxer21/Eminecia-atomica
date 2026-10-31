@@ -8,6 +8,10 @@ from PIL import Image
 OUT = os.path.join(os.path.dirname(__file__), '..', 'src/main/resources/assets/draxatomic/textures/entity')
 
 
+# Las skins que ya existen (por ejemplo, las que puso el usuario) no se sobrescriben salvo con --force.
+FORCE = False
+
+
 def hexc(h, a=255):
     h = h.lstrip('#')
     return (int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16), a)
@@ -80,6 +84,9 @@ class Skin:
 
     def save(self, path):
         full = os.path.join(OUT, path)
+        if os.path.exists(full) and not FORCE:
+            print('se conserva (ya existe):', path)
+            return
         os.makedirs(os.path.dirname(full), exist_ok=True)
         self.im.save(full)
         print('skin', path)
@@ -177,6 +184,9 @@ def juggernaut():
 
 def claire_aurora():
     """Claire poseída por Aurora: ojos violeta brillantes y marcas que le suben por el cuello."""
+    if os.path.exists(os.path.join(OUT, 'npc/claire_aurora.png')) and not FORCE:
+        print('se conserva (ya existe): npc/claire_aurora.png')
+        return
     base = Image.open(os.path.join(OUT, 'npc/claire.png')).convert('RGBA')
     px = base.load()
     for (x, y) in ((10, 12), (13, 12)):
@@ -308,6 +318,7 @@ if __name__ == '__main__':
     import sys
     if len(sys.argv) == 3 and sys.argv[1] == 'slim':
         slim_to_classic(sys.argv[2]); print('convertida a brazos clásicos:', sys.argv[2]); sys.exit()
+    FORCE = '--force' in sys.argv
     servant(); crimson(); elizabeth(); claire_aurora(); mary(); yukime(); juggernaut()
     item('aurora_fragment', aurora_fragment)
     import glob
