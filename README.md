@@ -1,6 +1,6 @@
 # Drax Atomic
 
-Mod de NeoForge para Minecraft 26.2 (versión del mod 0.16.1).
+Mod de NeoForge para Minecraft 26.2 (versión del mod 0.16.2).
 
 ## Poder mágico
 
@@ -163,6 +163,7 @@ Los textos (incluida la frase) están en `assets/draxatomic/lang/*.json`.
 ## Historial
 
 - 0.11.0: domo de barrera al cargar los Atomic (marca el área exacta); carga más corta (1,5 s) y más alcance (Atomic 48, hasta 160 con mejoras y compresión); tallado del cráter más rápido.
+- 0.16.2: el constructor de ciudades pide los chunks de verdad sin esperar (otro cuelgue del servidor dedicado al construir la Ciudad sin Ley).
 - 0.16.1: los personajes y los vampiros usan el modelo de jugador: aceptan skins modernas de 64×64 (brazos clásicos). Las skins incluidas se pasaron a ese formato; `tools/skins.py slim <archivo>` convierte una skin de brazos finos a clásicos.
 - 0.16.0: Aurora en el cuerpo de Claire: tras caer Elizabeth en la Ciudad sin Ley, Claire sube a la torre poseída; herida, intenta el All-Range Atomic con un domo inestable, su cuerpo no tolera la compresión y la técnica se disipa (queda aturdida y recibe el doble de daño). Suelta el Fragmento de Aurora (+1 nivel de tolerancia a la compresión, hasta 2). Nuevos personajes con misiones: Mary (taberna), Yukime (mercado) y Juggernaut (el foso).
 - 0.15.0: la Ciudad sin Ley (128×128): barrios, taberna, mercado negro, el foso de Juggernaut y la Torre Carmesí; Crimson espera en el salón del trono y, al caer, su sangre despierta a Elizabeth en la cripta. De noche, los siervos salen de los callejones. Además, vampiros. Siervos vampiro de noche (se curan al morder, arden al sol, sueltan viales de sangre y a veces el Cáliz carmesí); Crimson (jefe: lanzas y látigo de sangre, forma de murciélagos, roba vida y poder); Elizabeth, la Reina de la Sangre (jefa: Luna Roja bajo la mitad de vida, ráfagas de lanzas y pilares de sangre). La Sangre de Crimson enseña la magia de sangre: Lanza de sangre, Forma de murciélagos y Drenaje de sangre.

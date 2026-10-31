@@ -330,7 +330,8 @@ public final class Cities {
                 ready = false;
                 long key = ((long) cx << 32) | (cz & 0xFFFFFFFFL);
                 if (requested < budget && forced.add(key)) {
-                    level.setChunkForced(cx, cz, true);
+                    // Solo el ticket: setChunkForced además espera a que el chunk se genere.
+                    level.getChunkSource().updateChunkForced(new net.minecraft.world.level.ChunkPos(cx, cz), true);
                     requested++;
                 }
             }
@@ -343,7 +344,7 @@ public final class Cities {
         java.util.Set<Long> forced = FORCED.remove(site.key());
         if (forced == null) return;
         for (long key : forced) {
-            level.setChunkForced((int) (key >> 32), (int) key, false);
+            level.getChunkSource().updateChunkForced(new net.minecraft.world.level.ChunkPos((int) (key >> 32), (int) key), false);
         }
     }
 
