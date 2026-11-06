@@ -51,6 +51,7 @@ public final class AtomicClient {
     public static void registerPayloads(RegisterClientPayloadHandlersEvent event) {
         event.register(AtomicPayload.TYPE, (payload, context) -> start(payload));
         event.register(ManaPayload.TYPE, (payload, context) -> ManaPayload.latest = payload);
+        event.register(ZonePayload.TYPE, (payload, context) -> ZonePayload.latest = payload.zones());
         event.register(BarrierPayload.TYPE, (payload, context) -> {
             BARRIERS.removeIf(b -> b.owner() == payload.owner());
             if (payload.ticks() > 0) BARRIERS.add(new Barrier(payload.owner(), payload.x(), payload.y(), payload.z(),

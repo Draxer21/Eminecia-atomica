@@ -298,6 +298,7 @@ public final class Vampires {
                 boolean already = knowsBloodMagic(sp);
                 sp.setData(BLOOD_MAGIC, true);
                 if (!already) Magic.addPoints(sp, 1);
+                Achievements.grant(sp, "blood_magic");
                 ServerLevel server = (ServerLevel) level;
                 server.sendParticles(BLOOD_DARK, sp.getX(), sp.getY() + 1, sp.getZ(), 60, 0.5, 0.9, 0.5, 0.05);
                 server.playSound(null, sp.getX(), sp.getY(), sp.getZ(), SoundEvents.WITHER_AMBIENT, SoundSource.PLAYERS, 0.8F, 1.4F);

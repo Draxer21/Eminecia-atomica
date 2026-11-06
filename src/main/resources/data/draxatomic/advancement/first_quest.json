@@ -1,0 +1,23 @@
+{
+  "parent": "draxatomic:root",
+  "display": {
+    "icon": {
+      "id": "minecraft:writable_book"
+    },
+    "title": {
+      "translate": "advancement.draxatomic.first_quest"
+    },
+    "description": {
+      "translate": "advancement.draxatomic.first_quest.desc"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

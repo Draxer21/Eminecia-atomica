@@ -1,0 +1,30 @@
+{
+  "display": {
+    "icon": {
+      "id": "draxatomic:slime_sword"
+    },
+    "title": {
+      "translate": "advancement.draxatomic.root"
+    },
+    "description": {
+      "translate": "advancement.draxatomic.root.desc"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false,
+    "background": "minecraft:block/black_concrete"
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "draxatomic:slime_sword"
+          }
+        ]
+      }
+    }
+  }
+}

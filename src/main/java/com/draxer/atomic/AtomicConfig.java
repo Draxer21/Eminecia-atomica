@@ -115,6 +115,13 @@ public final class AtomicConfig {
             .comment("Probabilidad (cada 30 s de noche, por jugador) de que aparezca una patrulla.")
             .defineInRange("patrolChance", 0.25, 0.0, 1.0);
 
+    private static final ModConfigSpec.BooleanValue CITY_RAIDS = BUILDER
+            .comment("Si es true, el Culto ataca a veces Midgar u Oriana mientras hay jugadores dentro.")
+            .define("cityRaids", true);
+    private static final ModConfigSpec.DoubleValue RAID_CHANCE = BUILDER
+            .comment("Probabilidad, cada 5 minutos y por jugador dentro de una capital, de que empiece un ataque.")
+            .defineInRange("raidChance", 0.25, 0.0, 1.0);
+
     static { BUILDER.pop().push("vampires"); }
     private static final ModConfigSpec.BooleanValue VAMPIRES = BUILDER
             .comment("Si es true, aparecen siervos vampiro de noche cerca de los jugadores.")
@@ -166,6 +173,8 @@ public final class AtomicConfig {
 
     public static boolean cultPatrols() { return !loaded() || CULT_PATROLS.getAsBoolean(); }
     public static float patrolChance() { return loaded() ? PATROL_CHANCE.get().floatValue() : 0.25F; }
+    public static boolean cityRaids() { return !loaded() || CITY_RAIDS.getAsBoolean(); }
+    public static float raidChance() { return loaded() ? RAID_CHANCE.get().floatValue() : 0.25F; }
     public static boolean vampires() { return !loaded() || VAMPIRES.getAsBoolean(); }
     public static float vampireChance() { return loaded() ? VAMPIRE_CHANCE.get().floatValue() : 0.2F; }
 

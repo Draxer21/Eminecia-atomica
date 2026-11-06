@@ -110,6 +110,18 @@ public final class DraxCommands {
                             AtomicVariants.recovery((ServerLevel) player.level(), player);
                             return 1;
                         }))
+                        .then(Commands.literal("raid").executes(context -> {
+                            // Ataque del Culto a la capital en la que estás.
+                            ServerPlayer player = creative(context.getSource());
+                            if (player == null) return 0;
+                            ServerLevel level = (ServerLevel) player.level();
+                            for (CityLayout.Kind kind : new CityLayout.Kind[] {CityLayout.Kind.MIDGAR, CityLayout.Kind.ORIANA}) {
+                                var site = Cities.siteAt(level, kind, player.getX(), player.getZ());
+                                if (site.isPresent()) return CityEvents.startRaid(level, kind, site.get(), player.position(), level.getRandom());
+                            }
+                            context.getSource().sendFailure(Component.literal("No estás dentro de Midgar ni de Oriana."));
+                            return 0;
+                        }))
                         .then(Commands.literal("aurora").executes(context -> {
                             // Aurora (en el cuerpo de Claire) 10 bloques delante; empieza herida para que intente el All-Range.
                             ServerPlayer player = creative(context.getSource());

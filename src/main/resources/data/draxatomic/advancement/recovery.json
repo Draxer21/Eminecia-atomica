@@ -1,0 +1,23 @@
+{
+  "parent": "draxatomic:i_am_atomic",
+  "display": {
+    "icon": {
+      "id": "minecraft:golden_apple"
+    },
+    "title": {
+      "translate": "advancement.draxatomic.recovery"
+    },
+    "description": {
+      "translate": "advancement.draxatomic.recovery.desc"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

@@ -207,9 +207,14 @@ public final class Cities {
 
     /** La Ciudad sin Ley en la que está esta posición (muralla incluida), si hay una construida. */
     public static Optional<Site> lawlessAt(ServerLevel level, double x, double z) {
+        return siteAt(level, CityLayout.Kind.LAWLESS, x, z);
+    }
+
+    /** La ciudad de ese tipo en la que está esta posición (muralla incluida), si hay una construida. */
+    public static Optional<Site> siteAt(ServerLevel level, CityLayout.Kind kind, double x, double z) {
         if (level.dimension() != net.minecraft.world.level.Level.OVERWORLD || !AtomicConfig.cities()) return Optional.empty();
-        int half = CityLayout.Kind.LAWLESS.size() / 2 + 3;
-        for (Site site : sitesNear(level, CityLayout.Kind.LAWLESS, (int) x, (int) z, 140, true)) {
+        int half = kind.size() / 2 + 3;
+        for (Site site : sitesNear(level, kind, (int) x, (int) z, kind.size() + 20, true)) {
             if (Math.abs(x - site.centerX()) <= half && Math.abs(z - site.centerZ()) <= half && built(level, site)) return Optional.of(site);
         }
         return Optional.empty();

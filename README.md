@@ -1,6 +1,6 @@
 # Drax Atomic
 
-Mod de NeoForge para Minecraft 26.2 (versión del mod 0.17.1).
+Mod de NeoForge para Minecraft 26.2 (versión del mod 0.18.0).
 
 ## Poder mágico
 
@@ -163,6 +163,7 @@ Los textos (incluida la frase) están en `assets/draxatomic/lang/*.json`.
 ## Historial
 
 - 0.11.0: domo de barrera al cargar los Atomic (marca el área exacta); carga más corta (1,5 s) y más alcance (Atomic 48, hasta 160 con mejoras y compresión); tallado del cráter más rápido.
+- 0.18.0: mejoras del traje de slime en el árbol (Guardia, Barrera mágica, Sombra); 17 logros propios; cielo y niebla rojos durante la Luna Roja y niebla oscura en la Ciudad sin Ley de noche; música original por zona (Midgar, Oriana, Santuario, Ciudad sin Ley, jefes); el Culto ataca a veces Midgar y Oriana y los guardias patrullan; modo Shadow (con el traje completo).
 - 0.17.1: el relieve ahora va inclinado como en MCA; en las personajes adultas (Iris, Mary, Yukime, Elizabeth) es más grande.
 - 0.17.0: los personajes femeninos (Alexia, Iris, Claire, Gamma, Rose, Mary, Yukime, las Siete Sombras, Elizabeth y Aurora) tienen un relieve en el pecho, al estilo de Minecraft Comes Alive; toma el color de la ropa de la skin.
 - 0.16.6: skins nuevas de Yukime y Juggernaut.

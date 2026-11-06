@@ -257,6 +257,7 @@ public final class Quests {
         }
         if (quest.mana() > 0) Mana.addBonus(player, quest.mana());
         Magic.addPoints(player, 1);
+        Achievements.grant(player, "first_quest");
         player.sendSystemMessage(Component.translatable("quest.draxatomic.completed",
                 Component.translatable("quest.draxatomic." + quest.id())).withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1.0F, 1.0F);

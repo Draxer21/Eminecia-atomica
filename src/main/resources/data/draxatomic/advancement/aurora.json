@@ -1,0 +1,34 @@
+{
+  "parent": "draxatomic:queen",
+  "display": {
+    "icon": {
+      "id": "draxatomic:aurora_fragment"
+    },
+    "title": {
+      "translate": "advancement.draxatomic.aurora"
+    },
+    "description": {
+      "translate": "advancement.draxatomic.aurora.desc"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "draxatomic:aurora"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

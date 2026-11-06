@@ -1,0 +1,23 @@
+{
+  "parent": "draxatomic:root",
+  "display": {
+    "icon": {
+      "id": "draxatomic:shadow_emblem"
+    },
+    "title": {
+      "translate": "advancement.draxatomic.shadow_garden"
+    },
+    "description": {
+      "translate": "advancement.draxatomic.shadow_garden.desc"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

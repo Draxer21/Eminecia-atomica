@@ -108,7 +108,8 @@ public final class Magic {
 
     public static float power(Player player) {
         MagicState s = state(player);
-        return (1.0F + 0.15F * s.level(MagicState.Upgrade.POWER)) * (s.on(MagicState.Spell.AWAKENING) ? 1.3F : 1.0F);
+        return (1.0F + 0.15F * s.level(MagicState.Upgrade.POWER)) * (s.on(MagicState.Spell.AWAKENING) ? 1.3F : 1.0F)
+                * (s.on(MagicState.Spell.SHADOW_MODE) ? 1.2F : 1.0F);
     }
 
     public static float reach(Player player) {
@@ -178,6 +179,7 @@ public final class Magic {
         caster.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.SLOWNESS, 100, 1));
         if (caster instanceof ServerPlayer sp) {
             sp.sendOverlayMessage(Component.translatable("message.draxatomic.dissipated").withStyle(ChatFormatting.RED, ChatFormatting.ITALIC));
+            Achievements.grant(sp, "dissipated");
         }
     }
 
@@ -271,6 +273,10 @@ public final class Magic {
         if (spell.toggle()) {
             boolean active = s.on(spell);
             if (!active) {
+                if (spell == MagicState.Spell.SHADOW_MODE && SlimeSuit.pieces(player) < 4) {
+                    player.sendOverlayMessage(Component.translatable("message.draxatomic.shadow_needs_suit").withStyle(ChatFormatting.GRAY));
+                    return;
+                }
                 if (spell == MagicState.Spell.AWAKENING && Mana.get(player) < Mana.max(player) * 0.95) {
                     player.sendOverlayMessage(Component.translatable("message.draxatomic.awakening_full").withStyle(ChatFormatting.RED));
                     return;
@@ -281,6 +287,7 @@ public final class Magic {
                 }
             }
             set(player, s.withToggle(spell, !active));
+            if (spell == MagicState.Spell.SHADOW_MODE && !active) shadowEnter(level, player);
             player.sendOverlayMessage(Component.translatable(active ? "message.draxatomic.spell_off" : "message.draxatomic.spell_on",
                     Component.translatable("spell.draxatomic." + spell.id())).withStyle(active ? ChatFormatting.GRAY : ChatFormatting.LIGHT_PURPLE));
             level.playSound(null, player.getX(), player.getY(), player.getZ(),
@@ -309,6 +316,23 @@ public final class Magic {
             case BAT_FORM -> batForm(level, player);
             default -> {}
         }
+    }
+
+    private static final DustParticleOptions SHADOW_SMOKE = new DustParticleOptions(0x0A0612, 1.8F);
+
+    /** Entrar en modo Shadow: estallido de sombra y una frase al azar. */
+    private static void shadowEnter(ServerLevel level, ServerPlayer player) {
+        level.sendParticles(SHADOW_SMOKE, true, false, player.getX(), player.getY() + 1, player.getZ(), 60, 0.6, 1.0, 0.6, 0.05);
+        level.sendParticles(SMALL_DENSE, true, false, player.getX(), player.getY() + 1, player.getZ(), 30, 0.8, 1.0, 0.8, 0.05);
+        level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.WARDEN_SONIC_CHARGE, SoundSource.PLAYERS, 0.6F, 1.6F);
+        int line = 1 + player.getRandom().nextInt(4);
+        for (ServerPlayer p : level.players()) {
+            if (p.distanceToSqr(player) < 32 * 32) {
+                p.sendSystemMessage(Component.translatable("message.draxatomic.shadow_line" + line, player.getDisplayName())
+                        .withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.ITALIC));
+            }
+        }
+        Achievements.grant(player, "shadow_mode");
     }
 
     /** Lanza de sangre: atraviesa en línea recta y te cura con parte del daño. */
@@ -495,6 +519,7 @@ public final class Magic {
 
     /** Convocatoria: tus integrantes de la Shadow Garden aparecen a tu lado. */
     private static void summonGarden(ServerLevel level, ServerPlayer player) {
+        Achievements.grant(player, "shadow_garden");
         int count = 0;
         for (ShadowAllyEntity ally : level.getEntitiesOfClass(ShadowAllyEntity.class, player.getBoundingBox().inflate(256),
                 a -> a.isOwnedBy(player))) {
@@ -604,6 +629,17 @@ public final class Magic {
         if (state(player).on(MagicState.Spell.CONCEAL)) {
             if (player.tickCount % 40 == 0 && !Mana.drain(player, 1)) off(player, MagicState.Spell.CONCEAL);
             else loseTrail(level, player, 10);
+        }
+        if (state(player).on(MagicState.Spell.SHADOW_MODE)) {
+            if (SlimeSuit.pieces(player) < 4 || !Mana.drain(player, 3)) {
+                off(player, MagicState.Spell.SHADOW_MODE);
+            } else {
+                player.addEffect(new MobEffectInstance(MobEffects.STRENGTH, 40, 0, false, false));
+                player.addEffect(new MobEffectInstance(MobEffects.SPEED, 40, 0, false, false));
+                player.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST, 40, 0, false, false));
+                level.sendParticles(SHADOW_SMOKE, player.getX(), player.getY() + 0.4, player.getZ(), 8, 0.35, 0.5, 0.35, 0.01);
+                level.sendParticles(SMALL, player.getX(), player.getY() + 0.05, player.getZ(), 3, 0.5, 0.02, 0.5, 0);
+            }
         }
         if (state(player).on(MagicState.Spell.BLOOD_DRAIN)) {
             if (!Mana.drain(player, 2)) off(player, MagicState.Spell.BLOOD_DRAIN);

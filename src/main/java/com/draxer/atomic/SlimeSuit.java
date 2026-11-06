@@ -111,7 +111,12 @@ public final class SlimeSuit {
         if (!(event.getEntity() instanceof ServerPlayer player) || player.tickCount % 20 != 0) return;
         if (wearing(player, EquipmentSlot.HEAD, HOOD)) effect(player, MobEffects.NIGHT_VISION, 0, 260);
         if (wearing(player, EquipmentSlot.LEGS, PANTS)) effect(player, MobEffects.SPEED, 0, 40);
-        if (pieces(player) == 4 && player.isShiftKeyDown()) hide(player);
+        int shade = Magic.state(player).level(MagicState.Upgrade.SUIT_SHADE);
+        if (pieces(player) == 4 && player.isShiftKeyDown()) {
+            hide(player, shade);
+            // Sombra 2+: agachado con el traje completo te vuelves invisible.
+            if (shade >= 2) effect(player, MobEffects.INVISIBILITY, 0, 40);
+        }
     }
 
     private static void effect(Player player, net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> type,
@@ -120,8 +125,9 @@ public final class SlimeSuit {
     }
 
     /** Los monstruos lejanos pierden el rastro de quien se esconde en la sombra. */
-    private static void hide(ServerPlayer player) {
-        double far = 8.0;
+    private static void hide(ServerPlayer player, int shade) {
+        // Cada nivel de Sombra acorta la distancia a la que todavía te ven (8 → 6 → 4 → 2).
+        double far = 8.0 - 2.0 * shade;
         for (Mob mob : player.level().getEntitiesOfClass(Mob.class, player.getBoundingBox().inflate(32))) {
             if (mob.getTarget() == player && mob.distanceToSqr(player) > far * far) mob.setTarget(null);
         }
@@ -133,6 +139,17 @@ public final class SlimeSuit {
         if (event.getSource().is(DamageTypeTags.IS_FALL) && wearing(player, EquipmentSlot.FEET, BOOTS)) {
             event.setCanceled(true);
             return;
+        }
+        int worn = pieces(player);
+        if (worn > 0) {
+            MagicState s = Magic.state(player);
+            // Guardia: 4 % menos de daño por nivel y por pieza (hasta 48 %).
+            float cut = 0.04F * s.level(MagicState.Upgrade.SUIT_GUARD) * worn;
+            // Barrera mágica: 15 % menos de daño mágico por nivel con el abrigo puesto.
+            if (wearing(player, EquipmentSlot.CHEST, COAT) && event.getSource().is(DamageTypeTags.WITCH_RESISTANT_TO)) {
+                cut += 0.15F * s.level(MagicState.Upgrade.SUIT_WARD);
+            }
+            if (cut > 0) event.setAmount(event.getAmount() * Math.max(0.25F, 1.0F - cut));
         }
         if (event.getSource().is(DamageTypeTags.IS_PROJECTILE) && wearing(player, EquipmentSlot.CHEST, COAT)
                 && player.getRandom().nextFloat() < 0.35F) {

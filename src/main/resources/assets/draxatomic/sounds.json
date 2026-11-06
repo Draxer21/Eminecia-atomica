@@ -1,0 +1,42 @@
+{
+  "music.midgar": {
+    "sounds": [
+      {
+        "name": "draxatomic:music/midgar",
+        "stream": true
+      }
+    ]
+  },
+  "music.oriana": {
+    "sounds": [
+      {
+        "name": "draxatomic:music/oriana",
+        "stream": true
+      }
+    ]
+  },
+  "music.sanctuary": {
+    "sounds": [
+      {
+        "name": "draxatomic:music/sanctuary",
+        "stream": true
+      }
+    ]
+  },
+  "music.lawless": {
+    "sounds": [
+      {
+        "name": "draxatomic:music/lawless",
+        "stream": true
+      }
+    ]
+  },
+  "music.boss": {
+    "sounds": [
+      {
+        "name": "draxatomic:music/boss",
+        "stream": true
+      }
+    ]
+  }
+}

@@ -137,11 +137,16 @@ public final class Mana {
         if (!(event.getEntity() instanceof ServerPlayer player) || player.tickCount % 10 != 0) return;
         int current = get(player);
         int max = max(player);
+        if (player.tickCount % 40 == 0 && player.level() instanceof net.minecraft.server.level.ServerLevel lv
+                && Cities.lawlessAt(lv, player.getX(), player.getZ()).isPresent()) {
+            Achievements.grant(player, "lawless");
+        }
         // El Santuario absorbe el poder mágico de quien entra (la magia comprimida resiste).
         boolean inside = player.level() instanceof net.minecraft.server.level.ServerLevel sl && Cities.inSanctuary(sl, player);
         if (inside != IN_SANCTUARY.contains(player.getUUID())) {
             if (inside) {
                 IN_SANCTUARY.add(player.getUUID());
+                Achievements.grant(player, "sanctuary");
                 player.sendOverlayMessage(net.minecraft.network.chat.Component.translatable("message.draxatomic.sanctuary_enter")
                         .withStyle(net.minecraft.ChatFormatting.DARK_AQUA, net.minecraft.ChatFormatting.ITALIC));
             } else {

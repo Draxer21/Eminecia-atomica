@@ -78,6 +78,10 @@ public class BloodLordEntity extends Monster {
         return lord;
     }
 
+    public boolean redMoon() {
+        return redMoon;
+    }
+
     @Override
     protected void addAdditionalSaveData(ValueOutput output) {
         super.addAdditionalSaveData(output);

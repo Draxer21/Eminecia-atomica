@@ -1,0 +1,23 @@
+{
+  "parent": "draxatomic:root",
+  "display": {
+    "icon": {
+      "id": "minecraft:black_dye"
+    },
+    "title": {
+      "translate": "advancement.draxatomic.shadow_mode"
+    },
+    "description": {
+      "translate": "advancement.draxatomic.shadow_mode.desc"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

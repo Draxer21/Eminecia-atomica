@@ -35,13 +35,19 @@ public final class SkillScreen extends Screen {
 
     private static final int TOP = 48;
 
+    /** Separación entre mejoras: se aprieta si no caben en la pantalla. */
+    private int step() {
+        int n = MagicState.Upgrade.values().length;
+        return Math.max(H + 1, Math.min(H + 3, (this.height - TOP - 20) / n));
+    }
+
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         double mx = event.x();
         double my = event.y();
         MagicState.Upgrade[] ups = MagicState.Upgrade.values();
         for (int i = 0; i < ups.length; i++) {
-            int y = TOP + i * (H + 3);
+            int y = TOP + i * step();
             if (mx >= left() && mx < left() + W && my >= y && my < y + H) {
                 ClientPacketDistributor.sendToServer(new MagicPayloads.Action(MagicPayloads.BUY, i));
                 return true;
@@ -72,7 +78,7 @@ public final class SkillScreen extends Screen {
         for (int i = 0; i < ups.length; i++) {
             MagicState.Upgrade u = ups[i];
             int x = left();
-            int y = TOP + i * (H + 3);
+            int y = TOP + i * step();
             int lvl = s.level(u);
             boolean maxed = lvl >= u.max();
             boolean afford = !maxed && s.points() >= lvl + 1;

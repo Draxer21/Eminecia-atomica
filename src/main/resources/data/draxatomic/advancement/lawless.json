@@ -1,0 +1,23 @@
+{
+  "parent": "draxatomic:root",
+  "display": {
+    "icon": {
+      "id": "minecraft:soul_lantern"
+    },
+    "title": {
+      "translate": "advancement.draxatomic.lawless"
+    },
+    "description": {
+      "translate": "advancement.draxatomic.lawless.desc"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

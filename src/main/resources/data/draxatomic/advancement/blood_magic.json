@@ -1,0 +1,23 @@
+{
+  "parent": "draxatomic:lawless",
+  "display": {
+    "icon": {
+      "id": "draxatomic:crimson_blood"
+    },
+    "title": {
+      "translate": "advancement.draxatomic.blood_magic"
+    },
+    "description": {
+      "translate": "advancement.draxatomic.blood_magic.desc"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

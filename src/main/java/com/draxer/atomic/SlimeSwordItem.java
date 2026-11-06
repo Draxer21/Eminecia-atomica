@@ -195,6 +195,7 @@ public final class SlimeSwordItem extends Item {
                 releaseUsing(stack, level, entity, 0);
                 return stack;
             }
+            int over = Magic.overload(player);
             if (mode != SwordMode.RECOVERY_ATOMIC && !Magic.tryRelease(player)) {
                 // Sobrecompresión: el cuerpo no la tolera y la técnica se disipa.
                 player.removeEffect(MobEffects.LEVITATION);
@@ -210,6 +211,10 @@ public final class SlimeSwordItem extends Item {
             player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 300, 0, false, false));
             player.swing(InteractionHand.MAIN_HAND, true);
             finalWord(server, player, mode);
+            Achievements.grant(player, "i_am_atomic");
+            if (mode == SwordMode.ALL_RANGE_ATOMIC) Achievements.grant(player, "all_range");
+            if (mode == SwordMode.RECOVERY_ATOMIC) Achievements.grant(player, "recovery");
+            if (over > 0 && mode != SwordMode.RECOVERY_ATOMIC) Achievements.grant(player, "overcompressed");
             if (mode == SwordMode.ATOMIC) AtomicBlast.detonate(server, player);
             else if (mode == SwordMode.RECOVERY_ATOMIC) AtomicVariants.recovery(server, player);
             else if (mode == SwordMode.ALL_RANGE_ATOMIC) AtomicVariants.allRange(server, player);

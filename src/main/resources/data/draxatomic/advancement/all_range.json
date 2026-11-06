@@ -1,0 +1,23 @@
+{
+  "parent": "draxatomic:i_am_atomic",
+  "display": {
+    "icon": {
+      "id": "minecraft:end_crystal"
+    },
+    "title": {
+      "translate": "advancement.draxatomic.all_range"
+    },
+    "description": {
+      "translate": "advancement.draxatomic.all_range.desc"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

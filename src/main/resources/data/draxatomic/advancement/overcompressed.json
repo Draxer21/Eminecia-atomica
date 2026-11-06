@@ -1,0 +1,23 @@
+{
+  "parent": "draxatomic:i_am_atomic",
+  "display": {
+    "icon": {
+      "id": "minecraft:amethyst_shard"
+    },
+    "title": {
+      "translate": "advancement.draxatomic.overcompressed"
+    },
+    "description": {
+      "translate": "advancement.draxatomic.overcompressed.desc"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

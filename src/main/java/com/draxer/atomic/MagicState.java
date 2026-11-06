@@ -75,7 +75,9 @@ public record MagicState(int spell, int compression, int toggles, int points, in
         // Magia de sangre (se aprende bebiendo la Sangre de Crimson).
         BLOOD_LANCE("blood_lance", 25, false),
         BAT_FORM("bat_form", 30, false),
-        BLOOD_DRAIN("blood_drain", 10, true);
+        BLOOD_DRAIN("blood_drain", 10, true),
+        // Modo Shadow (requiere el traje de slime completo).
+        SHADOW_MODE("shadow_mode", 20, true);
 
         private final String id;
         private final int cost;
@@ -123,7 +125,11 @@ public record MagicState(int spell, int compression, int toggles, int points, in
         RESERVOIR("reservoir", 3),
         FLOW("flow", 3),
         COMPRESSION("compression", 2),
-        ATOMIC("atomic", 2);
+        ATOMIC("atomic", 2),
+        // Traje de slime
+        SUIT_GUARD("suit_guard", 3),
+        SUIT_WARD("suit_ward", 3),
+        SUIT_SHADE("suit_shade", 3);
 
         private final String id;
         private final int max;

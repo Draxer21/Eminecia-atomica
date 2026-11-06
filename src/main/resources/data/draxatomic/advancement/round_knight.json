@@ -1,0 +1,34 @@
+{
+  "parent": "draxatomic:root",
+  "display": {
+    "icon": {
+      "id": "draxatomic:diablos_heart"
+    },
+    "title": {
+      "translate": "advancement.draxatomic.round_knight"
+    },
+    "description": {
+      "translate": "advancement.draxatomic.round_knight.desc"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "draxatomic:round_knight"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
