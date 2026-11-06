@@ -216,6 +216,7 @@ public class RoundsKnightEntity extends Monster {
     @Override
     public boolean doHurtTarget(ServerLevel level, Entity target) {
         boolean hit = super.doHurtTarget(level, target);
+        if (hit && target instanceof LivingEntity living) elemental(living);
         if (hit && target instanceof ServerPlayer player) {
             Mana.steal(player, phase() == 2 ? 25 : 15);
             level.sendParticles(new DustParticleOptions(0xFFD54A, 1.2F), player.getX(), player.getY() + 1, player.getZ(), 12, 0.3, 0.5, 0.3, 0);
@@ -351,13 +352,6 @@ public class RoundsKnightEntity extends Monster {
             }
             default -> {}
         }
-    }
-
-    @Override
-    public boolean doHurtTarget(ServerLevel level, net.minecraft.world.entity.Entity target) {
-        boolean hit = super.doHurtTarget(level, target);
-        if (hit && target instanceof LivingEntity living) elemental(living);
-        return hit;
     }
 
     @Override

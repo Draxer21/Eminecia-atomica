@@ -64,7 +64,7 @@ public final class Tournament {
         modEventBus.addListener((EntityAttributeCreationEvent event) -> event.put(DUELIST.value(), DuelistEntity.createAttributes().build()));
     }
 
-    private record Match(ServerLevel level, Vec3 arena, int[] round, int[] wait) {}
+    private record Match(ServerLevel level, Vec3 arena, int[] round, int[] delay) {}
 
     private static final Map<UUID, Match> MATCHES = new HashMap<>();
 
@@ -101,7 +101,7 @@ public final class Tournament {
             return;
         }
         match.round()[0]++;
-        match.wait()[0] = 60;
+        match.delay()[0] = 60;
         player.heal(6.0F);
         player.sendOverlayMessage(Component.translatable("message.draxatomic.tournament_next").withStyle(ChatFormatting.GREEN));
     }
@@ -148,7 +148,7 @@ public final class Tournament {
                 forfeit(entry.getKey(), match.level(), "message.draxatomic.tournament_fled");
                 continue;
             }
-            if (match.wait()[0] > 0 && --match.wait()[0] == 0) spawnRival(match, player);
+            if (match.delay()[0] > 0 && --match.delay()[0] == 0) spawnRival(match, player);
         }
     }
 
