@@ -24,20 +24,20 @@ public final class VampireClient {
 
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerEntityRenderer(Vampires.SERVANT.value(), c -> new Renderer<>(c, texture("servant"), 1.0F));
-        event.registerEntityRenderer(Vampires.CRIMSON.value(), c -> new Renderer<>(c, texture("crimson"), 1.05F));
-        event.registerEntityRenderer(Vampires.ELIZABETH.value(), c -> new Renderer<>(c, texture("elizabeth"), 1.1F));
+        event.registerEntityRenderer(Vampires.SERVANT.value(), c -> new Renderer<>(c, texture("servant"), 1.0F, false));
+        event.registerEntityRenderer(Vampires.CRIMSON.value(), c -> new Renderer<>(c, texture("crimson"), 1.05F, false));
+        event.registerEntityRenderer(Vampires.ELIZABETH.value(), c -> new Renderer<>(c, texture("elizabeth"), 1.1F, true));
         event.registerEntityRenderer(Vampires.AURORA.value(), c -> new Renderer<>(c,
-                Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "textures/entity/npc/claire_aurora.png"), 1.0F));
+                Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "textures/entity/npc/claire_aurora.png"), 1.0F, true));
     }
 
     public static final class Renderer<T extends Mob> extends HumanoidMobRenderer<T, HumanoidRenderState, HumanoidModel<HumanoidRenderState>> {
         private final Identifier skin;
         private final float size;
 
-        public Renderer(EntityRendererProvider.Context context, Identifier skin, float size) {
-            // Modelo de jugador: acepta skins modernas de 64×64 (brazos clásicos).
-            super(context, new HumanoidModel<>(context.bakeLayer(ModelLayers.PLAYER)), 0.5F * size);
+        public Renderer(EntityRendererProvider.Context context, Identifier skin, float size, boolean female) {
+            // Modelo de jugador: acepta skins modernas de 64×64 (brazos clásicos); relieve si es femenina.
+            super(context, new FigureModel<>(context.bakeLayer(FigureModel.LAYER), state -> female), 0.5F * size);
             this.skin = skin;
             this.size = size;
         }

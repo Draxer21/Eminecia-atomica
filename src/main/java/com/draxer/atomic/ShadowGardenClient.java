@@ -39,7 +39,8 @@ public final class ShadowGardenClient {
         }
 
         public AllyRenderer(EntityRendererProvider.Context context) {
-            super(context, new HumanoidModel<>(context.bakeLayer(ModelLayers.PLAYER)), 0.5F);
+            // Las Siete Sombras: todas con relieve en el pecho.
+            super(context, new FigureModel<>(context.bakeLayer(FigureModel.LAYER), state -> true), 0.5F);
         }
 
         @Override
@@ -63,6 +64,9 @@ public final class ShadowGardenClient {
         public String character = "alexia";
     }
 
+    /** Personajes femeninos (llevan relieve en el pecho). */
+    private static final java.util.Set<String> FEMALE = java.util.Set.of("alexia", "iris", "claire", "gamma", "rose", "mary", "yukime");
+
     /**
      * Personajes con nombre: textura en textures/entity/npc/<id>.png (reemplazable por tu propia skin).
      * Usan el modelo de jugador, así que sirve cualquier skin moderna de 64×64 con brazos clásicos.
@@ -70,7 +74,7 @@ public final class ShadowGardenClient {
     public static final class NpcRenderer
             extends HumanoidMobRenderer<StoryNpcEntity, NpcRenderState, HumanoidModel<NpcRenderState>> {
         public NpcRenderer(EntityRendererProvider.Context context) {
-            super(context, new HumanoidModel<>(context.bakeLayer(ModelLayers.PLAYER)), 0.5F);
+            super(context, new FigureModel<>(context.bakeLayer(FigureModel.LAYER), state -> FEMALE.contains(state.character)), 0.5F);
         }
 
         @Override
