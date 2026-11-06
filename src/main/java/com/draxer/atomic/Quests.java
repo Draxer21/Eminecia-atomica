@@ -87,6 +87,13 @@ public final class Quests {
             // Rey Raphael
             bring("raphael_tribute", "raphael", "draxatomic:diablos_drop", 20, 0,
                     r("minecraft:emerald", 64), r("minecraft:gold_block", 4)),
+            // Mitsugoshi: encargos comerciales de Gamma
+            bring("gamma_sugar", "gamma", "minecraft:sugar", 48, 0,
+                    r("draxatomic:mitsugoshi_coffee", 6), r("minecraft:emerald", 12)),
+            bring("gamma_honey", "gamma", "minecraft:honey_bottle", 12, 0,
+                    r("draxatomic:mitsugoshi_shampoo", 4), r("minecraft:emerald", 16)),
+            bring("gamma_branch", "gamma", "minecraft:gold_ingot", 24, 15,
+                    r("minecraft:emerald", 40), r("draxatomic:tournament_entry", 1)),
             // Mary, la cazadora de vampiros (Ciudad sin Ley)
             kill("mary_servants", "mary", "draxatomic:vampire_servant", 15, 0,
                     r("draxatomic:blood_vial", 4), r("minecraft:emerald", 16)),

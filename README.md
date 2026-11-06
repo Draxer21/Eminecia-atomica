@@ -1,6 +1,6 @@
 # Drax Atomic
 
-Mod de NeoForge para Minecraft 26.2 (versión del mod 0.18.0).
+Mod de NeoForge para Minecraft 26.2 (versión del mod 0.19.0).
 
 ## Poder mágico
 
@@ -117,6 +117,10 @@ Al crear o abrir el mundo se construyen enteras la Midgar y la Oriana más cerca
 - **La Ciudad sin Ley (128×128):** barrios oscuros, taberna, mercado negro, el foso de Juggernaut y, en el centro, la **Torre Carmesí** (6 pisos con escalera de mano): vestíbulo, biblioteca, depósito de sangre, dormitorios, el salón del trono de **Crimson** y la cripta de **Elizabeth**. Si vences a Crimson dentro de la ciudad, su sangre despierta a la Reina. Comandos: `/draxatomic city locate|tp lawless`, `/draxatomic city view lawless overview|castle|street`.
 - **Aurora:** después de vencer a Elizabeth en la Ciudad sin Ley, Claire sube a la torre con los ojos violeta. Aurora intenta el All-Range Atomic: un domo que tiembla, el cuerpo de Claire se agrieta y la técnica se disipa; aprovecha mientras está aturdida. En creativo: `/draxatomic test aurora`.
 - **Skins propias:** reemplaza el PNG del personaje por cualquier skin de jugador de 64×64 con brazos clásicos (Steve). Claire `npc/claire.png`, Aurora `npc/claire_aurora.png`, Mary `npc/mary.png`, Yukime `npc/yukime.png`, Juggernaut `npc/juggernaut.png`, Elizabeth `vampire/elizabeth.png`, Crimson `vampire/crimson.png`, las Siete Sombras `shadow_garden/alpha.png` … `shadow_garden/eta.png` (dentro de `src/main/resources/assets/draxatomic/textures/entity/`). Si la skin es de brazos finos (Alex): `python3 tools/skins.py slim <archivo.png>`.
+- **Torneo de espadas:** fabrica la Inscripción al torneo (papel + lingote de hierro + pepita de oro) o consíguela con Gamma, úsala dentro de Midgar y gana 4 rondas seguidas. Nadie más puede meterse en el duelo; si mueres o te alejas, quedas fuera.
+- **Ataques del Culto:** a veces el Culto ataca Midgar u Oriana mientras estás dentro; si los rechazas, la ciudad te recompensa. En creativo: `/draxatomic test raid`.
+- **Modo Shadow:** hechizo sostenido que pide el traje de slime completo: aura de sombra, más fuerza, velocidad y salto, y +20 % de poder mágico.
+- **Música:** pistas originales por zona (Midgar, Oriana, el Santuario, la Ciudad sin Ley y las peleas de jefe), generadas con `tools/music.py`. Se ajustan con el volumen de "Música".
 - **El Santuario (64×64):** templo amurallado rodeado por un lago sagrado, con el núcleo de sculk en el centro y guardianes del Culto. Dentro, tu poder mágico se drena rápido; solo la magia comprimida resiste (y no se disipa). Como Cid: comprime antes de entrar y suelta un All-Range desde dentro.
 - Comandos: `/draxatomic city locate midgar|oriana|sanctuary`. En creativo: `/draxatomic city tp midgar|oriana|sanctuary`, `/draxatomic city build` y `/draxatomic city view <ciudad> overview|castle|street`.
 - Se configura en `[cities]`: activar/desactivar y cada cuántos bloques puede haber una ciudad.
@@ -163,6 +167,7 @@ Los textos (incluida la frase) están en `assets/draxatomic/lang/*.json`.
 ## Historial
 
 - 0.11.0: domo de barrera al cargar los Atomic (marca el área exacta); carga más corta (1,5 s) y más alcance (Atomic 48, hasta 160 con mejoras y compresión); tallado del cráter más rápido.
+- 0.19.0: torneo de espadas en Midgar (Inscripción al torneo: 4 rondas contra rivales cada vez más fuertes; el campeón gana premios y un logro); tres Caballeros de la Mesa Redonda (Juicio Dorado, Llama Carmesí que quema, el Glacial que congela); encargos comerciales de Mitsugoshi para Gamma.
 - 0.18.0: mejoras del traje de slime en el árbol (Guardia, Barrera mágica, Sombra); 17 logros propios; cielo y niebla rojos durante la Luna Roja y niebla oscura en la Ciudad sin Ley de noche; música original por zona (Midgar, Oriana, Santuario, Ciudad sin Ley, jefes); el Culto ataca a veces Midgar y Oriana y los guardias patrullan; modo Shadow (con el traje completo).
 - 0.17.1: el relieve ahora va inclinado como en MCA; en las personajes adultas (Iris, Mary, Yukime, Elizabeth) es más grande.
 - 0.17.0: los personajes femeninos (Alexia, Iris, Claire, Gamma, Rose, Mary, Yukime, las Siete Sombras, Elizabeth y Aurora) tienen un relieve en el pecho, al estilo de Minecraft Comes Alive; toma el color de la ropa de la skin.

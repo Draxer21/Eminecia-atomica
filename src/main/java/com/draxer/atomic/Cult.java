@@ -132,6 +132,8 @@ public final class Cult {
             RoundsKnightEntity knight = KNIGHT.value().create(level, EntitySpawnReason.TRIGGERED);
             if (knight == null) return InteractionResult.FAIL;
             knight.snapTo(at.getX() + 0.5, at.getY(), at.getZ() + 0.5, player.getYRot() + 180.0F, 0);
+            RoundsKnightEntity.Rank[] ranks = RoundsKnightEntity.Rank.values();
+            knight.setRank(ranks[level.getRandom().nextInt(ranks.length)]);
             level.addFreshEntity(knight);
             knight.announce();
             context.getItemInHand().consume(1, player);

@@ -21,6 +21,7 @@ public final class ShadowGardenClient {
         event.registerEntityRenderer(ShadowGarden.ALLY.value(), AllyRenderer::new);
         event.registerEntityRenderer(ShadowGarden.STORY_NPC.value(), NpcRenderer::new);
         event.registerEntityRenderer(ShadowGarden.GUARD.value(), GuardRenderer::new);
+        event.registerEntityRenderer(Tournament.DUELIST.value(), DuelistRenderer::new);
     }
 
     public static final class AllyRenderState extends HumanoidRenderState {
@@ -93,6 +94,34 @@ public final class ShadowGardenClient {
         @Override
         public Identifier getTextureLocation(NpcRenderState state) {
             return Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "textures/entity/npc/" + state.character + ".png");
+        }
+    }
+
+    public static final class DuelistRenderState extends HumanoidRenderState {
+        public int skin;
+    }
+
+    /** Rivales del torneo: skins originales de alumnos de esgrima (textures/entity/duelist/<n>.png). */
+    public static final class DuelistRenderer
+            extends HumanoidMobRenderer<DuelistEntity, DuelistRenderState, HumanoidModel<DuelistRenderState>> {
+        public DuelistRenderer(EntityRendererProvider.Context context) {
+            super(context, new FigureModel<>(context.bakeLayer(FigureModel.LAYER), state -> state.skin == 1 ? FigureModel.NORMAL : FigureModel.NONE), 0.5F);
+        }
+
+        @Override
+        public DuelistRenderState createRenderState() {
+            return new DuelistRenderState();
+        }
+
+        @Override
+        public void extractRenderState(DuelistEntity entity, DuelistRenderState state, float partialTicks) {
+            super.extractRenderState(entity, state, partialTicks);
+            state.skin = entity.skin();
+        }
+
+        @Override
+        public Identifier getTextureLocation(DuelistRenderState state) {
+            return Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "textures/entity/duelist/" + state.skin + ".png");
         }
     }
 

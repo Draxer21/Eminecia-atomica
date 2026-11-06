@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:paper",
+    "minecraft:iron_ingot",
+    "minecraft:gold_nugget"
+  ],
+  "result": {
+    "id": "draxatomic:tournament_entry",
+    "count": 1
+  }
+}

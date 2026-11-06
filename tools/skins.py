@@ -182,6 +182,23 @@ def juggernaut():
     s.save('npc/juggernaut.png')
 
 
+def duelists():
+    """Rivales del torneo: diseños originales de alumnos de esgrima (traje de práctica gris)."""
+    looks = [('#C89A70', '#3A2A1A', '#2F6FB0', False),   # 0: alumno, faja azul
+             ('#E8C8B0', '#C08030', '#B03040', True),     # 1: alumna, faja roja
+             ('#D8B090', '#E0E0E8', '#D4AF37', False)]    # 2: el campeón, faja dorada
+    for k, (skin, hair, sash, long) in enumerate(looks):
+        s = Skin(40 + k)
+        s.head(skin); s.hair(hair, long=long)
+        s.eyes('#2A2A3A')
+        s.rect(11, 14, 2, 1, '#8A5A50', 0)
+        s.body('#D8DCE0'); s.rect(20, 25, 8, 2, sash, 2)          # chaqueta acolchada y faja
+        s.rect(23, 20, 2, 5, '#B8BCC4', 3)
+        s.arm('#D8DCE0'); s.rect(44, 29, 4, 3, '#4A4A50', 2)       # guantes
+        s.leg('#C8CCD4'); s.rect(4, 29, 4, 3, '#2A2A30', 2)        # botas
+        s.save(f'duelist/{k}.png')
+
+
 def claire_aurora():
     """Claire poseída por Aurora: ojos violeta brillantes y marcas que le suben por el cuello."""
     if os.path.exists(os.path.join(OUT, 'npc/claire_aurora.png')) and not FORCE:
@@ -307,6 +324,17 @@ def aurora_fragment(p):
     p[7, 4] = hexc('#F0E0FF')
 
 
+def tournament_entry(p):
+    for y in range(2, 14):
+        for x in range(3, 13):
+            p[x, y] = hexc('#F2E8D0') if 3 < x < 12 and 2 < y < 13 else hexc('#C8B890')
+    for x in range(5, 11):
+        p[x, 5] = hexc('#6A5A40'); p[x, 7] = hexc('#8A7A60'); p[x, 9] = hexc('#8A7A60')
+    for (x, y) in ((10, 11), (11, 11), (10, 12), (11, 12), (9, 13), (12, 13)):
+        p[x, y] = hexc('#B03040')
+    p[10, 10] = hexc('#D4AF37'); p[11, 10] = hexc('#D4AF37')
+
+
 def queen_blood(p):
     crimson_blood(p)
     for x in range(5, 11):
@@ -321,8 +349,10 @@ if __name__ == '__main__':
     FORCE = '--force' in sys.argv
     servant(); crimson(); elizabeth(); claire_aurora(); mary(); yukime(); juggernaut()
     item('aurora_fragment', aurora_fragment)
+    item('tournament_entry', tournament_entry)
+    duelists()
     import glob
-    for f in glob.glob(os.path.join(OUT, 'npc', '*.png')) + glob.glob(os.path.join(OUT, 'vampire', '*.png')):
+    for f in glob.glob(os.path.join(OUT, 'npc', '*.png')) + glob.glob(os.path.join(OUT, 'vampire', '*.png')) + glob.glob(os.path.join(OUT, 'duelist', '*.png')):
         if to_modern(f):
             print('formato moderno:', os.path.relpath(f, OUT))
     item('blood_vial', vial); item('crimson_chalice', chalice)

@@ -52,6 +52,38 @@ public class RoundsKnightEntity extends Monster {
     private static final EntityDataAccessor<Integer> PHASE =
             SynchedEntityData.defineId(RoundsKnightEntity.class, EntityDataSerializers.INT);
     private static final int AWAKEN_TICKS = 80;
+    private static final EntityDataAccessor<Integer> RANK =
+            SynchedEntityData.defineId(RoundsKnightEntity.class, EntityDataSerializers.INT);
+
+    /** Los distintos Caballeros de la Mesa Redonda: cada uno con su elemento. */
+    public enum Rank {
+        GOLD("gold", 0xFFD54A, 1.0F),
+        FLAME("flame", 0xFF6A1A, 1.15F),
+        FROST("frost", 0x7FD8FF, 1.3F);
+
+        public final String id;
+        public final int color;
+        public final float health;
+
+        Rank(String id, int color, float health) {
+            this.id = id;
+            this.color = color;
+            this.health = health;
+        }
+    }
+
+    public Rank rank() {
+        Rank[] all = Rank.values();
+        return all[Math.floorMod(entityData.get(RANK), all.length)];
+    }
+
+    public void setRank(Rank rank) {
+        entityData.set(RANK, rank.ordinal());
+        var hp = getAttribute(Attributes.MAX_HEALTH);
+        if (hp != null) hp.setBaseValue(400.0 * rank.health);
+        setHealth(getMaxHealth());
+        bossBar.setName(Component.translatable("entity.draxatomic.round_knight." + rank.id));
+    }
 
     private final ServerBossEvent bossBar = new ServerBossEvent(java.util.UUID.randomUUID(),
             Component.translatable("entity.draxatomic.round_knight"), BossEvent.BossBarColor.YELLOW, BossEvent.BossBarOverlay.NOTCHED_10);
@@ -82,6 +114,7 @@ public class RoundsKnightEntity extends Monster {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(PHASE, 1);
+        builder.define(RANK, 0);
     }
 
     public int phase() {
@@ -92,12 +125,15 @@ public class RoundsKnightEntity extends Monster {
     protected void addAdditionalSaveData(ValueOutput output) {
         super.addAdditionalSaveData(output);
         output.putInt("Phase", phase());
+        output.putInt("Rank", rank().ordinal());
     }
 
     @Override
     protected void readAdditionalSaveData(ValueInput input) {
         super.readAdditionalSaveData(input);
         entityData.set(PHASE, input.getIntOr("Phase", 1));
+        entityData.set(RANK, input.getIntOr("Rank", 0));
+        bossBar.setName(Component.translatable("entity.draxatomic.round_knight." + rank().id));
         if (phase() == 2) enterPhaseTwoStats();
     }
 
@@ -292,7 +328,7 @@ public class RoundsKnightEntity extends Monster {
         Vec3 c = target.position();
         for (int i = 0; i < 24; i++) {
             double a = i * Math.PI / 12;
-            level.sendParticles(new DustParticleOptions(0xFFD54A, 1.6F), c.x + Math.cos(a) * 4, c.y + 0.1, c.z + Math.sin(a) * 4,
+            level.sendParticles(new DustParticleOptions(rank().color, 1.6F), c.x + Math.cos(a) * 4, c.y + 0.1, c.z + Math.sin(a) * 4,
                     1, 0, 0, 0, 0);
         }
         for (int h = 0; h < 12; h++) {
@@ -300,8 +336,28 @@ public class RoundsKnightEntity extends Monster {
         }
         for (LivingEntity e : level.getEntitiesOfClass(LivingEntity.class, target.getBoundingBox().inflate(4), e -> !isAlliedTo(e) && e != this)) {
             e.hurtServer(level, damageSources().indirectMagic(this, this), 12.0F);
+            elemental(e);
         }
         level.playSound(null, c.x, c.y, c.z, SoundEvents.LIGHTNING_BOLT_IMPACT, SoundSource.HOSTILE, 1.5F, 1.2F);
+    }
+
+    /** El elemento del caballero: la Llama quema, el Glacial congela. */
+    private void elemental(LivingEntity e) {
+        switch (rank()) {
+            case FLAME -> e.igniteForSeconds(5.0F);
+            case FROST -> {
+                e.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.SLOWNESS, 80, 2));
+                e.setTicksFrozen(Math.min(e.getTicksRequiredToFreeze() + 60, e.getTicksFrozen() + 120));
+            }
+            default -> {}
+        }
+    }
+
+    @Override
+    public boolean doHurtTarget(ServerLevel level, net.minecraft.world.entity.Entity target) {
+        boolean hit = super.doHurtTarget(level, target);
+        if (hit && target instanceof LivingEntity living) elemental(living);
+        return hit;
     }
 
     @Override
@@ -354,7 +410,8 @@ public class RoundsKnightEntity extends Monster {
                 knight.judgment(level, target);
                 cooldown = 70;
             } else {
-                Bolts.fire(level, knight, target, knight.phase() == 2 ? 14.0F : 9.0F, 0xFFD54A, SoundEvents.EVOKER_CAST_SPELL);
+                Bolts.fire(level, knight, target, knight.phase() == 2 ? 14.0F : 9.0F, knight.rank().color, SoundEvents.EVOKER_CAST_SPELL);
+                knight.elemental(target);
                 cooldown = knight.phase() == 2 ? 30 : 50;
             }
         }
