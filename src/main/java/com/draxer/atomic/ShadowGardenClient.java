@@ -40,7 +40,7 @@ public final class ShadowGardenClient {
 
         public AllyRenderer(EntityRendererProvider.Context context) {
             // Las Siete Sombras: todas con relieve en el pecho.
-            super(context, new FigureModel<>(context.bakeLayer(FigureModel.LAYER), state -> true), 0.5F);
+            super(context, new FigureModel<>(context.bakeLayer(FigureModel.LAYER), state -> FigureModel.NORMAL), 0.5F);
         }
 
         @Override
@@ -64,8 +64,9 @@ public final class ShadowGardenClient {
         public String character = "alexia";
     }
 
-    /** Personajes femeninos (llevan relieve en el pecho). */
-    private static final java.util.Set<String> FEMALE = java.util.Set.of("alexia", "iris", "claire", "gamma", "rose", "mary", "yukime");
+    /** Personajes femeninos (relieve normal) y adultas (relieve más grande). */
+    private static final java.util.Set<String> FEMALE = java.util.Set.of("alexia", "claire", "gamma", "rose");
+    private static final java.util.Set<String> ADULT_FEMALE = java.util.Set.of("iris", "mary", "yukime");
 
     /**
      * Personajes con nombre: textura en textures/entity/npc/<id>.png (reemplazable por tu propia skin).
@@ -74,7 +75,8 @@ public final class ShadowGardenClient {
     public static final class NpcRenderer
             extends HumanoidMobRenderer<StoryNpcEntity, NpcRenderState, HumanoidModel<NpcRenderState>> {
         public NpcRenderer(EntityRendererProvider.Context context) {
-            super(context, new FigureModel<>(context.bakeLayer(FigureModel.LAYER), state -> FEMALE.contains(state.character)), 0.5F);
+            super(context, new FigureModel<>(context.bakeLayer(FigureModel.LAYER), state -> ADULT_FEMALE.contains(state.character) ? FigureModel.LARGE
+                    : FEMALE.contains(state.character) ? FigureModel.NORMAL : FigureModel.NONE), 0.5F);
         }
 
         @Override

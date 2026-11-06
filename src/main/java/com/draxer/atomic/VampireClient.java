@@ -24,20 +24,20 @@ public final class VampireClient {
 
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerEntityRenderer(Vampires.SERVANT.value(), c -> new Renderer<>(c, texture("servant"), 1.0F, false));
-        event.registerEntityRenderer(Vampires.CRIMSON.value(), c -> new Renderer<>(c, texture("crimson"), 1.05F, false));
-        event.registerEntityRenderer(Vampires.ELIZABETH.value(), c -> new Renderer<>(c, texture("elizabeth"), 1.1F, true));
+        event.registerEntityRenderer(Vampires.SERVANT.value(), c -> new Renderer<>(c, texture("servant"), 1.0F, FigureModel.NONE));
+        event.registerEntityRenderer(Vampires.CRIMSON.value(), c -> new Renderer<>(c, texture("crimson"), 1.05F, FigureModel.NONE));
+        event.registerEntityRenderer(Vampires.ELIZABETH.value(), c -> new Renderer<>(c, texture("elizabeth"), 1.1F, FigureModel.LARGE));
         event.registerEntityRenderer(Vampires.AURORA.value(), c -> new Renderer<>(c,
-                Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "textures/entity/npc/claire_aurora.png"), 1.0F, true));
+                Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "textures/entity/npc/claire_aurora.png"), 1.0F, FigureModel.NORMAL));
     }
 
     public static final class Renderer<T extends Mob> extends HumanoidMobRenderer<T, HumanoidRenderState, HumanoidModel<HumanoidRenderState>> {
         private final Identifier skin;
         private final float size;
 
-        public Renderer(EntityRendererProvider.Context context, Identifier skin, float size, boolean female) {
+        public Renderer(EntityRendererProvider.Context context, Identifier skin, float size, int bust) {
             // Modelo de jugador: acepta skins modernas de 64×64 (brazos clásicos); relieve si es femenina.
-            super(context, new FigureModel<>(context.bakeLayer(FigureModel.LAYER), state -> female), 0.5F * size);
+            super(context, new FigureModel<>(context.bakeLayer(FigureModel.LAYER), state -> bust), 0.5F * size);
             this.skin = skin;
             this.size = size;
         }
