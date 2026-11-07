@@ -143,8 +143,17 @@ public record MagicState(int spell, int compression, int toggles, int points, in
             return id;
         }
 
+        /** Niveles "normales": hasta aquí cuesta nivel+1 puntos; después, cada vez mucho más. */
         public int max() {
             return max;
+        }
+
+        /** Puntos que cuesta pasar del nivel {@code level} al siguiente (sin tope de nivel). */
+        public int price(int level) {
+            int base = level + 1;
+            if (level < max) return base;
+            double extra = 2.0 * Math.pow(1.6, level - max + 1);
+            return (int) Math.min(1_000_000, Math.round(base + extra));
         }
     }
 }

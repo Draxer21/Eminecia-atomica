@@ -334,5 +334,6 @@
   "quest.draxatomic.gamma_honey": "Secret formula",
   "quest.draxatomic.gamma_honey.text": "For the new shampoo I need twelve honey bottles.",
   "quest.draxatomic.gamma_branch": "Investment",
-  "quest.draxatomic.gamma_branch.text": "Mitsugoshi is opening a branch. Contribute twenty-four gold ingots and you'll see the return."
+  "quest.draxatomic.gamma_branch.text": "Mitsugoshi is opening a branch. Contribute twenty-four gold ingots and you'll see the return.",
+  "gui.draxatomic.skills.level": "Level %s ★"
 }

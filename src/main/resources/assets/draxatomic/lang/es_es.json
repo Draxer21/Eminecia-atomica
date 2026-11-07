@@ -334,5 +334,6 @@
   "quest.draxatomic.gamma_honey": "Fórmula secreta",
   "quest.draxatomic.gamma_honey.text": "Para el nuevo champú necesito doce botellas de miel.",
   "quest.draxatomic.gamma_branch": "Inversión",
-  "quest.draxatomic.gamma_branch.text": "Mitsugoshi abre una sucursal. Aporta veinticuatro lingotes de oro y verás el retorno."
+  "quest.draxatomic.gamma_branch.text": "Mitsugoshi abre una sucursal. Aporta veinticuatro lingotes de oro y verás el retorno.",
+  "gui.draxatomic.skills.level": "Nivel %s ★"
 }

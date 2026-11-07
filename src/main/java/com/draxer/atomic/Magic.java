@@ -101,23 +101,43 @@ public final class Magic {
     /** Costo real: con Eficiencia y el Despertar. */
     public static int cost(Player player, int base) {
         MagicState s = state(player);
-        double c = base * (1.0 - 0.1 * s.level(MagicState.Upgrade.EFFICIENCY));
+        double c = base * (1.0 - efficiency(s.level(MagicState.Upgrade.EFFICIENCY)));
         if (s.on(MagicState.Spell.AWAKENING)) c *= 0.5;
         return (int) Math.ceil(c);
     }
 
+    /**
+     * Rendimiento decreciente para los niveles por encima de los normales: los primeros
+     * {@code normal} niveles dan {@code per} cada uno; los demás se acercan a {@code cap} sin pasarlo.
+     */
+    static double diminishing(int level, int normal, double per, double cap) {
+        if (level <= normal) return level * per;
+        double base = normal * per;
+        return base + (cap - base) * (1.0 - Math.pow(0.85, level - normal));
+    }
+
+    /** Eficiencia: 10 % por nivel hasta el 3; después se acerca al 70 %. */
+    static double efficiency(int level) {
+        return diminishing(level, 3, 0.1, 0.7);
+    }
+
     public static float power(Player player) {
         MagicState s = state(player);
-        return (1.0F + 0.15F * s.level(MagicState.Upgrade.POWER)) * (s.on(MagicState.Spell.AWAKENING) ? 1.3F : 1.0F)
+        int p = s.level(MagicState.Upgrade.POWER);
+        // Poder: +15 % por nivel hasta el 3; después +10 % por nivel, sin tope.
+        float bonus = p <= 3 ? 0.15F * p : 0.45F + 0.10F * (p - 3);
+        return (1.0F + bonus) * (s.on(MagicState.Spell.AWAKENING) ? 1.3F : 1.0F)
                 * (s.on(MagicState.Spell.SHADOW_MODE) ? 1.2F : 1.0F);
     }
 
     public static float reach(Player player) {
-        return 1.0F + 0.15F * state(player).level(MagicState.Upgrade.REACH);
+        // Alcance: +15 % por nivel hasta el 3; después se acerca a +150 %.
+        return 1.0F + (float) diminishing(state(player).level(MagicState.Upgrade.REACH), 3, 0.15, 1.5);
     }
 
     public static float chargeFactor(Player player) {
-        return 1.0F - 0.2F * state(player).level(MagicState.Upgrade.ATOMIC);
+        // Carga del Atomic: −20 % por nivel hasta el 2; después se acerca a −75 %.
+        return 1.0F - (float) diminishing(state(player).level(MagicState.Upgrade.ATOMIC), 2, 0.2, 0.75);
     }
 
     public static int maxCompression(Player player) {
@@ -254,8 +274,8 @@ public final class Magic {
     private static void buy(ServerPlayer player, MagicState.Upgrade upgrade) {
         MagicState s = state(player);
         int level = s.level(upgrade);
-        int price = level + 1;
-        if (level >= upgrade.max() || s.points() < price) return;
+        int price = upgrade.price(level);
+        if (s.points() < price) return;
         set(player, s.withSkill(upgrade, level + 1).withPoints(s.points() - price, s.xp()));
         Mana.sync(player);
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.PLAYERS, 1.0F, 1.2F);
@@ -564,7 +584,7 @@ public final class Magic {
         Integer t = COMPRESSING.get(id);
         if (t != null) {
             COMPRESSION_IDLE.put(id, 0);
-            int interval = 30 - 6 * s.level(MagicState.Upgrade.COMPRESSION);
+            int interval = Math.max(6, 30 - 6 * s.level(MagicState.Upgrade.COMPRESSION));
             int ticks = t + 1;
             COMPRESSING.put(id, ticks);
             // Aura que se cierra sobre la mano.

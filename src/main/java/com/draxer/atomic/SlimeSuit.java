@@ -127,7 +127,7 @@ public final class SlimeSuit {
     /** Los monstruos lejanos pierden el rastro de quien se esconde en la sombra. */
     private static void hide(ServerPlayer player, int shade) {
         // Cada nivel de Sombra acorta la distancia a la que todavía te ven (8 → 6 → 4 → 2).
-        double far = 8.0 - 2.0 * shade;
+        double far = Math.max(1.0, 8.0 - 2.0 * Math.min(3, shade) - 0.2 * Math.max(0, shade - 3));
         for (Mob mob : player.level().getEntitiesOfClass(Mob.class, player.getBoundingBox().inflate(32))) {
             if (mob.getTarget() == player && mob.distanceToSqr(player) > far * far) mob.setTarget(null);
         }

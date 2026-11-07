@@ -80,19 +80,26 @@ public final class SkillScreen extends Screen {
             int x = left();
             int y = TOP + i * step();
             int lvl = s.level(u);
-            boolean maxed = lvl >= u.max();
-            boolean afford = !maxed && s.points() >= lvl + 1;
+            // Sin tope: pasado el nivel normal (borde dorado) se sigue subiendo, cada vez más caro.
+            boolean beyond = lvl >= u.max();
+            int price = u.price(lvl);
+            boolean afford = s.points() >= price;
             boolean hover = mouseX >= x && mouseX < x + W && mouseY >= y && mouseY < y + H;
-            int border = maxed ? 0xFF4CD964 : afford ? 0xFFB07CFF : 0xFF4A4060;
+            int border = afford ? 0xFFB07CFF : beyond ? 0xFFC9A030 : 0xFF4A4060;
             graphics.fill(x - 1, y - 1, x + W + 1, y + H + 1, border);
             graphics.fill(x, y, x + W, y + H, hover ? 0xFF2A2038 : 0xFF1A1424);
             graphics.text(this.font, Component.translatable("upgrade.draxatomic." + u.id()), x + 4, y + 1, 0xFFE8E0F0);
-            StringBuilder pips = new StringBuilder();
-            for (int k = 0; k < u.max(); k++) pips.append(k < lvl ? "◆" : "◇");
-            graphics.text(this.font, Component.literal(pips.toString()), x + 4, y + 10, 0xFFB07CFF);
-            Component costLine = maxed ? Component.translatable("gui.draxatomic.skills.max")
-                    : Component.translatable("gui.draxatomic.skills.cost", lvl + 1);
-            graphics.text(this.font, costLine, x + W - 4 - this.font.width(costLine), y + 10, maxed ? 0xFF4CD964 : afford ? 0xFFFFD54A : 0xFF8A8098);
+            Component levelLine;
+            if (!beyond) {
+                StringBuilder pips = new StringBuilder();
+                for (int k = 0; k < u.max(); k++) pips.append(k < lvl ? "◆" : "◇");
+                levelLine = Component.literal(pips.toString());
+            } else {
+                levelLine = Component.translatable("gui.draxatomic.skills.level", lvl);
+            }
+            graphics.text(this.font, levelLine, x + 4, y + 10, beyond ? 0xFFFFD54A : 0xFFB07CFF);
+            Component costLine = Component.translatable("gui.draxatomic.skills.cost", price);
+            graphics.text(this.font, costLine, x + W - 4 - this.font.width(costLine), y + 10, afford ? 0xFFFFD54A : 0xFF8A8098);
             if (hover) tip.add(Component.translatable("upgrade.draxatomic." + u.id() + ".desc"));
         }
         // Hechizos
