@@ -771,6 +771,19 @@ public final class Magic {
     // ---------------------------------------------------------------- vuelo
 
     private static final java.util.Set<UUID> FLYING = new java.util.HashSet<>();
+    /** Poder de vuelo pendiente de cobrar (fracciones), por jugador. */
+    private static final Map<UUID, Float> FLIGHT_DEBT = new HashMap<>();
+    private static final float BASE_FLY_SPEED = 0.05F;
+
+    /** Mejora de Vuelo: +20 % de velocidad por nivel hasta el 3 (luego se acerca a +200 %). */
+    static float flightSpeed(Player player) {
+        return BASE_FLY_SPEED * (1.0F + (float) diminishing(state(player).level(MagicState.Upgrade.FLIGHT), 3, 0.2, 2.0));
+    }
+
+    /** Mejora de Vuelo: −15 % de gasto por nivel hasta el 3 (luego se acerca a −80 %). */
+    static float flightDrainFactor(Player player) {
+        return 1.0F - (float) diminishing(state(player).level(MagicState.Upgrade.FLIGHT), 3, 0.15, 0.8);
+    }
 
     /**
      * Vuelo mágico: mientras el hechizo está activo puedes volar como en creativo (doble salto
@@ -781,16 +794,21 @@ public final class Magic {
         boolean on = state(player).on(MagicState.Spell.FLIGHT);
         boolean free = player.isCreative() || player.isSpectator();
         if (on && !free) {
-            if (!player.getAbilities().mayfly) {
+            float speed = flightSpeed(player);
+            if (!player.getAbilities().mayfly || Math.abs(player.getAbilities().getFlyingSpeed() - speed) > 1.0E-4F) {
                 player.getAbilities().mayfly = true;
+                player.getAbilities().setFlyingSpeed(speed);
                 player.onUpdateAbilities();
             }
             FLYING.add(player.getUUID());
             if (player.getAbilities().flying) {
                 player.fallDistance = 0;
                 boolean moving = player.getDeltaMovement().horizontalDistanceSqr() > 0.003;
-                if (player.tickCount % 20 == 0 && !Mana.drain(player, moving ? 3 : 1)) {
-                    off(player, MagicState.Spell.FLIGHT);
+                if (player.tickCount % 20 == 0) {
+                    float debt = FLIGHT_DEBT.getOrDefault(player.getUUID(), 0.0F) + (moving ? 3.0F : 1.0F) * flightDrainFactor(player);
+                    int pay = (int) debt;
+                    FLIGHT_DEBT.put(player.getUUID(), debt - pay);
+                    if (pay > 0 && !Mana.drain(player, pay)) off(player, MagicState.Spell.FLIGHT);
                 }
                 if (player.tickCount % 3 == 0) {
                     level.sendParticles(SMALL, player.getX(), player.getY() - 0.1, player.getZ(), 3, 0.3, 0.05, 0.3, 0.01);
@@ -800,6 +818,7 @@ public final class Magic {
             boolean wasFlying = player.getAbilities().flying;
             player.getAbilities().mayfly = false;
             player.getAbilities().flying = false;
+            player.getAbilities().setFlyingSpeed(BASE_FLY_SPEED);
             player.onUpdateAbilities();
             if (wasFlying) player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 160, 0, false, true));
         }

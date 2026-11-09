@@ -338,5 +338,7 @@
   "gui.draxatomic.skills.level": "Level %s ★",
   "message.draxatomic.channel": "Continuous %s (release R to stop)",
   "spell.draxatomic.flight": "Flight",
-  "spell.draxatomic.flight.desc": "Sustained: fly like in creative (double jump to take off). Hovering costs 1 power per second; moving, 3. When it ends you drift down gently."
+  "spell.draxatomic.flight.desc": "Sustained: fly like in creative (double jump to take off). Hovering costs 1 power per second; moving, 3. When it ends you drift down gently.",
+  "upgrade.draxatomic.flight": "Flight",
+  "upgrade.draxatomic.flight.desc": "Fly 20% faster and spend 15% less power per level (past level 3, with diminishing returns)."
 }

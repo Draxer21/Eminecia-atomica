@@ -1,6 +1,6 @@
 # Drax Atomic
 
-Mod de NeoForge para Minecraft 26.2 (versión del mod 0.22.0).
+Mod de NeoForge para Minecraft 26.2 (versión del mod 0.23.0).
 
 ## Poder mágico
 
@@ -167,6 +167,7 @@ Los textos (incluida la frase) están en `assets/draxatomic/lang/*.json`.
 ## Historial
 
 - 0.11.0: domo de barrera al cargar los Atomic (marca el área exacta); carga más corta (1,5 s) y más alcance (Atomic 48, hasta 160 con mejoras y compresión); tallado del cráter más rápido.
+- 0.23.0: mejora de Vuelo en el árbol: +20 % de velocidad y −15 % de gasto por nivel (sin tope, con rendimiento decreciente pasado el 3).
 - 0.22.0: hechizo Vuelo (sostenido): vuelas como en creativo con doble salto; gasta 1 de poder por segundo flotando y 3 en movimiento; al apagarse, caída lenta.
 - 0.21.0: pasado el nivel normal, cada mejora cuesta el precio anterior +1, luego +2, +3...; Proyección mantenida = rayo continuo; Paso sombra mantenido = pasos encadenados; con compresión, el Paso sombra llega mucho más lejos y su corte crece con la distancia recorrida.
 - 0.20.0: las mejoras del árbol ya no tienen tope: pasado el nivel normal se pueden seguir subiendo, cada nivel bastante más caro que el anterior; los efectos siguen creciendo con rendimiento decreciente para no romper el juego.

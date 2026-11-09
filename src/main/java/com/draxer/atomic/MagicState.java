@@ -131,7 +131,9 @@ public record MagicState(int spell, int compression, int toggles, int points, in
         // Traje de slime
         SUIT_GUARD("suit_guard", 3),
         SUIT_WARD("suit_ward", 3),
-        SUIT_SHADE("suit_shade", 3);
+        SUIT_SHADE("suit_shade", 3),
+        // Vuelo
+        FLIGHT("flight", 3);
 
         private final String id;
         private final int max;

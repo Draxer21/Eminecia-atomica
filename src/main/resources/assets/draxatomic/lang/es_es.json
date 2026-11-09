@@ -338,5 +338,7 @@
   "gui.draxatomic.skills.level": "Nivel %s ★",
   "message.draxatomic.channel": "%s continuo (suelta R para parar)",
   "spell.draxatomic.flight": "Vuelo",
-  "spell.draxatomic.flight.desc": "Sostenido: vuelas como en creativo (doble salto para despegar). Flotar gasta 1 de poder por segundo; volar en movimiento, 3. Al apagarse bajas suave."
+  "spell.draxatomic.flight.desc": "Sostenido: vuelas como en creativo (doble salto para despegar). Flotar gasta 1 de poder por segundo; volar en movimiento, 3. Al apagarse bajas suave.",
+  "upgrade.draxatomic.flight": "Vuelo",
+  "upgrade.draxatomic.flight.desc": "Vuelas un 20 % más rápido y gastas un 15 % menos de poder por nivel (pasado el 3, cada vez menos)."
 }
