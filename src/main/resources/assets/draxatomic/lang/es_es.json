@@ -336,5 +336,7 @@
   "quest.draxatomic.gamma_branch": "Inversión",
   "quest.draxatomic.gamma_branch.text": "Mitsugoshi abre una sucursal. Aporta veinticuatro lingotes de oro y verás el retorno.",
   "gui.draxatomic.skills.level": "Nivel %s ★",
-  "message.draxatomic.channel": "%s continuo (suelta R para parar)"
+  "message.draxatomic.channel": "%s continuo (suelta R para parar)",
+  "spell.draxatomic.flight": "Vuelo",
+  "spell.draxatomic.flight.desc": "Sostenido: vuelas como en creativo (doble salto para despegar). Flotar gasta 1 de poder por segundo; volar en movimiento, 3. Al apagarse bajas suave."
 }

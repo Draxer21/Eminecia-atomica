@@ -644,6 +644,7 @@ public final class Magic {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         ServerLevel level = (ServerLevel) player.level();
         compressionTick(level, player);
+        flightTick(level, player);
         holdTick(level, player);
         batTrailTick(level, player);
         if (player.tickCount % 20 == 0) togglesTick(level, player);
@@ -767,6 +768,43 @@ public final class Magic {
     }
 
     /** Planeo: con el traje completo, agachado mientras caes, bajas suave y avanzas. */
+    // ---------------------------------------------------------------- vuelo
+
+    private static final java.util.Set<UUID> FLYING = new java.util.HashSet<>();
+
+    /**
+     * Vuelo mágico: mientras el hechizo está activo puedes volar como en creativo (doble salto
+     * para despegar). Flotar quieto gasta 1 de poder por segundo; volar en movimiento, 3.
+     * Al apagarse o quedarte sin poder, bajas suave en vez de caer.
+     */
+    private static void flightTick(ServerLevel level, ServerPlayer player) {
+        boolean on = state(player).on(MagicState.Spell.FLIGHT);
+        boolean free = player.isCreative() || player.isSpectator();
+        if (on && !free) {
+            if (!player.getAbilities().mayfly) {
+                player.getAbilities().mayfly = true;
+                player.onUpdateAbilities();
+            }
+            FLYING.add(player.getUUID());
+            if (player.getAbilities().flying) {
+                player.fallDistance = 0;
+                boolean moving = player.getDeltaMovement().horizontalDistanceSqr() > 0.003;
+                if (player.tickCount % 20 == 0 && !Mana.drain(player, moving ? 3 : 1)) {
+                    off(player, MagicState.Spell.FLIGHT);
+                }
+                if (player.tickCount % 3 == 0) {
+                    level.sendParticles(SMALL, player.getX(), player.getY() - 0.1, player.getZ(), 3, 0.3, 0.05, 0.3, 0.01);
+                }
+            }
+        } else if (FLYING.remove(player.getUUID()) && !free) {
+            boolean wasFlying = player.getAbilities().flying;
+            player.getAbilities().mayfly = false;
+            player.getAbilities().flying = false;
+            player.onUpdateAbilities();
+            if (wasFlying) player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 160, 0, false, true));
+        }
+    }
+
     private static void glide(ServerLevel level, ServerPlayer player) {
         if (player.onGround() || !player.isShiftKeyDown() || player.getDeltaMovement().y > -0.05
                 || player.getAbilities().flying || SlimeSuit.pieces(player) < 4) return;

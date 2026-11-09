@@ -216,7 +216,7 @@ public final class AtomicClient {
         boolean jump = mc.options.keyJump.isDown();
         if (player.onGround() || player.isInWater() || player.onClimbable()) {
             airJumpUsed = false;
-        } else if (jump && !jumpWasDown && !airJumpUsed && !player.getAbilities().flying && !player.isPassenger()
+        } else if (jump && !jumpWasDown && !airJumpUsed && !player.getAbilities().mayfly && !player.isPassenger()
                 && player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.FEET).is(SlimeSuit.BOOTS.value())
                 && (player.isCreative() || ManaPayload.latest.mana() >= SlimeSuit.DOUBLE_JUMP_COST)) {
             airJumpUsed = true;

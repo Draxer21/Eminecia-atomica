@@ -336,5 +336,7 @@
   "quest.draxatomic.gamma_branch": "Investment",
   "quest.draxatomic.gamma_branch.text": "Mitsugoshi is opening a branch. Contribute twenty-four gold ingots and you'll see the return.",
   "gui.draxatomic.skills.level": "Level %s ★",
-  "message.draxatomic.channel": "Continuous %s (release R to stop)"
+  "message.draxatomic.channel": "Continuous %s (release R to stop)",
+  "spell.draxatomic.flight": "Flight",
+  "spell.draxatomic.flight.desc": "Sustained: fly like in creative (double jump to take off). Hovering costs 1 power per second; moving, 3. When it ends you drift down gently."
 }

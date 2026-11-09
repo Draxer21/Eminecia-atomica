@@ -77,7 +77,9 @@ public record MagicState(int spell, int compression, int toggles, int points, in
         BAT_FORM("bat_form", 30, false),
         BLOOD_DRAIN("blood_drain", 10, true),
         // Modo Shadow (requiere el traje de slime completo).
-        SHADOW_MODE("shadow_mode", 20, true);
+        SHADOW_MODE("shadow_mode", 20, true),
+        // Vuelo: sostenido, gasta poder mientras está activo (más si vuelas que si flotas).
+        FLIGHT("flight", 20, true);
 
         private final String id;
         private final int cost;
