@@ -53,6 +53,8 @@ public final class MagicClient {
                 Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "magic_hud"), MagicClient::renderHud);
     }
 
+    private static boolean castHeld;
+
     private static void send(int action, int arg) {
         ClientPacketDistributor.sendToServer(new MagicPayloads.Action(action, arg));
     }
@@ -65,6 +67,11 @@ public final class MagicClient {
         while (CAST.consumeClick()) send(MagicPayloads.CAST, 0);
         while (NEXT.consumeClick()) send(player.isShiftKeyDown() ? MagicPayloads.PREV : MagicPayloads.NEXT, 0);
         while (SKILLS.consumeClick()) mc.gui.setScreen(new SkillScreen());
+        boolean holding = CAST.isDown();
+        if (holding != castHeld) {
+            castHeld = holding;
+            send(holding ? MagicPayloads.HOLD_START : MagicPayloads.HOLD_STOP, 0);
+        }
         boolean down = COMPRESS.isDown();
         if (down != compressing) {
             compressing = down;

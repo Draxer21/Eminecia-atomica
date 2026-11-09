@@ -20,6 +20,9 @@ public final class MagicPayloads {
     public static final int COMPRESS_STOP = 4;
     public static final int BUY = 5;
     public static final int SELECT = 6;
+    /** La tecla de lanzar se mantiene presionada / se suelta (hechizos continuos). */
+    public static final int HOLD_START = 7;
+    public static final int HOLD_STOP = 8;
 
     /** Cliente → servidor: una tecla o un botón de la pantalla de habilidades. */
     public record Action(int action, int arg) implements CustomPacketPayload {

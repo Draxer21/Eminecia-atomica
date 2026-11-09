@@ -258,6 +258,8 @@ public final class Magic {
             }
             case MagicPayloads.SELECT -> set(player, s.withSpell(MagicState.Spell.of(arg).ordinal()));
             case MagicPayloads.CAST -> cast(player, MagicState.Spell.of(s.spell()));
+            case MagicPayloads.HOLD_START -> HOLDING.put(player.getUUID(), new Hold(new int[] {0}, new float[] {0}));
+            case MagicPayloads.HOLD_STOP -> HOLDING.remove(player.getUUID());
             case MagicPayloads.COMPRESS_START -> COMPRESSING.put(player.getUUID(), 0);
             case MagicPayloads.COMPRESS_STOP -> COMPRESSING.remove(player.getUUID());
             case MagicPayloads.BUY -> buy(player, MagicState.Upgrade.values()[Math.floorMod(arg, MagicState.Upgrade.values().length)]);
@@ -422,9 +424,17 @@ public final class Magic {
 
     /** Paso sombra: aparece hasta 10 bloques adelante, dañando a lo que atraviesa. */
     private static void shadowStep(ServerLevel level, ServerPlayer player) {
+        shadowStep(level, player, consumeCompression(player));
+    }
+
+    /**
+     * Con compresión, el paso llega mucho más lejos (×1,6, ×2,2... de distancia) y el daño crece con
+     * la distancia recorrida: cuanto más lejos te lanzas, más fuerte cortas.
+     */
+    private static void shadowStep(ServerLevel level, ServerPlayer player, float comp) {
         Vec3 look = player.getLookAngle();
         Vec3 from = player.getEyePosition();
-        double dist = 10 * reach(player);
+        double dist = 10 * reach(player) * comp;
         Vec3 to = from.add(look.scale(dist));
         BlockHitResult hit = level.clip(new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
         if (hit.getType() != HitResult.Type.MISS) to = hit.getLocation().subtract(look.scale(0.8));
@@ -434,7 +444,8 @@ public final class Magic {
         }
         for (Entity e : level.getEntities(player, new AABB(from, to).inflate(1.2))) {
             if (e instanceof LivingEntity && !SlimeSkills.isFriend(e, player)) {
-                e.hurtServer(level, level.damageSources().playerAttack(player), 6.0F * power(player));
+                float travelled = (float) from.distanceTo(to);
+                e.hurtServer(level, level.damageSources().playerAttack(player), 6.0F * power(player) * comp * (1.0F + travelled / 10.0F));
             }
         }
         player.teleportTo(to.x, to.y - player.getEyeHeight() + 0.1, to.z);
@@ -444,7 +455,14 @@ public final class Magic {
 
     /** Proyección: un rayo de poder condensado que atraviesa todo en línea recta. */
     private static void projection(ServerLevel level, ServerPlayer player) {
-        float mult = consumeCompression(player) * power(player);
+        projection(level, player, consumeCompression(player) * power(player), false);
+    }
+
+    /**
+     * El rayo. {@code channel}: rayo continuo mientras se mantiene la tecla (menos daño por tick,
+     * sin el estallido final ni el sonido fuerte en cada pulso).
+     */
+    private static void projection(ServerLevel level, ServerPlayer player, float mult, boolean channel) {
         Vec3 look = player.getLookAngle();
         Vec3 from = player.getEyePosition().add(0, -0.2, 0);
         double range = 48 * reach(player);
@@ -454,7 +472,7 @@ public final class Magic {
         double length = from.distanceTo(to);
         double width = 0.6 + 0.25 * (mult - 1);
         DustParticleOptions core = new DustParticleOptions(0xE8D6FF, (float) Math.min(4.0, 1.2 + 0.4 * mult));
-        for (double d = 1; d < length; d += 0.3) {
+        for (double d = 1; d < length; d += channel ? 0.6 : 0.3) {
             Vec3 p = from.add(look.scale(d));
             level.sendParticles(core, true, false, p.x, p.y, p.z, 1, 0, 0, 0, 0);
             level.sendParticles(VIOLET, true, false, p.x, p.y, p.z, 2, width * 0.4, width * 0.4, width * 0.4, 0);
@@ -467,9 +485,15 @@ public final class Magic {
             double t = Math.max(0, Math.min(1, c.subtract(from).dot(dir) / dir.lengthSqr()));
             if (c.distanceTo(from.add(dir.scale(t))) > width + e.getBbWidth()) continue;
             e.invulnerableTime = 0;
-            e.hurtServer(level, level.damageSources().indirectMagic(player, player), 20.0F * mult);
-            e.push(look.x * 0.8, 0.2, look.z * 0.8);
+            e.hurtServer(level, level.damageSources().indirectMagic(player, player), (channel ? 4.0F : 20.0F) * mult);
+            e.push(look.x * (channel ? 0.25 : 0.8), channel ? 0.02 : 0.2, look.z * (channel ? 0.25 : 0.8));
             e.hurtMarked = true;
+        }
+        if (channel) {
+            if (player.tickCount % 8 == 0) {
+                level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BEACON_AMBIENT, SoundSource.PLAYERS, 1.2F, 1.6F);
+            }
+            return;
         }
         // Con compresión alta, el final del rayo estalla.
         if (mult >= 2.0F) {
@@ -477,6 +501,54 @@ public final class Magic {
         }
         level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BEACON_POWER_SELECT, SoundSource.PLAYERS, 1.5F, 0.6F);
         level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.WARDEN_SONIC_BOOM, SoundSource.PLAYERS, 0.7F, 1.4F);
+    }
+
+    // ---------------------------------------------------------------- hechizos continuos
+
+    /** Tecla de lanzar mantenida: ticks y multiplicador de compresión tomado al empezar. */
+    private record Hold(int[] ticks, float[] mult) {}
+
+    private static final Map<UUID, Hold> HOLDING = new HashMap<>();
+    /** Ticks que hay que mantener la tecla para que el hechizo pase a ser continuo (un toque es un lanzamiento normal). */
+    private static final int HOLD_DELAY = 8;
+
+    /**
+     * Proyección: mantenida, es un rayo continuo (cuesta poco poder cada 2 ticks).
+     * Paso sombra: mantenido, encadena un desplazamiento cada 8 ticks.
+     * La compresión se toma una vez al empezar y potencia todo lo que dure.
+     */
+    private static void holdTick(ServerLevel level, ServerPlayer player) {
+        Hold hold = HOLDING.get(player.getUUID());
+        if (hold == null) return;
+        MagicState.Spell spell = MagicState.Spell.of(state(player).spell());
+        if (spell != MagicState.Spell.PROJECTION && spell != MagicState.Spell.SHADOW_STEP) return;
+        int t = ++hold.ticks()[0];
+        if (t < HOLD_DELAY) return;
+        if (t == HOLD_DELAY) {
+            hold.mult()[0] = consumeCompression(player);
+            player.sendOverlayMessage(Component.translatable("message.draxatomic.channel",
+                    Component.translatable("spell.draxatomic." + spell.id())).withStyle(ChatFormatting.LIGHT_PURPLE));
+        }
+        float comp = hold.mult()[0];
+        if (spell == MagicState.Spell.PROJECTION) {
+            if (t % 2 != 0) return;
+            int cost = Math.max(1, cost(player, spell.cost()) / 8);
+            if (!Mana.spend(player, cost)) {
+                noPower(player, cost);
+                HOLDING.remove(player.getUUID());
+                return;
+            }
+            projection(level, player, comp * power(player), true);
+        } else {
+            if ((t - HOLD_DELAY) % 8 != 0) return;
+            int cost = cost(player, spell.cost());
+            if (!Mana.spend(player, cost)) {
+                noPower(player, cost);
+                HOLDING.remove(player.getUUID());
+                return;
+            }
+            shadowStep(level, player, comp);
+        }
     }
 
     // Bloques temporales de las plataformas: posición → tick en que desaparecen.
@@ -572,6 +644,7 @@ public final class Magic {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         ServerLevel level = (ServerLevel) player.level();
         compressionTick(level, player);
+        holdTick(level, player);
         batTrailTick(level, player);
         if (player.tickCount % 20 == 0) togglesTick(level, player);
         glide(level, player);

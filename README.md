@@ -1,6 +1,6 @@
 # Drax Atomic
 
-Mod de NeoForge para Minecraft 26.2 (versión del mod 0.20.0).
+Mod de NeoForge para Minecraft 26.2 (versión del mod 0.21.0).
 
 ## Poder mágico
 
@@ -167,6 +167,7 @@ Los textos (incluida la frase) están en `assets/draxatomic/lang/*.json`.
 ## Historial
 
 - 0.11.0: domo de barrera al cargar los Atomic (marca el área exacta); carga más corta (1,5 s) y más alcance (Atomic 48, hasta 160 con mejoras y compresión); tallado del cráter más rápido.
+- 0.21.0: pasado el nivel normal, cada mejora cuesta el precio anterior +1, luego +2, +3...; Proyección mantenida = rayo continuo; Paso sombra mantenido = pasos encadenados; con compresión, el Paso sombra llega mucho más lejos y su corte crece con la distancia recorrida.
 - 0.20.0: las mejoras del árbol ya no tienen tope: pasado el nivel normal se pueden seguir subiendo, cada nivel bastante más caro que el anterior; los efectos siguen creciendo con rendimiento decreciente para no romper el juego.
 - 0.19.0: torneo de espadas en Midgar (Inscripción al torneo: 4 rondas contra rivales cada vez más fuertes; el campeón gana premios y un logro); tres Caballeros de la Mesa Redonda (Juicio Dorado, Llama Carmesí que quema, el Glacial que congela); encargos comerciales de Mitsugoshi para Gamma.
 - 0.18.0: mejoras del traje de slime en el árbol (Guardia, Barrera mágica, Sombra); 17 logros propios; cielo y niebla rojos durante la Luna Roja y niebla oscura en la Ciudad sin Ley de noche; música original por zona (Midgar, Oriana, Santuario, Ciudad sin Ley, jefes); el Culto ataca a veces Midgar y Oriana y los guardias patrullan; modo Shadow (con el traje completo).

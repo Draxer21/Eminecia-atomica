@@ -145,9 +145,9 @@
   "key.draxatomic.compress": "Compress power (hold)",
   "key.draxatomic.skills": "Skill tree",
   "spell.draxatomic.shadow_step": "Shadow Step",
-  "spell.draxatomic.shadow_step.desc": "Reappear up to 10 blocks ahead, cutting through enemies.",
+  "spell.draxatomic.shadow_step.desc": "You reappear ahead, cutting through whatever you pass. Hold R to chain steps. With compression it reaches much farther and the cut grows with distance.",
   "spell.draxatomic.projection": "Projection",
-  "spell.draxatomic.projection.desc": "A piercing beam of power. With compression ≥2 it explodes at the end.",
+  "spell.draxatomic.projection.desc": "A beam of power that pierces everything in a line. Hold R for a continuous beam. With compression, stronger and it explodes at the end.",
   "spell.draxatomic.counter": "Counter",
   "spell.draxatomic.counter.desc": "For 0.7 s, the next melee hit is returned to the attacker, doubled.",
   "spell.draxatomic.slime_platform": "Slime Platform",
@@ -335,5 +335,6 @@
   "quest.draxatomic.gamma_honey.text": "For the new shampoo I need twelve honey bottles.",
   "quest.draxatomic.gamma_branch": "Investment",
   "quest.draxatomic.gamma_branch.text": "Mitsugoshi is opening a branch. Contribute twenty-four gold ingots and you'll see the return.",
-  "gui.draxatomic.skills.level": "Level %s ★"
+  "gui.draxatomic.skills.level": "Level %s ★",
+  "message.draxatomic.channel": "Continuous %s (release R to stop)"
 }

@@ -150,10 +150,10 @@ public record MagicState(int spell, int compression, int toggles, int points, in
 
         /** Puntos que cuesta pasar del nivel {@code level} al siguiente (sin tope de nivel). */
         public int price(int level) {
-            int base = level + 1;
-            if (level < max) return base;
-            double extra = 2.0 * Math.pow(1.6, level - max + 1);
-            return (int) Math.min(1_000_000, Math.round(base + extra));
+            if (level < max) return level + 1;
+            // Pasado el máximo: el último precio normal +1, luego +2, +3... (3 → 4, 6, 9, 13, 18...).
+            long k = level - max + 1;
+            return (int) Math.min(1_000_000, max + k * (k + 1) / 2);
         }
     }
 }

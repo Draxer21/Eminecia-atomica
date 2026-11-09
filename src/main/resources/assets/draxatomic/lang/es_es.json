@@ -145,9 +145,9 @@
   "key.draxatomic.compress": "Comprimir poder (mantener)",
   "key.draxatomic.skills": "Árbol de habilidades",
   "spell.draxatomic.shadow_step": "Paso sombra",
-  "spell.draxatomic.shadow_step.desc": "Apareces hasta 10 bloques adelante, cortando lo que atraviesas.",
+  "spell.draxatomic.shadow_step.desc": "Apareces más adelante cortando lo que atraviesas. Mantén R para encadenar pasos. Con compresión llega mucho más lejos y el corte crece con la distancia.",
   "spell.draxatomic.projection": "Proyección",
-  "spell.draxatomic.projection.desc": "Un rayo de poder que atraviesa todo. Con compresión ≥2 estalla al final.",
+  "spell.draxatomic.projection.desc": "Un rayo de poder que atraviesa todo en línea recta. Mantén R para un rayo continuo. Con compresión, más fuerte y estalla al final.",
   "spell.draxatomic.counter": "Contraataque",
   "spell.draxatomic.counter.desc": "Durante 0,7 s, el siguiente golpe cuerpo a cuerpo vuelve al atacante al doble.",
   "spell.draxatomic.slime_platform": "Plataforma de slime",
@@ -335,5 +335,6 @@
   "quest.draxatomic.gamma_honey.text": "Para el nuevo champú necesito doce botellas de miel.",
   "quest.draxatomic.gamma_branch": "Inversión",
   "quest.draxatomic.gamma_branch.text": "Mitsugoshi abre una sucursal. Aporta veinticuatro lingotes de oro y verás el retorno.",
-  "gui.draxatomic.skills.level": "Nivel %s ★"
+  "gui.draxatomic.skills.level": "Nivel %s ★",
+  "message.draxatomic.channel": "%s continuo (suelta R para parar)"
 }
