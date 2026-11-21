@@ -35,6 +35,7 @@ public final class Zones {
             if (boss.getTarget() != null || boss.distanceToSqr(player) < 24 * 24) zones |= ZonePayload.BOSS;
             if (boss instanceof BloodLordEntity lord && lord.redMoon()) zones |= ZonePayload.RED_MOON;
         }
+        Progression.visit(player, zones);
         Integer last = LAST.put(player.getUUID(), zones);
         if (last == null || last != zones) PacketDistributor.sendToPlayer(player, new ZonePayload(zones));
     }

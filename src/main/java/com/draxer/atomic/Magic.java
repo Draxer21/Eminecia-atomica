@@ -57,7 +57,10 @@ public final class Magic {
     static void init() {}
 
     private static final int COMPRESS_COST = 40;
-    private static final int XP_PER_POINT = 500;
+    /** Experiencia mágica por punto de habilidad. */
+    public static final int XP_PER_POINT = 300;
+    /** Fracciones de experiencia pendientes (por el multiplicador de la configuración). */
+    private static final Map<UUID, Float> XP_REST = new HashMap<>();
     private static final DustParticleOptions VIOLET = new DustParticleOptions(0x8A3BFF, 1.3F);
     private static final DustParticleOptions DENSE = new DustParticleOptions(0x3A0A7A, 1.8F);
     private static final DustParticleOptions SMALL = new DustParticleOptions(0x8A3BFF, 0.7F);
@@ -229,8 +232,12 @@ public final class Magic {
     /** Llamado por Mana.spend: el poder gastado da experiencia mágica y, cada 500, un punto. */
     static void addXp(ServerPlayer player, int spent) {
         if (spent <= 0) return;
+        float scaled = spent * AtomicConfig.xpMultiplier() + XP_REST.getOrDefault(player.getUUID(), 0.0F);
+        int gained = (int) scaled;
+        XP_REST.put(player.getUUID(), scaled - gained);
+        if (gained <= 0) return;
         MagicState s = state(player);
-        int xp = s.xp() + spent;
+        int xp = s.xp() + gained;
         int points = s.points();
         while (xp >= XP_PER_POINT) {
             xp -= XP_PER_POINT;
@@ -288,6 +295,7 @@ public final class Magic {
     static void cast(ServerPlayer player, MagicState.Spell spell) {
         ServerLevel level = (ServerLevel) player.level();
         MagicState s = state(player);
+        Progression.dailyProgress(player, Progression.Daily.CAST, 1);
         if (spell.blood() && !Vampires.knowsBloodMagic(player) && !player.isCreative()) {
             player.sendOverlayMessage(Component.translatable("message.draxatomic.blood_unknown").withStyle(ChatFormatting.DARK_RED));
             return;

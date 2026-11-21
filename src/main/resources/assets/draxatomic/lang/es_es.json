@@ -340,5 +340,21 @@
   "spell.draxatomic.flight": "Vuelo",
   "spell.draxatomic.flight.desc": "Sostenido: vuelas como en creativo (doble salto para despegar). Flotar gasta 1 de poder por segundo; volar en movimiento, 3. Al apagarse bajas suave.",
   "upgrade.draxatomic.flight": "Vuelo",
-  "upgrade.draxatomic.flight.desc": "Vuelas un 20 % más rápido y gastas un 15 % menos de poder por nivel (pasado el 3, cada vez menos)."
+  "upgrade.draxatomic.flight.desc": "Vuelas un 20 % más rápido y gastas un 15 % menos de poder por nivel (pasado el 3, cada vez menos).",
+  "item.draxatomic.magic_crystal": "Cristal de experiencia mágica",
+  "tooltip.draxatomic.magic_crystal": "Úsalo: +%s de experiencia mágica (Shift: usa todo el montón).",
+  "message.draxatomic.boss_points": "+%s puntos de habilidad por derrotar a %s.",
+  "message.draxatomic.advancement_points": "Logro del mod: +%s puntos de habilidad.",
+  "message.draxatomic.first_visit": "Primera visita: +%s puntos de habilidad.",
+  "message.draxatomic.meditating": "Meditas... tu magia se fortalece.",
+  "message.draxatomic.daily_new": "Encargo del día: %s. Recompensa: 2 puntos, esmeraldas y un cristal mágico. (/draxatomic daily)",
+  "message.draxatomic.daily_progress": "Encargo del día — %s: %s/%s",
+  "message.draxatomic.daily_done": "¡Encargo del día completado! +2 puntos de habilidad, 8 esmeraldas y un cristal mágico.",
+  "message.draxatomic.daily_status": "Encargo del día: %s — %s/%s",
+  "message.draxatomic.daily_status_done": "Encargo del día (%s) completado. Vuelve mañana. (%s/%s)",
+  "daily.draxatomic.kill": "derrota %s monstruos",
+  "daily.draxatomic.spend": "gasta %s de poder mágico",
+  "daily.draxatomic.cast": "lanza %s hechizos",
+  "daily.draxatomic.hunt": "derrota %s cultistas o siervos vampiro",
+  "daily.draxatomic.meditate": "medita %s segundos (agachado y quieto)"
 }

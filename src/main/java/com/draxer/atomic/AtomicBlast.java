@@ -172,6 +172,7 @@ public final class AtomicBlast {
             }
             double strength = 1.0 - 0.5 * Math.min(1.0, distance / radius);
             entity.hurtServer(level, source, (float) (damage * strength));
+            Progression.techniqueHit(caster, entity);
             Vec3 away = entity.position().subtract(center);
             if (away.lengthSqr() < 1.0E-4) away = new Vec3(0, 1, 0);
             Vec3 push = away.normalize().scale(2.5 * strength).add(0, 0.6 * strength, 0);

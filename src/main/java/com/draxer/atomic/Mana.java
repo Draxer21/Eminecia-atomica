@@ -88,15 +88,18 @@ public final class Mana {
         }
         set(player, current - amount);
         Magic.addXp(player, amount);
+        Progression.dailyProgress(player, Progression.Daily.SPEND, amount);
         return true;
     }
 
-    /** Gasto continuo (hechizos sostenidos, compresión, planeo): sin Sobrecarga ni experiencia. */
+    /** Gasto continuo (hechizos sostenidos, compresión, planeo): sin Sobrecarga; da experiencia. */
     public static boolean drain(ServerPlayer player, int amount) {
         if (player.isCreative() || amount <= 0) return true;
         int current = get(player);
         if (current < amount) return false;
         set(player, current - amount);
+        // La compresión y los hechizos sostenidos también entrenan la magia.
+        Magic.addXp(player, amount);
         return true;
     }
 

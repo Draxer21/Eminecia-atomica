@@ -340,5 +340,21 @@
   "spell.draxatomic.flight": "Flight",
   "spell.draxatomic.flight.desc": "Sustained: fly like in creative (double jump to take off). Hovering costs 1 power per second; moving, 3. When it ends you drift down gently.",
   "upgrade.draxatomic.flight": "Flight",
-  "upgrade.draxatomic.flight.desc": "Fly 20% faster and spend 15% less power per level (past level 3, with diminishing returns)."
+  "upgrade.draxatomic.flight.desc": "Fly 20% faster and spend 15% less power per level (past level 3, with diminishing returns).",
+  "item.draxatomic.magic_crystal": "Magic Experience Crystal",
+  "tooltip.draxatomic.magic_crystal": "Use it: +%s magic experience (Shift: use the whole stack).",
+  "message.draxatomic.boss_points": "+%s skill points for defeating %s.",
+  "message.draxatomic.advancement_points": "Mod advancement: +%s skill points.",
+  "message.draxatomic.first_visit": "First visit: +%s skill points.",
+  "message.draxatomic.meditating": "You meditate... your magic grows stronger.",
+  "message.draxatomic.daily_new": "Daily task: %s. Reward: 2 points, emeralds and a magic crystal. (/draxatomic daily)",
+  "message.draxatomic.daily_progress": "Daily task — %s: %s/%s",
+  "message.draxatomic.daily_done": "Daily task complete! +2 skill points, 8 emeralds and a magic crystal.",
+  "message.draxatomic.daily_status": "Daily task: %s — %s/%s",
+  "message.draxatomic.daily_status_done": "Daily task (%s) complete. Come back tomorrow. (%s/%s)",
+  "daily.draxatomic.kill": "defeat %s monsters",
+  "daily.draxatomic.spend": "spend %s magic power",
+  "daily.draxatomic.cast": "cast %s spells",
+  "daily.draxatomic.hunt": "defeat %s cultists or vampire servants",
+  "daily.draxatomic.meditate": "meditate %s seconds (sneaking and still)"
 }

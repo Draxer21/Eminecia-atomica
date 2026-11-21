@@ -69,6 +69,11 @@ public final class DraxCommands {
                                 .then(Commands.literal("oriana").executes(c -> locate(c.getSource(), CityLayout.Kind.ORIANA, true)))
                                 .then(Commands.literal("sanctuary").executes(c -> locate(c.getSource(), CityLayout.Kind.SANCTUARY, true)))
                                 .then(Commands.literal("lawless").executes(c -> locate(c.getSource(), CityLayout.Kind.LAWLESS, true)))))
+                .then(Commands.literal("daily").executes(c -> {
+                    if (!(c.getSource().getEntity() instanceof ServerPlayer p)) return 0;
+                    p.sendSystemMessage(Progression.dailyLine(p));
+                    return 1;
+                }))
                 .then(Commands.literal("mana").executes(context -> {
                     ServerPlayer player = creative(context.getSource());
                     if (player == null) return 0;

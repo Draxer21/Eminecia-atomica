@@ -1,0 +1,13 @@
+{
+  "wants": {
+    "id": "minecraft:emerald",
+    "count": 6.0
+  },
+  "gives": {
+    "id": "draxatomic:magic_crystal",
+    "count": 1
+  },
+  "max_uses": 8.0,
+  "reputation_discount": 0.05,
+  "xp": 15.0
+}
