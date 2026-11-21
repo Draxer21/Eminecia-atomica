@@ -155,7 +155,7 @@ public final class Progression {
     }
 
     private static long today(ServerPlayer player) {
-        return ((ServerLevel) player.level()).getServer().overworld().getDayTime() / 24000L;
+        return ((ServerLevel) player.level()).getServer().overworld().getGameTime() / 24000L;
     }
 
     /** Devuelve el encargo de hoy, sorteando uno nuevo si cambió el día. */
