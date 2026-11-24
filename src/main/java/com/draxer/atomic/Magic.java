@@ -479,11 +479,10 @@ public final class Magic {
         if (hit.getType() != HitResult.Type.MISS) to = hit.getLocation();
         double length = from.distanceTo(to);
         double width = 0.6 + 0.25 * (mult - 1);
-        DustParticleOptions core = new DustParticleOptions(0xE8D6FF, (float) Math.min(4.0, 1.2 + 0.4 * mult));
-        for (double d = 1; d < length; d += channel ? 0.6 : 0.3) {
-            Vec3 p = from.add(look.scale(d));
-            level.sendParticles(core, true, false, p.x, p.y, p.z, 1, 0, 0, 0, 0);
-            level.sendParticles(VIOLET, true, false, p.x, p.y, p.z, 2, width * 0.4, width * 0.4, width * 0.4, 0);
+        // La apariencia no altera el ancho de impacto ni la frecuencia de daño.
+        // En canalización se dibuja un pulso cada cuatro ticks, no en cada golpe.
+        if (!channel || player.tickCount % 4 < 2) {
+            projectionVisual(level, from, to, mult, channel, hit.getType() != HitResult.Type.MISS);
         }
         AABB box = new AABB(from, to).inflate(width + 1);
         for (Entity e : level.getEntities(player, box)) {
@@ -509,6 +508,43 @@ public final class Magic {
         }
         level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BEACON_POWER_SELECT, SoundSource.PLAYERS, 1.5F, 0.6F);
         level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.WARDEN_SONIC_BOOM, SoundSource.PLAYERS, 0.7F, 1.4F);
+    }
+
+    /** Rayo fino, sin nube de polvo alrededor de la cámara ni dispersión aleatoria.
+     * El presupuesto visual es fijo incluso con mejoras de alcance y potencia. */
+    private static void projectionVisual(ServerLevel level, Vec3 from, Vec3 to, float mult,
+                                         boolean channel, boolean impact) {
+        Vec3 delta = to.subtract(from);
+        double length = delta.length();
+        if (length < 0.001) return;
+        Vec3 axis = delta.scale(1.0 / length);
+        Vec3 reference = Math.abs(axis.y) > 0.95 ? new Vec3(1, 0, 0) : new Vec3(0, 1, 0);
+        Vec3 side = axis.cross(reference).normalize();
+        Vec3 up = axis.cross(side).normalize();
+        float scale = (float) Math.min(0.65, 0.35 + 0.05 * Math.max(0, mult - 1));
+        DustParticleOptions core = new DustParticleOptions(0xF3DFFF, scale);
+        DustParticleOptions edge = new DustParticleOptions(0xC044FF, 0.35F);
+        double start = 2.5; // Mantener despejada la cámara en primera persona.
+        if (length > start) {
+            int samples = Math.min(channel ? 32 : 64,
+                    Math.max(1, (int) Math.ceil((length - start) / (channel ? 1.5 : 0.75))));
+            double phase = level.getGameTime() * 0.45;
+            double radius = Math.min(0.24, 0.10 + 0.025 * Math.max(0, mult - 1));
+            for (int i = 0; i < samples; i++) {
+                double d = start + (length - start) * (i + 1.0) / samples;
+                Vec3 p = from.add(axis.scale(d));
+                level.sendParticles(core, p.x, p.y, p.z, 1, 0, 0, 0, 0);
+                if (i % (channel ? 4 : 2) == 0) {
+                    double angle = phase + d * 2.2;
+                    Vec3 q = p.add(side.scale(Math.cos(angle) * radius))
+                            .add(up.scale(Math.sin(angle) * radius));
+                    level.sendParticles(edge, q.x, q.y, q.z, 1, 0, 0, 0, 0);
+                }
+            }
+        }
+        if (impact && length >= start) {
+            level.sendParticles(edge, to.x, to.y, to.z, channel ? 2 : 6, 0.10, 0.10, 0.10, 0);
+        }
     }
 
     // ---------------------------------------------------------------- hechizos continuos
