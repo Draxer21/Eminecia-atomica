@@ -1,5 +1,6 @@
 package com.draxer.atomic;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -41,10 +42,13 @@ import net.neoforged.neoforge.network.PacketDistributor;
 public final class AtomicBlast {
     /** Duración de la expansión de la esfera, en ticks (también la usa el cliente). */
     public static final int EXPAND_TICKS = 24;
-    /** Máximo de bloques borrados por tick; lo que sobre se termina en los ticks siguientes. */
+    /** Máximo global de pasos de escaneo y tallado de la cáscara por tick del servidor. */
+    private static final int MAX_BLOCK_SCAN_OPERATIONS_PER_TICK = 200_000;
+    /** Límite global de bloques modificados por tick, compartido por todas las explosiones. */
     private static final int MAX_REMOVALS_PER_TICK = 80_000;
 
     private static final List<AtomicBlast> ACTIVE = new ArrayList<>();
+    private static int nextBudgetStart;
 
     private final ServerLevel level;
     private final UUID casterId;
@@ -54,10 +58,11 @@ public final class AtomicBlast {
     private final boolean carve;
     private final boolean protectContainers;
     private final Set<UUID> hit = new HashSet<>();
-    private final it.unimi.dsi.fastutil.longs.LongArrayList pending = new it.unimi.dsi.fastutil.longs.LongArrayList();
+    private final ArrayDeque<ShellScan> shellScans = new ArrayDeque<>();
+    private final BlockPos.MutableBlockPos removalPos = new BlockPos.MutableBlockPos();
     private int age;
-    /** Radio (al cuadrado) ya procesado por el tallado del cráter. */
-    private double carvedSq = -1;
+    /** Radio (al cuadrado) cuya cáscara ya fue programada, aunque siga pendiente de tallar. */
+    private double scheduledSq = -1;
 
     private final boolean big;
 
@@ -129,23 +134,54 @@ public final class AtomicBlast {
 
     @SubscribeEvent
     public static void onServerTick(ServerTickEvent.Post event) {
-        if (ACTIVE.isEmpty()) return;
+        if (ACTIVE.isEmpty()) {
+            nextBudgetStart = 0;
+            return;
+        }
         Iterator<AtomicBlast> it = ACTIVE.iterator();
         while (it.hasNext()) {
             if (!it.next().tick()) it.remove();
         }
+        if (ACTIVE.isEmpty()) {
+            nextBudgetStart = 0;
+            return;
+        }
+
+        // Repartir el mismo presupuesto entre las explosiones activas. El punto inicial rota
+        // cada tick para que un Atomic grande no deje esperando siempre al All-Range.
+        List<AtomicBlast> carving = new ArrayList<>();
+        for (AtomicBlast blast : ACTIVE) {
+            if (blast.carve && !blast.shellScans.isEmpty()) carving.add(blast);
+        }
+        if (carving.isEmpty()) {
+            nextBudgetStart = 0;
+            return;
+        }
+
+        int scanRemaining = MAX_BLOCK_SCAN_OPERATIONS_PER_TICK;
+        int removalRemaining = MAX_REMOVALS_PER_TICK;
+        int start = Math.floorMod(nextBudgetStart, carving.size());
+        for (int offset = 0; offset < carving.size() && scanRemaining > 0; offset++) {
+            AtomicBlast blast = carving.get((start + offset) % carving.size());
+            int blastsLeft = carving.size() - offset;
+            int scanShare = scanRemaining / blastsLeft;
+            int removalShare = removalRemaining / blastsLeft;
+            BlockProgress progress = blast.processShell(scanShare, removalShare);
+            scanRemaining -= progress.scans();
+            removalRemaining -= progress.removals();
+        }
+        nextBudgetStart = (start + 1) % carving.size();
     }
 
     /** Un paso; false cuando terminó. */
     private boolean tick() {
         age++;
-        double current = radius * ease(Math.min(1.0, age / (double) EXPAND_TICKS));
         if (age <= EXPAND_TICKS + 1) {
+            double current = radius * ease(Math.min(1.0, age / (double) EXPAND_TICKS));
             shockFront(current);
-            if (carve) collectShell(current);
+            if (carve) scheduleShell(current);
         }
-        if (!pending.isEmpty()) removeSome();
-        return age <= EXPAND_TICKS + 1 || !pending.isEmpty();
+        return age <= EXPAND_TICKS + 1 || !shellScans.isEmpty();
     }
 
     /** Arranca rápido y frena al final, como una onda que pierde fuerza. */
@@ -193,44 +229,126 @@ public final class AtomicBlast {
         return entity.isAlliedTo(caster);
     }
 
-    /** Anota los bloques entre el radio procesado y el actual para borrarlos. */
-    private void collectShell(double current) {
+    /** Programa la nueva cáscara; el escaneo y el tallado avanzan con el presupuesto global. */
+    private void scheduleShell(double current) {
         double outerSq = current * current;
-        if (outerSq <= carvedSq) return;
-        int r = Mth.ceil(current);
-        int cx = Mth.floor(center.x);
-        int cy = Mth.floor(center.y);
-        int cz = Mth.floor(center.z);
-        // Por columna: solo los dy de la cáscara entre el radio ya tallado y el nuevo.
-        for (int dx = -r; dx <= r; dx++) {
-            for (int dz = -r; dz <= r; dz++) {
-                double h2 = dx * dx + dz * dz;
-                if (h2 > outerSq) continue;
-                int outer = (int) Math.floor(Math.sqrt(outerSq - h2));
-                double innerSq = carvedSq - h2;
-                int inner = innerSq < 0 ? -1 : (int) Math.floor(Math.sqrt(innerSq));
-                for (int dy = -outer; dy <= outer; dy++) {
-                    if (Math.abs(dy) <= inner && dx * dx + dy * dy + dz * dz <= carvedSq) continue;
-                    int y = cy + dy;
-                    if (y < level.getMinY() || y >= level.getMaxY()) continue;
-                    pending.add(BlockPos.asLong(cx + dx, y, cz + dz));
-                }
-            }
-        }
-        carvedSq = outerSq;
+        if (outerSq <= scheduledSq) return;
+        shellScans.addLast(new ShellScan(center, Mth.ceil(current), scheduledSq, outerSq));
+        scheduledSq = outerSq;
     }
 
-    private void removeSome() {
-        int done = 0;
+    /** Procesa posiciones de cáscara sin construir una lista grande de bloques pendientes. */
+    private BlockProgress processShell(int scanLimit, int removalLimit) {
+        int scans = 0;
+        int removals = 0;
         int flags = Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE;
-        while (!pending.isEmpty() && done < MAX_REMOVALS_PER_TICK) {
-            BlockPos pos = BlockPos.of(pending.removeLong(pending.size() - 1));
-            done++;
-            if (!level.isLoaded(pos)) continue;
-            BlockState state = level.getBlockState(pos);
-            if (state.isAir() || state.getDestroySpeed(level, pos) < 0) continue;
-            if (protectContainers && state.hasBlockEntity()) continue;
-            level.setBlock(pos, Blocks.AIR.defaultBlockState(), flags);
+        while (scans < scanLimit && !shellScans.isEmpty()) {
+            ShellScan scan = shellScans.peekFirst();
+            if (!scan.columnReady) {
+                if (scan.advanceColumn()) {
+                    shellScans.removeFirst();
+                    continue;
+                }
+                scans++;
+                continue;
+            }
+            if (!scan.hasCurrentBlock()) {
+                scan.columnReady = false;
+                continue;
+            }
+            int y = scan.cy + scan.dy;
+            if (y < level.getMinY() || y >= level.getMaxY()) {
+                scan.advanceBlock();
+                scans++;
+                continue;
+            }
+            // No inspeccionar más bloques destructibles cuando se agotó la cuota compartida.
+            if (removals >= removalLimit) break;
+
+            removalPos.set(scan.cx + scan.dx, y, scan.cz + scan.dz);
+            if (level.isLoaded(removalPos)) {
+                BlockState state = level.getBlockState(removalPos);
+                if (!state.isAir() && state.getDestroySpeed(level, removalPos) >= 0
+                        && !(protectContainers && state.hasBlockEntity())) {
+                    level.setBlock(removalPos, Blocks.AIR.defaultBlockState(), flags);
+                    removals++;
+                }
+            }
+            scan.advanceBlock();
+            scans++;
+        }
+        return new BlockProgress(scans, removals);
+    }
+
+    private record BlockProgress(int scans, int removals) {}
+
+    /** Cursor de una cáscara esférica. Solo conserva coordenadas, no todos sus bloques. */
+    private static final class ShellScan {
+        private final int radius;
+        private final int cx;
+        private final int cy;
+        private final int cz;
+        private final double outerSq;
+        private final double innerSq;
+        private int dx;
+        private int dz;
+        private int outerY;
+        private int innerY;
+        private int dy;
+        private boolean positiveRange;
+        private boolean columnReady;
+
+        private ShellScan(Vec3 center, int radius, double innerSq, double outerSq) {
+            this.radius = radius;
+            this.cx = Mth.floor(center.x);
+            this.cy = Mth.floor(center.y);
+            this.cz = Mth.floor(center.z);
+            this.innerSq = innerSq;
+            this.outerSq = outerSq;
+            this.dx = -radius;
+            this.dz = -radius;
+        }
+
+        /** Avanza una columna; devuelve true cuando ya terminó la cáscara. */
+        private boolean advanceColumn() {
+            if (dx > radius) return true;
+            int columnX = dx;
+            int columnZ = dz;
+            dz++;
+            if (dz > radius) {
+                dz = -radius;
+                dx++;
+            }
+
+            double horizontalSq = columnX * columnX + columnZ * columnZ;
+            if (horizontalSq > outerSq) return false;
+            outerY = (int) Math.floor(Math.sqrt(outerSq - horizontalSq));
+            double columnInnerSq = innerSq - horizontalSq;
+            innerY = columnInnerSq < 0 ? -1 : (int) Math.floor(Math.sqrt(columnInnerSq));
+            if (outerY <= innerY) return false;
+
+            positiveRange = innerY < 0;
+            dy = -outerY;
+            columnReady = true;
+            return false;
+        }
+
+        private boolean hasCurrentBlock() {
+            int rangeEnd = positiveRange ? outerY : -innerY - 1;
+            return dy <= rangeEnd;
+        }
+
+        private void advanceBlock() {
+            int rangeEnd = positiveRange ? outerY : -innerY - 1;
+            dy++;
+            if (dy <= rangeEnd) return;
+            if (!positiveRange && innerY >= 0) {
+                positiveRange = true;
+                dy = innerY + 1;
+                return;
+            }
+            columnReady = false;
         }
     }
 }
+
