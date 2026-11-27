@@ -27,6 +27,7 @@ public final class DraxAtomic {
 
     public DraxAtomic(IEventBus modEventBus, ModContainer container) {
         container.registerConfig(ModConfig.Type.SERVER, AtomicConfig.SPEC);
+        container.registerConfig(ModConfig.Type.CLIENT, ProjectionConfig.SPEC);
         ITEMS.register(modEventBus);
         Music.SOUNDS.register(modEventBus);
         ModParticles.PARTICLES.register(modEventBus);

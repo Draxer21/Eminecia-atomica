@@ -18,6 +18,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -37,6 +38,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -61,6 +63,8 @@ public final class Magic {
     public static final int XP_PER_POINT = 300;
     /** Fracciones de experiencia pendientes (por el multiplicador de la configuración). */
     private static final Map<UUID, Float> XP_REST = new HashMap<>();
+    /** Un solo haz visual efímero por jugador, sincronizado como entidad rastreada. */
+    private static final Map<UUID, ProjectionBeamEntity> PROJECTION_BEAMS = new HashMap<>();
     private static final DustParticleOptions VIOLET = new DustParticleOptions(0x8A3BFF, 1.3F);
     private static final DustParticleOptions DENSE = new DustParticleOptions(0x3A0A7A, 1.8F);
     private static final DustParticleOptions SMALL = new DustParticleOptions(0x8A3BFF, 0.7F);
@@ -267,13 +271,37 @@ public final class Magic {
             }
             case MagicPayloads.SELECT -> set(player, s.withSpell(MagicState.Spell.of(arg).ordinal()));
             case MagicPayloads.CAST -> cast(player, MagicState.Spell.of(s.spell()));
-            case MagicPayloads.HOLD_START -> HOLDING.put(player.getUUID(), new Hold(new int[] {0}, new float[] {0}));
-            case MagicPayloads.HOLD_STOP -> HOLDING.remove(player.getUUID());
+            case MagicPayloads.HOLD_START -> {
+                stopProjectionVisual(player.getUUID());
+                HOLDING.put(player.getUUID(), new Hold(new int[] {0}, new float[] {0}));
+            }
+            case MagicPayloads.HOLD_STOP -> {
+                HOLDING.remove(player.getUUID());
+                stopProjectionVisual(player.getUUID());
+            }
             case MagicPayloads.COMPRESS_START -> COMPRESSING.put(player.getUUID(), 0);
             case MagicPayloads.COMPRESS_STOP -> COMPRESSING.remove(player.getUUID());
             case MagicPayloads.BUY -> buy(player, MagicState.Upgrade.values()[Math.floorMod(arg, MagicState.Upgrade.values().length)]);
             default -> {}
         }
+    }
+
+    @SubscribeEvent
+    public static void onProjectionOwnerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            HOLDING.remove(player.getUUID());
+            stopProjectionVisual(player.getUUID());
+        }
+    }
+
+    @SubscribeEvent
+    public static void onProjectionOwnerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) stopProjectionVisual(player.getUUID());
+    }
+
+    @SubscribeEvent
+    public static void onProjectionServerStopped(ServerStoppedEvent event) {
+        PROJECTION_BEAMS.clear();
     }
 
     private static Component spellLine(Player player, MagicState.Spell spell) {
@@ -485,7 +513,7 @@ public final class Magic {
         // La apariencia no altera el ancho de impacto ni la frecuencia de daño.
         // En canalización se dibuja un pulso cada cuatro ticks, no en cada golpe.
         if (!channel || player.tickCount % 4 < 2) {
-            projectionVisual(level, from, to, mult, channel, hit.getType() != HitResult.Type.MISS);
+            projectionVisual(level, player, from, to, mult, channel, hit.getType() != HitResult.Type.MISS);
         }
         AABB box = new AABB(from, to).inflate(width + 1);
         for (Entity e : level.getEntities(player, box)) {
@@ -513,41 +541,40 @@ public final class Magic {
         level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.WARDEN_SONIC_BOOM, SoundSource.PLAYERS, 0.7F, 1.4F);
     }
 
-    /** Rayo fino, sin nube de polvo alrededor de la cámara ni dispersión aleatoria.
-     * El presupuesto visual es fijo incluso con mejoras de alcance y potencia. */
-    private static void projectionVisual(ServerLevel level, Vec3 from, Vec3 to, float mult,
+    /** Actualiza un único estado visual por jugador; no modifica el pulso de daño ni su alcance. */
+    private static void projectionVisual(ServerLevel level, ServerPlayer player, Vec3 from, Vec3 to, float mult,
                                          boolean channel, boolean impact) {
-        Vec3 delta = to.subtract(from);
-        double length = delta.length();
-        if (length < 0.001) return;
-        Vec3 axis = delta.scale(1.0 / length);
-        Vec3 reference = Math.abs(axis.y) > 0.95 ? new Vec3(1, 0, 0) : new Vec3(0, 1, 0);
-        Vec3 side = axis.cross(reference).normalize();
-        Vec3 up = axis.cross(side).normalize();
-        float scale = (float) Math.min(0.65, 0.35 + 0.05 * Math.max(0, mult - 1));
-        DustParticleOptions core = new DustParticleOptions(0xF3DFFF, scale);
-        DustParticleOptions edge = new DustParticleOptions(0xC044FF, 0.35F);
-        double start = 2.5; // Mantener despejada la cámara en primera persona.
-        if (length > start) {
-            int samples = Math.min(channel ? 32 : 64,
-                    Math.max(1, (int) Math.ceil((length - start) / (channel ? 1.5 : 0.75))));
-            double phase = level.getGameTime() * 0.45;
-            double radius = Math.min(0.24, 0.10 + 0.025 * Math.max(0, mult - 1));
-            for (int i = 0; i < samples; i++) {
-                double d = start + (length - start) * (i + 1.0) / samples;
-                Vec3 p = from.add(axis.scale(d));
-                level.sendParticles(core, p.x, p.y, p.z, 1, 0, 0, 0, 0);
-                if (i % (channel ? 4 : 2) == 0) {
-                    double angle = phase + d * 2.2;
-                    Vec3 q = p.add(side.scale(Math.cos(angle) * radius))
-                            .add(up.scale(Math.sin(angle) * radius));
-                    level.sendParticles(edge, q.x, q.y, q.z, 1, 0, 0, 0, 0);
-                }
-            }
+        UUID id = player.getUUID();
+        ProjectionBeamEntity beam = PROJECTION_BEAMS.get(id);
+        if (beam != null && (beam.isRemoved() || beam.level() != level)) {
+            stopProjectionVisual(id);
+            beam = null;
         }
-        if (impact && length >= start) {
-            level.sendParticles(edge, to.x, to.y, to.z, channel ? 2 : 6, 0.10, 0.10, 0.10, 0);
+
+        if (beam == null) {
+            beam = ShadowGarden.PROJECTION_BEAM.value().create(level, EntitySpawnReason.TRIGGERED);
+            if (beam == null) return;
+            beam.configure(id, from, to, projectionVisualRadius(mult), channel, impact);
+            if (!level.addFreshEntity(beam)) return;
+            PROJECTION_BEAMS.put(id, beam);
+            return;
         }
+
+        beam.configure(id, from, to, projectionVisualRadius(mult), channel, impact);
+    }
+
+    private static float projectionVisualRadius(float mult) {
+        return (float) Math.min(0.24, 0.10 + 0.025 * Math.max(0, mult - 1));
+    }
+
+    private static void stopProjectionVisual(UUID id) {
+        ProjectionBeamEntity beam = PROJECTION_BEAMS.remove(id);
+        if (beam != null && !beam.isRemoved()) beam.discard();
+    }
+
+    static void forgetProjectionBeam(ProjectionBeamEntity beam) {
+        UUID owner = beam.owner();
+        if (owner != null) PROJECTION_BEAMS.remove(owner, beam);
     }
 
     // ---------------------------------------------------------------- hechizos continuos
@@ -568,7 +595,10 @@ public final class Magic {
         Hold hold = HOLDING.get(player.getUUID());
         if (hold == null) return;
         MagicState.Spell spell = MagicState.Spell.of(state(player).spell());
-        if (spell != MagicState.Spell.PROJECTION && spell != MagicState.Spell.SHADOW_STEP) return;
+        if (spell != MagicState.Spell.PROJECTION && spell != MagicState.Spell.SHADOW_STEP) {
+            stopProjectionVisual(player.getUUID());
+            return;
+        }
         int t = ++hold.ticks()[0];
         if (t < HOLD_DELAY) return;
         if (t == HOLD_DELAY) {
@@ -583,6 +613,7 @@ public final class Magic {
             if (!Mana.spend(player, cost)) {
                 noPower(player, cost);
                 HOLDING.remove(player.getUUID());
+                stopProjectionVisual(player.getUUID());
                 return;
             }
             projection(level, player, comp * power(player), true);

@@ -14,6 +14,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
@@ -45,6 +46,11 @@ public final class MagicClient {
     @SubscribeEvent
     public static void registerPayloads(RegisterClientPayloadHandlersEvent event) {
         event.register(MagicPayloads.Sync.TYPE, (payload, context) -> MagicPayloads.Sync.latest = payload);
+    }
+
+    @SubscribeEvent
+    public static void registerProjectionRenderer(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerEntityRenderer(ShadowGarden.PROJECTION_BEAM.value(), ProjectionBeamRenderer::new);
     }
 
     @SubscribeEvent

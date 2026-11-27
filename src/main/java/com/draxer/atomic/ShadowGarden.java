@@ -54,6 +54,16 @@ public final class ShadowGarden {
                     .clientTrackingRange(10)
                     .build(ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "kingdom_guard"))));
 
+    /** Entidad visual efímera para sincronizar el haz sin crear partículas por segmento. */
+    public static final DeferredHolder<EntityType<?>, EntityType<ProjectionBeamEntity>> PROJECTION_BEAM = ENTITY_TYPES.register("projection_beam", () ->
+            EntityType.Builder.of(ProjectionBeamEntity::new, MobCategory.MISC)
+                    .sized(0.02F, 0.02F)
+                    .noSave()
+                    .noSummon()
+                    .clientTrackingRange(12)
+                    .updateInterval(2)
+                    .build(ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "projection_beam"))));
+
     public static final DeferredHolder<Item, Item> EMBLEM = DraxAtomic.ITEMS.registerItem("shadow_emblem",
             properties -> new EmblemItem(properties.stacksTo(16).rarity(Rarity.EPIC)));
 
