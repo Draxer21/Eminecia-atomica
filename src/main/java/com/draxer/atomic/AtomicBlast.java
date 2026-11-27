@@ -265,7 +265,7 @@ public final class AtomicBlast {
             // No inspeccionar más bloques destructibles cuando se agotó la cuota compartida.
             if (removals >= removalLimit) break;
 
-            removalPos.set(scan.cx + scan.dx, y, scan.cz + scan.dz);
+            removalPos.set(scan.cx + scan.columnX, y, scan.cz + scan.columnZ);
             if (level.isLoaded(removalPos)) {
                 BlockState state = level.getBlockState(removalPos);
                 if (!state.isAir() && state.getDestroySpeed(level, removalPos) >= 0
@@ -290,8 +290,10 @@ public final class AtomicBlast {
         private final int cz;
         private final double outerSq;
         private final double innerSq;
-        private int dx;
-        private int dz;
+        private int nextX;
+        private int nextZ;
+        private int columnX;
+        private int columnZ;
         private int outerY;
         private int innerY;
         private int dy;
@@ -305,19 +307,19 @@ public final class AtomicBlast {
             this.cz = Mth.floor(center.z);
             this.innerSq = innerSq;
             this.outerSq = outerSq;
-            this.dx = -radius;
-            this.dz = -radius;
+            this.nextX = -radius;
+            this.nextZ = -radius;
         }
 
         /** Avanza una columna; devuelve true cuando ya terminó la cáscara. */
         private boolean advanceColumn() {
-            if (dx > radius) return true;
-            int columnX = dx;
-            int columnZ = dz;
-            dz++;
-            if (dz > radius) {
-                dz = -radius;
-                dx++;
+            if (nextX > radius) return true;
+            columnX = nextX;
+            columnZ = nextZ;
+            nextZ++;
+            if (nextZ > radius) {
+                nextZ = -radius;
+                nextX++;
             }
 
             double horizontalSq = columnX * columnX + columnZ * columnZ;
