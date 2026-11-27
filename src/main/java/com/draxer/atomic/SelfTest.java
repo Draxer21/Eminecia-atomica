@@ -123,6 +123,16 @@ public final class SelfTest {
             SlimeSkills.whip(level, fake);
             SlimeSkills.dash(level, fake);
         });
+        step("fx3d", () -> {
+            net.minecraft.world.phys.Vec3 at = new net.minecraft.world.phys.Vec3(5010, 120, 5010);
+            java.util.UUID id = Fx3D.piece(level, at, "minecraft:amethyst_block",
+                    Fx3D.pose(net.minecraft.world.phys.Vec3.ZERO, new net.minecraft.world.phys.Vec3(0, 1, 0), 0, 1, 1, 1), 1,
+                    Fx3D.pose(new net.minecraft.world.phys.Vec3(0, 2, 0), new net.minecraft.world.phys.Vec3(0, 1, 0), 1.5F, 0.2, 0.2, 0.2), 10);
+            LOG.info("DRAXTEST fx3d spawned={}", id != null && level.getEntity(id) != null);
+            // Muestra en el registro el error del comando si lo hubiera.
+            level.getServer().getCommands().performPrefixedCommand(level.getServer().createCommandSourceStack().withLevel(level),
+                    "summon minecraft:item_display 5012 120 5012 {Tags:[\"drax_fx_test\"],CustomName:\"drax_fx\",item:{id:\"minecraft:amethyst_block\",count:1},item_display:\"fixed\",transformation:{translation:[0f,0f,0f],left_rotation:{angle:0.5f,axis:[0f,1f,0f]},right_rotation:[0f,0f,0f,1f],scale:[1f,1f,1f]}}");
+        });
         LOG.info("DRAXTEST done");
     }
 
