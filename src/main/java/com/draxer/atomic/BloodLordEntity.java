@@ -158,7 +158,7 @@ public class BloodLordEntity extends Monster {
             return;
         }
         if (tickCount % 20 == 0 && getHealth() < getMaxHealth()) heal(level.isBrightOutside() ? 1.0F : (redMoon ? 4.0F : 2.0F));
-        if (tickCount % 6 == 0) level.sendParticles(Vampires.BLOOD_DARK, getX(), getY() + 0.2, getZ(), 2, 0.4, 0.05, 0.4, 0);
+        if (tickCount % 6 == 0) level.sendParticles(ModParticles.SHADOW_SMOKE.value(), getX(), getY() + 0.2, getZ(), 2, 0.4, 0.05, 0.4, 0);
         LivingEntity target = getTarget();
         if (target == null) return;
         batCooldown--;
@@ -182,7 +182,7 @@ public class BloodLordEntity extends Monster {
         if (hit) {
             heal(lord == Lord.ELIZABETH ? 10.0F : 6.0F);
             if (target instanceof ServerPlayer player) Mana.steal(player, lord == Lord.ELIZABETH ? 30 : 15);
-            level.sendParticles(Vampires.BLOOD, target.getX(), target.getY() + 1, target.getZ(), 16, 0.3, 0.4, 0.3, 0.03);
+            level.sendParticles(ModParticles.BLOOD_DROP.value(), target.getX(), target.getY() + 1, target.getZ(), 16, 0.3, 0.4, 0.3, 0.03);
         }
         return hit;
     }
@@ -190,7 +190,7 @@ public class BloodLordEntity extends Monster {
     @Override
     public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
         if (awakening > 0) {
-            level.sendParticles(Vampires.BLOOD, getX(), getY() + 1.2, getZ(), 10, 0.6, 1.0, 0.6, 0);
+            level.sendParticles(ModParticles.BLOOD_DROP.value(), getX(), getY() + 1.2, getZ(), 10, 0.6, 1.0, 0.6, 0);
             return false;
         }
         if (source.getEntity() instanceof VampireEntity || source.getEntity() instanceof BloodLordEntity) return false;
@@ -223,7 +223,7 @@ public class BloodLordEntity extends Monster {
         double r = 1.2 + (70 - awakening) * 0.08;
         for (int i = 0; i < 18; i++) {
             double a = i * Math.PI / 9 - tickCount * 0.25;
-            level.sendParticles(i % 2 == 0 ? Vampires.BLOOD : Vampires.BLOOD_DARK,
+            level.sendParticles(i % 2 == 0 ? ModParticles.BLOOD_DROP.value() : ModParticles.SHADOW_SMOKE.value(),
                     getX() + Math.cos(a) * r, getY() + 0.2 + (i % 3) * 0.8, getZ() + Math.sin(a) * r, 1, 0, 0, 0, 0);
         }
         if (awakening == 0) {
@@ -251,7 +251,7 @@ public class BloodLordEntity extends Monster {
     // ---------------------------------------------------------------- técnicas
 
     static void bats(ServerLevel level, Vec3 at, int count) {
-        level.sendParticles(Vampires.BLOOD_DARK, at.x, at.y, at.z, count, 0.5, 0.8, 0.5, 0.05);
+        level.sendParticles(ModParticles.SHADOW_SMOKE.value(), at.x, at.y, at.z, count, 0.5, 0.8, 0.5, 0.05);
         level.sendParticles(ParticleTypes.LARGE_SMOKE, at.x, at.y, at.z, count / 2, 0.4, 0.6, 0.4, 0.04);
         level.playSound(null, at.x, at.y, at.z, SoundEvents.BAT_TAKEOFF, SoundSource.HOSTILE, 1.5F, 0.8F);
     }
@@ -275,7 +275,7 @@ public class BloodLordEntity extends Monster {
         for (int i = 0; i < 48; i++) {
             double a = i * Math.PI / 24;
             for (double d = 1.5; d <= r; d += 1.5) {
-                level.sendParticles(Vampires.BLOOD, getX() + Math.cos(a + d * 0.2) * d, getY() + 1.0, getZ() + Math.sin(a + d * 0.2) * d,
+                level.sendParticles(ModParticles.BLOOD_DROP.value(), getX() + Math.cos(a + d * 0.2) * d, getY() + 1.0, getZ() + Math.sin(a + d * 0.2) * d,
                         1, 0, 0, 0, 0);
             }
         }
@@ -293,7 +293,7 @@ public class BloodLordEntity extends Monster {
         for (int k = 0; k < 5; k++) {
             double px = c.x + (k == 0 ? 0 : (getRandom().nextDouble() - 0.5) * 8);
             double pz = c.z + (k == 0 ? 0 : (getRandom().nextDouble() - 0.5) * 8);
-            for (int h = 0; h < 8; h++) level.sendParticles(Vampires.BLOOD, px, c.y + h * 0.7, pz, 4, 0.3, 0.2, 0.3, 0);
+            for (int h = 0; h < 8; h++) level.sendParticles(ModParticles.BLOOD_DROP.value(), px, c.y + h * 0.7, pz, 4, 0.3, 0.2, 0.3, 0);
             for (LivingEntity e : level.getEntitiesOfClass(LivingEntity.class,
                     new net.minecraft.world.phys.AABB(px - 1.2, c.y - 1, pz - 1.2, px + 1.2, c.y + 4, pz + 1.2), e -> e != this && !isAlliedTo(e))) {
                 e.hurtServer(level, damageSources().indirectMagic(this, this), 12.0F);

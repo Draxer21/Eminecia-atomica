@@ -158,7 +158,7 @@ public final class Vampires {
             int left = --a.delay()[0];
             ServerLevel level = a.level();
             if (left > 0) {
-                if (left % 4 == 0) level.sendParticles(a.aurora() ? new DustParticleOptions(0x8A3BFF, 1.3F) : BLOOD, true, true,
+                if (left % 4 == 0) level.sendParticles(a.aurora() ? new DustParticleOptions(0x8A3BFF, 1.3F) : ModParticles.BLOOD_DROP.value(), true, true,
                         a.at().x, a.at().y + 0.5, a.at().z, 20, 0.8, 0.4, 0.8, 0.02);
                 continue;
             }
@@ -218,7 +218,7 @@ public final class Vampires {
         servant.snapTo(x + 0.5, ground.getY(), z + 0.5, level.getRandom().nextFloat() * 360, 0);
         if (target != null) servant.setTarget(target);
         level.addFreshEntity(servant);
-        level.sendParticles(BLOOD_DARK, servant.getX(), servant.getY() + 1, servant.getZ(), 16, 0.3, 0.8, 0.3, 0);
+        level.sendParticles(ModParticles.SHADOW_SMOKE.value(), servant.getX(), servant.getY() + 1, servant.getZ(), 16, 0.3, 0.8, 0.3, 0);
         return servant;
     }
 
@@ -233,7 +233,7 @@ public final class Vampires {
         if (heal <= 0) return;
         player.heal(heal);
         LivingEntity victim = event.getEntity();
-        ((ServerLevel) player.level()).sendParticles(BLOOD, victim.getX(), victim.getY() + victim.getBbHeight() * 0.6, victim.getZ(),
+        ((ServerLevel) player.level()).sendParticles(ModParticles.BLOOD_DROP.value(), victim.getX(), victim.getY() + victim.getBbHeight() * 0.6, victim.getZ(),
                 8, 0.25, 0.3, 0.25, 0.02);
     }
 
@@ -300,7 +300,7 @@ public final class Vampires {
                 if (!already) Magic.addPoints(sp, 1);
                 Achievements.grant(sp, "blood_magic");
                 ServerLevel server = (ServerLevel) level;
-                server.sendParticles(BLOOD_DARK, sp.getX(), sp.getY() + 1, sp.getZ(), 60, 0.5, 0.9, 0.5, 0.05);
+                server.sendParticles(ModParticles.SHADOW_SMOKE.value(), sp.getX(), sp.getY() + 1, sp.getZ(), 60, 0.5, 0.9, 0.5, 0.05);
                 server.playSound(null, sp.getX(), sp.getY(), sp.getZ(), SoundEvents.WITHER_AMBIENT, SoundSource.PLAYERS, 0.8F, 1.4F);
                 sp.sendSystemMessage(Component.translatable(already ? "message.draxatomic.blood_known" : "message.draxatomic.blood_learned")
                         .withStyle(ChatFormatting.DARK_RED));

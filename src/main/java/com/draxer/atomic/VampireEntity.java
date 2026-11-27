@@ -66,7 +66,7 @@ public class VampireEntity extends Monster {
         boolean hit = super.doHurtTarget(level, target);
         if (hit) {
             heal(4.0F);
-            level.sendParticles(Vampires.BLOOD, target.getX(), target.getY() + target.getBbHeight() * 0.7, target.getZ(), 10, 0.2, 0.2, 0.2, 0.02);
+            level.sendParticles(ModParticles.BLOOD_DROP.value(), target.getX(), target.getY() + target.getBbHeight() * 0.7, target.getZ(), 10, 0.2, 0.2, 0.2, 0.02);
             if (target instanceof ServerPlayer player) Mana.steal(player, 5);
         }
         return hit;

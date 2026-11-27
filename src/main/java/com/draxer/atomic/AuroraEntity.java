@@ -124,7 +124,7 @@ public class AuroraEntity extends Monster {
         if (stunned > 0) {
             stunned--;
             getNavigation().stop();
-            if (tickCount % 4 == 0) level.sendParticles(CRACK, getX(), getY() + 1.2, getZ(), 6, 0.3, 0.6, 0.3, 0);
+            if (tickCount % 4 == 0) level.sendParticles(ModParticles.LIGHT_SHARD.value(), getX(), getY() + 1.2, getZ(), 6, 0.3, 0.6, 0.3, 0);
             if (stunned == 0) bossBar.setColor(BossEvent.BossBarColor.PURPLE);
             return;
         }
@@ -167,10 +167,10 @@ public class AuroraEntity extends Monster {
             BarrierPayload.sendFrom(level, getId(), c, r, 14, elapsed % 20 == 1 ? AtomicPayload.VIOLET : 0xFF3B6B);
         }
         // Energía absorbida y el cuerpo que se agrieta.
-        level.sendParticles(ParticleTypes.REVERSE_PORTAL, true, false, c.x, c.y, c.z, 12, 3, 2, 3, 0.3);
+        level.sendParticles(ModParticles.ENERGY_PETAL.value(), true, false, c.x, c.y, c.z, 12, 3, 2, 3, 0.3);
         int cracks = 1 + elapsed / 20;
         for (int i = 0; i < cracks; i++) {
-            level.sendParticles(CRACK, getX() + (getRandom().nextDouble() - 0.5) * 0.7, getY() + getRandom().nextDouble() * 1.8,
+            level.sendParticles(ModParticles.LIGHT_SHARD.value(), getX() + (getRandom().nextDouble() - 0.5) * 0.7, getY() + getRandom().nextDouble() * 1.8,
                     getZ() + (getRandom().nextDouble() - 0.5) * 0.7, 1, 0, 0, 0, 0);
         }
         if (elapsed % 20 == 10) level.playSound(null, getX(), getY(), getZ(), SoundEvents.GLASS_BREAK, SoundSource.HOSTILE, 1.2F, 0.5F + elapsed * 0.004F);
@@ -185,7 +185,8 @@ public class AuroraEntity extends Monster {
         Vec3 c = position().add(0, 1.0, 0);
         level.sendParticles(ParticleTypes.EXPLOSION_EMITTER, true, true, c.x, c.y, c.z, 2, 1, 1, 1, 0);
         level.sendParticles(VIOLET, true, true, c.x, c.y, c.z, 200, 4, 3, 4, 0.4);
-        level.sendParticles(CRACK, true, true, c.x, c.y, c.z, 120, 2, 2, 2, 0.3);
+        level.sendParticles(ModParticles.SHOCKWAVE.value(), true, true, c.x, c.y, c.z, 3, 1.5, 0.5, 1.5, 0);
+        level.sendParticles(ModParticles.LIGHT_SHARD.value(), true, true, c.x, c.y, c.z, 120, 2, 2, 2, 0.3);
         level.playSound(null, c.x, c.y, c.z, SoundEvents.GLASS_BREAK, SoundSource.HOSTILE, 3.0F, 0.3F);
         level.playSound(null, c.x, c.y, c.z, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.HOSTILE, 2.5F, 0.8F);
         // La energía que se escapa golpea alrededor, pero sobre todo a ella misma.

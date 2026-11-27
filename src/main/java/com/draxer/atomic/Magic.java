@@ -163,9 +163,8 @@ public final class Magic {
         int over = overload(player);
         if (over <= 0) return;
         if (player.tickCount % 4 == 0) {
-            DustParticleOptions crack = new DustParticleOptions(0xFF3B6B, 0.9F);
             for (int i = 0; i < 2 + over; i++) {
-                level.sendParticles(crack, player.getX() + (player.getRandom().nextDouble() - 0.5) * 0.7,
+                level.sendParticles(ModParticles.LIGHT_SHARD.value(), player.getX() + (player.getRandom().nextDouble() - 0.5) * 0.7,
                         player.getY() + 0.2 + player.getRandom().nextDouble() * 1.6,
                         player.getZ() + (player.getRandom().nextDouble() - 0.5) * 0.7, 1, 0, 0, 0, 0);
             }
@@ -193,8 +192,9 @@ public final class Magic {
         if (caster instanceof ServerPlayer p) set(p, state(p).withCompression(0));
         Vec3 c = caster.position().add(0, 1.0, 0);
         level.sendParticles(ParticleTypes.EXPLOSION, true, true, c.x, c.y, c.z, 3, 0.6, 0.6, 0.6, 0);
-        level.sendParticles(new DustParticleOptions(0xFF3B6B, 1.6F), true, true, c.x, c.y, c.z, 80, 1.5, 1.5, 1.5, 0.2);
-        level.sendParticles(ParticleTypes.REVERSE_PORTAL, true, true, c.x, c.y, c.z, 120, 0.3, 0.3, 0.3, 1.2);
+        level.sendParticles(ModParticles.LIGHT_SHARD.value(), true, true, c.x, c.y, c.z, 80, 1.5, 1.5, 1.5, 0.2);
+        level.sendParticles(ModParticles.SHOCKWAVE.value(), true, true, c.x, c.y, c.z, 1, 0, 0, 0, 0);
+        level.sendParticles(ModParticles.ENERGY_PETAL.value(), true, true, c.x, c.y, c.z, 120, 0.3, 0.3, 0.3, 1.2);
         level.playSound(null, c.x, c.y, c.z, SoundEvents.GLASS_BREAK, SoundSource.PLAYERS, 2.0F, 0.4F);
         level.playSound(null, c.x, c.y, c.z, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS, 1.2F, 1.4F);
         caster.hurtServer(level, level.damageSources().magic(), 4.0F + 4.0F * over);
@@ -352,7 +352,7 @@ public final class Magic {
 
     /** Entrar en modo Shadow: estallido de sombra y una frase al azar. */
     private static void shadowEnter(ServerLevel level, ServerPlayer player) {
-        level.sendParticles(SHADOW_SMOKE, true, false, player.getX(), player.getY() + 1, player.getZ(), 60, 0.6, 1.0, 0.6, 0.05);
+        level.sendParticles(ModParticles.SHADOW_SMOKE.value(), true, false, player.getX(), player.getY() + 1, player.getZ(), 60, 0.6, 1.0, 0.6, 0.05);
         level.sendParticles(SMALL_DENSE, true, false, player.getX(), player.getY() + 1, player.getZ(), 30, 0.8, 1.0, 0.8, 0.05);
         level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.WARDEN_SONIC_CHARGE, SoundSource.PLAYERS, 0.6F, 1.6F);
         int line = 1 + player.getRandom().nextInt(4);
@@ -375,7 +375,7 @@ public final class Magic {
         double length = from.distanceTo(to);
         for (double d = 1; d < length; d += 0.35) {
             Vec3 p = from.add(look.scale(d));
-            level.sendParticles(Vampires.BLOOD, true, false, p.x, p.y, p.z, 1, 0.03, 0.03, 0.03, 0);
+            level.sendParticles(ModParticles.BLOOD_DROP.value(), true, false, p.x, p.y, p.z, 1, 0.03, 0.03, 0.03, 0);
         }
         float damage = 12.0F * power(player);
         float healed = 0;
@@ -387,7 +387,7 @@ public final class Magic {
             if (c.distanceTo(from.add(dir.scale(t))) > 0.8 + e.getBbWidth()) continue;
             e.hurtServer(level, level.damageSources().indirectMagic(player, player), damage);
             healed += damage * 0.3F;
-            level.sendParticles(Vampires.BLOOD_DARK, c.x, c.y, c.z, 12, 0.3, 0.3, 0.3, 0.05);
+            level.sendParticles(ModParticles.SHADOW_SMOKE.value(), c.x, c.y, c.z, 12, 0.3, 0.3, 0.3, 0.05);
         }
         if (healed > 0) player.heal(Math.min(10.0F, healed));
         level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.EVOKER_CAST_SPELL, SoundSource.PLAYERS, 1.0F, 0.6F);
@@ -421,7 +421,7 @@ public final class Magic {
         }
         BAT_TRAIL.put(player.getUUID(), left - 1);
         if (left % 2 == 0) {
-            level.sendParticles(Vampires.BLOOD_DARK, player.getX(), player.getY() + 1, player.getZ(), 4, 0.5, 0.5, 0.5, 0.02);
+            level.sendParticles(ModParticles.SHADOW_SMOKE.value(), player.getX(), player.getY() + 1, player.getZ(), 4, 0.5, 0.5, 0.5, 0.02);
             level.sendParticles(ParticleTypes.SMOKE, player.getX(), player.getY() + 1, player.getZ(), 3, 0.4, 0.4, 0.4, 0.01);
         }
     }
@@ -775,13 +775,14 @@ public final class Magic {
                 player.addEffect(new MobEffectInstance(MobEffects.STRENGTH, 40, 0, false, false));
                 player.addEffect(new MobEffectInstance(MobEffects.SPEED, 40, 0, false, false));
                 player.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST, 40, 0, false, false));
-                level.sendParticles(SHADOW_SMOKE, player.getX(), player.getY() + 0.4, player.getZ(), 8, 0.35, 0.5, 0.35, 0.01);
+                // A los pies: el humo sube pero no tapa la vista en primera persona.
+                level.sendParticles(ModParticles.SHADOW_SMOKE.value(), player.getX(), player.getY() + 0.1, player.getZ(), 4, 0.4, 0.05, 0.4, 0.005);
                 level.sendParticles(SMALL, player.getX(), player.getY() + 0.05, player.getZ(), 3, 0.5, 0.02, 0.5, 0);
             }
         }
         if (state(player).on(MagicState.Spell.BLOOD_DRAIN)) {
             if (!Mana.drain(player, 2)) off(player, MagicState.Spell.BLOOD_DRAIN);
-            else level.sendParticles(Vampires.BLOOD, player.getX(), player.getY() + 0.1, player.getZ(), 4, 0.5, 0.02, 0.5, 0);
+            else level.sendParticles(ModParticles.BLOOD_DROP.value(), player.getX(), player.getY() + 0.1, player.getZ(), 4, 0.5, 0.02, 0.5, 0);
         }
         if (state(player).on(MagicState.Spell.AWAKENING)) {
             int drain = Math.max(1, Mana.max(player) / 20);

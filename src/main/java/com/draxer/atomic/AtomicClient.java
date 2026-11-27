@@ -136,14 +136,14 @@ public final class AtomicClient {
             level.addAlwaysVisibleParticle(kind, blast.x() + dx * rr, blast.y() + dy * rr, blast.z() + dz * rr,
                     0, 0, 0);
             if (growing && i % 5 == 0) {
-                level.addAlwaysVisibleParticle(ParticleTypes.END_ROD, blast.x() + dx * rr, blast.y() + dy * rr,
+                level.addAlwaysVisibleParticle(ModParticles.VIOLET_SPARK.value(), blast.x() + dx * rr, blast.y() + dy * rr,
                         blast.z() + dz * rr, dx * 0.3, dy * 0.3, dz * 0.3);
             }
         }
         // El núcleo: un punto de luz blanca en el centro mientras la onda crece.
         if (growing) {
             for (int i = 0; i < (blast.big() ? 30 : 8); i++) {
-                level.addAlwaysVisibleParticle(ParticleTypes.END_ROD, blast.x(), blast.y(), blast.z(),
+                level.addAlwaysVisibleParticle(ModParticles.VIOLET_SPARK.value(), blast.x(), blast.y(), blast.z(),
                         random.nextGaussian() * 0.6, random.nextGaussian() * 0.6, random.nextGaussian() * 0.6);
             }
         }
@@ -280,7 +280,7 @@ public final class AtomicClient {
                 double u = random.nextDouble() * 1.1 - 0.1;
                 double a = random.nextDouble() * Math.PI * 2;
                 double s = Math.sqrt(1 - u * u);
-                level.addAlwaysVisibleParticle(ParticleTypes.END_ROD,
+                level.addAlwaysVisibleParticle(ModParticles.VIOLET_SPARK.value(),
                         b.x() + s * Math.cos(a) * r, b.y() + u * r, b.z() + s * Math.sin(a) * r, 0, 0, 0);
             }
         }

@@ -128,6 +128,9 @@ public final class AtomicBlast {
         }
         if (!big) level.playSound(null, x, y, z, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS, 2.0F, 0.7F);
         level.sendParticles(ParticleTypes.EXPLOSION_EMITTER, true, true, x, y, z, 6, 1.0, 1.0, 1.0, 0.0);
+        // Anillos de onda expansiva propios alrededor del centro.
+        level.sendParticles(ModParticles.SHOCKWAVE.value(), true, true, x, y, z, 10, Math.min(6.0, radius * 0.15), 0.6,
+                Math.min(6.0, radius * 0.15), 0.0);
     }
 
     // ---------------------------------------------------------------- ticks

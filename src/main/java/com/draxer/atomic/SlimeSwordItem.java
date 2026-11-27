@@ -171,10 +171,10 @@ public final class SlimeSwordItem extends Item {
                     1, 0, 0, 0, 0);
         }
         // Energía absorbida desde el entorno.
-        level.sendParticles(ParticleTypes.REVERSE_PORTAL, true, false, cx, player.getY() + 1.0, cz,
+        level.sendParticles(ModParticles.ENERGY_PETAL.value(), true, false, cx, player.getY() + 1.0, cz,
                 6 + Math.round(14 * progress), 2.5, 1.5, 2.5, 0.05);
         if (elapsed % 4 == 0) {
-            level.sendParticles(ParticleTypes.END_ROD, true, false, cx, player.getY() + 1.0, cz,
+            level.sendParticles(ModParticles.VIOLET_SPARK.value(), true, false, cx, player.getY() + 1.0, cz,
                     3, 0.4, 0.8, 0.4, 0.02);
         }
     }

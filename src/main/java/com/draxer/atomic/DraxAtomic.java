@@ -29,6 +29,7 @@ public final class DraxAtomic {
         container.registerConfig(ModConfig.Type.SERVER, AtomicConfig.SPEC);
         ITEMS.register(modEventBus);
         Music.SOUNDS.register(modEventBus);
+        ModParticles.PARTICLES.register(modEventBus);
         Mana.init(modEventBus);
         SlimeSuit.init();
         Cult.init(modEventBus);

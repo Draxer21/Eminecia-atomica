@@ -299,7 +299,7 @@ public class RoundsKnightEntity extends Monster {
         int z = (int) Math.floor(behind.z);
         int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
         if (Math.abs(y - target.getY()) > 6) return;
-        level.sendParticles(ParticleTypes.REVERSE_PORTAL, getX(), getY() + 1.4, getZ(), 30, 0.4, 1.0, 0.4, 0.05);
+        level.sendParticles(ModParticles.ENERGY_PETAL.value(), getX(), getY() + 1.4, getZ(), 30, 0.4, 1.0, 0.4, 0.05);
         teleportTo(behind.x, y, behind.z);
         level.sendParticles(new DustParticleOptions(0xFFD54A, 1.5F), getX(), getY() + 1.4, getZ(), 30, 0.4, 1.0, 0.4, 0);
         level.playSound(null, getX(), getY(), getZ(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.HOSTILE, 1.0F, 0.6F);

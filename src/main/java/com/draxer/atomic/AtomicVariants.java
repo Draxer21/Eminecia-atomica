@@ -127,9 +127,9 @@ public final class AtomicVariants {
             if (left > 0) {
                 // La luz se concentra en el centro antes de estallar.
                 if (left % 2 == 0) {
-                    level.sendParticles(ParticleTypes.END_ROD, true, true, f.center().x, f.center().y, f.center().z,
+                    level.sendParticles(ModParticles.VIOLET_SPARK.value(), true, true, f.center().x, f.center().y, f.center().z,
                             12, 1.5, 1.5, 1.5, 0.15);
-                    level.sendParticles(ParticleTypes.REVERSE_PORTAL, true, true, f.center().x, f.center().y, f.center().z,
+                    level.sendParticles(ModParticles.ENERGY_PETAL.value(), true, true, f.center().x, f.center().y, f.center().z,
                             30, 6, 6, 6, 0.4);
                 }
                 continue;
