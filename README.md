@@ -1,6 +1,6 @@
 # Drax Atomic
 
-Mod de NeoForge para Minecraft 26.2 (versión del mod 0.26.0).
+Mod de NeoForge para Minecraft 26.2 (versión del mod 0.26.1).
 
 ## Poder mágico
 
@@ -167,6 +167,7 @@ Los textos (incluida la frase) están en `assets/draxatomic/lang/*.json`.
 ## Historial
 
 - 0.11.0: domo de barrera al cargar los Atomic (marca el área exacta); carga más corta (1,5 s) y más alcance (Atomic 48, hasta 160 con mejoras y compresión); tallado del cráter más rápido.
+- 0.26.1: fragmentos 3D del Atomic y cristales de la sobrecompresión más grandes (se veían muy chicos de lejos).
 - 0.26.0: arreglo: los logros de derrotar a Crimson, Elizabeth, Aurora y al Caballero no se cargaban (formato de 26.x); ahora se dan desde el código.
   Efectos 3D: efectos en 3D (entidades de visualización): fragmentos de amatista y cristal que giran y anillos de onda planos en cada Atomic; núcleo de energía en 3D sobre la cabeza al cargar y una esfera que se infla antes del estallido del All-Range; cristales rotos en la sobrecompresión y al disiparse una técnica (también Aurora); lanzas de sangre 3D (jugador, Crimson y Elizabeth). Duran pocos segundos, tienen un tope de piezas y se borran solos.
 - 0.25.0: partículas propias (dibujos originales, `tools/particles.py`): chispa violeta, humo de sombra, gota de sangre, esquirla de luz (grietas de la sobrecompresión), pétalo de energía (absorción al cargar) y anillo de onda expansiva del Atomic; reemplazan a las de Minecraft en las técnicas, los vampiros, Aurora y los caballeros. Incluye los cambios de la rama development/v0.25.0 (rayo de Proyección más limpio en primera persona y trabajo de terreno del Atomic acotado por tick).

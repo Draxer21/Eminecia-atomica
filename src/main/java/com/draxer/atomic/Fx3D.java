@@ -161,8 +161,9 @@ public final class Fx3D {
 
     /** Explosión del Atomic: fragmentos que giran y anillos de onda (más grandes con el radio). */
     static void atomicBurst(ServerLevel level, Vec3 center, int radius) {
-        int count = Math.min(28, 10 + radius / 3);
-        fragments(level, center, count, Math.min(40, radius * 0.7), VIOLET, 0.9, 30);
+        int count = Math.min(32, 12 + radius / 3);
+        // Los ítems "fijos" se dibujan a la mitad de tamaño: 2.4 ≈ bloques de más de un metro.
+        fragments(level, center, count, Math.min(40, radius * 0.7), VIOLET, 2.4, 34);
         Vec3 ground = center.add(0, -0.8, 0);
         ring(level, ground, Math.min(60, radius * 0.9), 24, 22);
         if (radius >= 40) ring(level, center.add(0, 2.0, 0), Math.min(45, radius * 0.6), 20, 28);
@@ -193,7 +194,7 @@ public final class Fx3D {
 
     /** Cristales rotos que flotan alrededor del cuerpo (sobrecompresión, disipación). */
     static void shards(ServerLevel level, Vec3 at, int count, double reach, int life) {
-        fragments(level, at, count, reach, PINK, 0.35, life);
+        fragments(level, at, count, reach, PINK, 0.7, life);
     }
 
     /** Lanza 3D: una vara roja alargada que vuela girando de {@code from} a {@code to}. */
