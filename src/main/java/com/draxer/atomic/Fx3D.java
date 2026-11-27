@@ -69,7 +69,7 @@ public final class Fx3D {
         String uuid = String.format(Locale.ROOT, "[I;%d,%d,%d,%d]", (int) (most >> 32), (int) most, (int) (least >> 32), (int) least);
         ALIVE.add(id);
         run(level, String.format(Locale.ROOT,
-                "summon minecraft:item_display %.3f %.3f %.3f {UUID:%s,Tags:[\"%s\"],item:{id:\"%s\",count:1},item_display:\"fixed\","
+                "summon minecraft:item_display %.3f %.3f %.3f {UUID:%s,Tags:[\"%s\"],CustomName:\"drax_fx\",item:{id:\"%s\",count:1},item_display:\"fixed\","
                         + "brightness:{sky:15,block:15},view_range:2.0f,transformation:%s}",
                 at.x, at.y, at.z, uuid, TAG, item, start.nbt()));
         PIECES.add(new Piece(level, id, new int[] {0}, Math.max(1, moveAt), end.nbt(), duration, Math.max(1, moveAt) + duration + 1));
@@ -115,7 +115,7 @@ public final class Fx3D {
     @SubscribeEvent
     public static void onJoin(EntityJoinLevelEvent event) {
         Entity e = event.getEntity();
-        if (!event.getLevel().isClientSide() && e.getTags().contains(TAG) && !ALIVE.contains(e.getUUID())) event.setCanceled(true);
+        if (!event.getLevel().isClientSide() && e.getCustomName() != null && TAG.equals(e.getCustomName().getString()) && !ALIVE.contains(e.getUUID())) event.setCanceled(true);
     }
 
     // ---------------------------------------------------------------- efectos
