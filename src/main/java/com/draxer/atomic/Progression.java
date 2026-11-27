@@ -74,6 +74,10 @@ public final class Progression {
         if (!(event.getSource().getEntity() instanceof ServerPlayer player)) return;
         LivingEntity dead = event.getEntity();
         if (dead instanceof Player || !(dead.level() instanceof ServerLevel level)) return;
+        // Logros de jefes (se dan desde aquí: el formato de predicados de entidad cambió en 26.x).
+        if (dead instanceof RoundsKnightEntity) Achievements.grant(player, "round_knight");
+        if (dead instanceof BloodLordEntity lord) Achievements.grant(player, lord.lord() == BloodLordEntity.Lord.CRIMSON ? "crimson" : "queen");
+        if (dead instanceof AuroraEntity) Achievements.grant(player, "aurora");
         int points = bossPoints(dead);
         if (points > 0) {
             Magic.addPoints(player, points);
