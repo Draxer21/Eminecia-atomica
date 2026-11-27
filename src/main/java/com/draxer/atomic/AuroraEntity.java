@@ -186,6 +186,7 @@ public class AuroraEntity extends Monster {
         level.sendParticles(ParticleTypes.EXPLOSION_EMITTER, true, true, c.x, c.y, c.z, 2, 1, 1, 1, 0);
         level.sendParticles(VIOLET, true, true, c.x, c.y, c.z, 200, 4, 3, 4, 0.4);
         level.sendParticles(ModParticles.SHOCKWAVE.value(), true, true, c.x, c.y, c.z, 3, 1.5, 0.5, 1.5, 0);
+        Fx3D.shards(level, c, 18, 6.0, 30);
         level.sendParticles(ModParticles.LIGHT_SHARD.value(), true, true, c.x, c.y, c.z, 120, 2, 2, 2, 0.3);
         level.playSound(null, c.x, c.y, c.z, SoundEvents.GLASS_BREAK, SoundSource.HOSTILE, 3.0F, 0.3F);
         level.playSound(null, c.x, c.y, c.z, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.HOSTILE, 2.5F, 0.8F);

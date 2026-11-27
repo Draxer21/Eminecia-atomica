@@ -376,6 +376,7 @@ public class BloodLordEntity extends Monster {
             int lances = queen ? (lord.redMoon ? 4 : 2) : 1;
             for (int i = 0; i < lances; i++) {
                 Bolts.fire(level, lord, target, queen ? (lord.redMoon ? 6.0F : 8.0F) : 8.0F, 0xB0001E, SoundEvents.EVOKER_CAST_SPELL);
+                Fx3D.lance(level, lord.getEyePosition(), target.position().add(0, target.getBbHeight() * 0.5, 0), "minecraft:red_stained_glass");
             }
             lord.heal(2.0F * lances);
             cooldown = queen ? 40 : 45;

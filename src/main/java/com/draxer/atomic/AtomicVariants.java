@@ -110,7 +110,9 @@ public final class AtomicVariants {
             STRIKES.add(new Strike(level, player.getUUID(), targets.get(i), blastRadius, damage, new int[] {MARK_TICKS + i}));
         }
         float finalDamage = AtomicConfig.allRangeFinalDamage() * comp * power;
-        FINALES.add(new Finale(level, player.getUUID(), center, reach, finalDamage, new int[] {MARK_TICKS + targets.size() + 8}));
+        int delay = MARK_TICKS + targets.size() + 8;
+        FINALES.add(new Finale(level, player.getUUID(), center, reach, finalDamage, new int[] {delay}));
+        Fx3D.core(level, center, delay, Math.min(12.0, 3.0 + reach / 12.0), null);
         return Math.max(1, targets.size());
     }
 

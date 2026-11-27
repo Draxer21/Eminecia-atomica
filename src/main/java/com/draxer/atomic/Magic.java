@@ -171,6 +171,7 @@ public final class Magic {
         }
         if (player.tickCount % 20 == 0) {
             player.hurtServer(level, level.damageSources().magic(), 1.5F * over);
+            Fx3D.shards(level, player.position().add(0, 1.0, 0), 1 + over, 1.6, 20);
             level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.AMETHYST_BLOCK_BREAK,
                     SoundSource.PLAYERS, 0.8F, 0.5F);
         }
@@ -194,6 +195,7 @@ public final class Magic {
         level.sendParticles(ParticleTypes.EXPLOSION, true, true, c.x, c.y, c.z, 3, 0.6, 0.6, 0.6, 0);
         level.sendParticles(ModParticles.LIGHT_SHARD.value(), true, true, c.x, c.y, c.z, 80, 1.5, 1.5, 1.5, 0.2);
         level.sendParticles(ModParticles.SHOCKWAVE.value(), true, true, c.x, c.y, c.z, 1, 0, 0, 0, 0);
+        Fx3D.shards(level, c, 10 + 3 * over, 4.0, 26);
         level.sendParticles(ModParticles.ENERGY_PETAL.value(), true, true, c.x, c.y, c.z, 120, 0.3, 0.3, 0.3, 1.2);
         level.playSound(null, c.x, c.y, c.z, SoundEvents.GLASS_BREAK, SoundSource.PLAYERS, 2.0F, 0.4F);
         level.playSound(null, c.x, c.y, c.z, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS, 1.2F, 1.4F);
@@ -377,6 +379,7 @@ public final class Magic {
             Vec3 p = from.add(look.scale(d));
             level.sendParticles(ModParticles.BLOOD_DROP.value(), true, false, p.x, p.y, p.z, 1, 0.03, 0.03, 0.03, 0);
         }
+        Fx3D.lance(level, from.add(look.scale(1.5)), to, "minecraft:red_stained_glass");
         float damage = 12.0F * power(player);
         float healed = 0;
         Vec3 dir = to.subtract(from);

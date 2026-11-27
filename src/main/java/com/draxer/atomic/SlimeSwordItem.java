@@ -129,6 +129,10 @@ public final class SlimeSwordItem extends Item {
             server.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.RESPAWN_ANCHOR_SET_SPAWN,
                     SoundSource.PLAYERS, 1.5F, 0.6F);
             player.addEffect(new MobEffectInstance(MobEffects.LEVITATION, total, 0, false, false));
+            // Núcleo de energía en 3D sobre la cabeza (no tapa la vista en primera persona).
+            Fx3D.clearCore(server, player.getUUID());
+            Fx3D.core(server, player.position().add(0, player.getBbHeight() + 1.6, 0), total,
+                    mode == SwordMode.ALL_RANGE_ATOMIC ? 2.6 : 1.8, player.getUUID());
             server.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BEACON_ACTIVATE,
                     SoundSource.PLAYERS, 1.5F, 0.6F);
         }
@@ -201,10 +205,12 @@ public final class SlimeSwordItem extends Item {
                 player.removeEffect(MobEffects.LEVITATION);
                 player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 100, 0, false, false));
                 BarrierPayload.send(server, player, 0, 0, 0);
+                Fx3D.clearCore(server, player.getUUID());
                 player.getCooldowns().addCooldown(stack, 160);
                 return stack;
             }
             Mana.spend(player, cost);
+            Fx3D.clearCore(server, player.getUUID());
             player.getCooldowns().addCooldown(stack, mode == SwordMode.RECOVERY_ATOMIC ? 100 : AtomicConfig.cooldownTicks());
             player.removeEffect(MobEffects.LEVITATION);
             // Flota en lugar de caer.
@@ -229,6 +235,7 @@ public final class SlimeSwordItem extends Item {
             player.removeEffect(MobEffects.LEVITATION);
             player.getCooldowns().addCooldown(stack, 40);
             BarrierPayload.send(server, player, 0, 0, 0);
+            Fx3D.clearCore(server, player.getUUID());
             server.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BEACON_DEACTIVATE,
                     SoundSource.PLAYERS, 1.0F, 0.8F);
             server.sendParticles(ParticleTypes.SMOKE, player.getX(), player.getY() + 1.0, player.getZ(),
