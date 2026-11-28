@@ -103,6 +103,8 @@ public class BeastEntity extends Monster {
     public BeastEntity(EntityType<? extends BeastEntity> type, Level level, Beast beast) {
         super(type, level);
         this.beast = beast;
+        // Mob llama a registerGoals() antes de que exista el tipo: los objetivos se agregan aquí.
+        addGoals();
         xpReward = switch (beast) {
             case CHIMERA_ALPHA -> 300;
             case CHIMERA, SHADOW_BEAST -> 20;
@@ -155,7 +157,9 @@ public class BeastEntity extends Monster {
     // ---------------------------------------------------------------- IA
 
     @Override
-    protected void registerGoals() {
+    protected void registerGoals() {}
+
+    private void addGoals() {
         goalSelector.addGoal(0, new FloatGoal(this));
         if (!beast.flyer()) {
             if (beast == Beast.BLOOD_HOUND || beast == Beast.CHIMERA) goalSelector.addGoal(2, new LeapAtTargetGoal(this, 0.45F));

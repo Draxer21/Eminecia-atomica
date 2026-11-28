@@ -84,6 +84,8 @@ public class FoeEntity extends Monster {
     public FoeEntity(EntityType<? extends FoeEntity> type, Level level, Foe foe) {
         super(type, level);
         this.foe = foe;
+        // Mob llama a registerGoals() antes de que exista el tipo: los objetivos se agregan aquí.
+        addGoals();
         xpReward = foe == Foe.CHILD_1 ? 30 : foe == Foe.FIGHTER ? 20 : 10;
     }
 
@@ -115,7 +117,9 @@ public class FoeEntity extends Monster {
     }
 
     @Override
-    protected void registerGoals() {
+    protected void registerGoals() {}
+
+    private void addGoals() {
         goalSelector.addGoal(0, new FloatGoal(this));
         goalSelector.addGoal(1, new FleeGoal(this));
         goalSelector.addGoal(2, new CastGoal(this));
