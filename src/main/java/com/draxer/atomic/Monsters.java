@@ -207,6 +207,7 @@ public final class Monsters {
         for (int i = 0; i < count; i++) {
             int x = cx + random.nextInt(5) - 2;
             int z = cz + random.nextInt(5) - 2;
+            if (!Cities.generated(level, x >> 4, z >> 4)) continue;
             BlockPos ground = new BlockPos(x, level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z), z);
             if (!level.isLoaded(ground) || !level.getFluidState(ground).isEmpty()) continue;
             if (!flyer && !level.getBlockState(ground.below()).isSolid()) continue;
@@ -220,7 +221,7 @@ public final class Monsters {
             double a = random.nextDouble() * Math.PI * 2;
             double d = 12 + random.nextDouble() * 12;
             BlockPos pos = BlockPos.containing(player.getX() + Math.cos(a) * d, player.getY() + random.nextInt(11) - 5, player.getZ() + Math.sin(a) * d);
-            if (!level.isLoaded(pos)) continue;
+            if (!Cities.generated(level, pos.getX() >> 4, pos.getZ() >> 4)) continue;
             if (!level.getBlockState(pos).isAir() || !level.getBlockState(pos.above()).isAir() || !level.getBlockState(pos.below()).isSolid()) continue;
             if (level.getMaxLocalRawBrightness(pos) > 7 || level.canSeeSky(pos)) continue;
             spawn(level, type, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, EntitySpawnReason.NATURAL);

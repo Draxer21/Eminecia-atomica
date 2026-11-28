@@ -209,10 +209,11 @@ public final class DemoClient {
                 cmd(mc, "draxatomic test monsters");
             }
             case 3340 -> shot("monsters");
-            case 3360 -> cmd(mc, "draxatomic city build");
-            case 3380 -> cmd(mc, "draxatomic city view cult_base overview");
-            case 3520 -> shot("cult_base");
-            case 3540 -> shot("end");
+            case 3350 -> cmd(mc, "draxatomic city tp cult_base");
+            case 3400 -> cmd(mc, "draxatomic city build");
+            case 3420 -> cmd(mc, "draxatomic city view cult_base overview");
+            case 3560 -> shot("cult_base");
+            case 3580 -> shot("end");
             default -> {}
         }
     }

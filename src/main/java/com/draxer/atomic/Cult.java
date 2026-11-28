@@ -99,6 +99,7 @@ public final class Cult {
         for (int i = 0; i < count; i++) {
             int x = cx + random.nextInt(5) - 2;
             int z = cz + random.nextInt(5) - 2;
+            if (!Cities.generated(level, x >> 4, z >> 4)) continue;
             BlockPos ground = new BlockPos(x, level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z), z);
             if (!level.isLoaded(ground) || !level.getBlockState(ground.below()).isSolid()
                     || !level.getFluidState(ground).isEmpty()) continue;
@@ -109,7 +110,7 @@ public final class Cult {
             level.addFreshEntity(cultist);
         }
         // A veces los guía un Niño del Culto.
-        if (AtomicConfig.monsters() && random.nextFloat() < 0.4F) {
+        if (AtomicConfig.monsters() && random.nextFloat() < 0.4F && Cities.generated(level, cx >> 4, cz >> 4)) {
             int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, cx, cz);
             Monsters.spawn(level, Monsters.randomChild(random), cx + 0.5, y, cz + 0.5, EntitySpawnReason.PATROL);
         }

@@ -336,11 +336,11 @@ public final class Cities {
         // no se satura generando cientos de chunks de golpe.
         int pending = 0;
         for (long key : forced) {
-            if (!level.hasChunk((int) (key >> 32), (int) key)) pending++;
+            if (!generated(level, (int) (key >> 32), (int) key)) pending++;
         }
         for (int cx = x0; cx <= x1; cx++) {
             for (int cz = z0; cz <= z1; cz++) {
-                if (level.hasChunk(cx, cz)) continue;
+                if (generated(level, cx, cz)) continue;
                 ready = false;
                 long key = ((long) cx << 32) | (cz & 0xFFFFFFFFL);
                 if (pending < budget && forced.add(key)) {
@@ -351,6 +351,14 @@ public final class Cities {
             }
         }
         return ready;
+    }
+
+    /**
+     * ¿El chunk ya está generado y cargado? (hasChunk solo dice que tiene ticket: leerlo podría
+     * dejar al servidor esperando a que se genere.)
+     */
+    static boolean generated(ServerLevel level, int cx, int cz) {
+        return level.getChunkSource().getChunkNow(cx, cz) != null;
     }
 
     /** Suelta los chunks que se mantuvieron cargados para construir esta ciudad. */

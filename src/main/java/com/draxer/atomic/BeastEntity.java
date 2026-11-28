@@ -201,7 +201,7 @@ public class BeastEntity extends Monster {
         if (beast.flyer()) resetFallDistance();
         if (!(level() instanceof ServerLevel level) || !isAlive()) return;
         // Los sabuesos y murciélagos de sangre arden al sol, como sus amos.
-        if ((beast == Beast.BLOOD_HOUND || beast == Beast.BLOOD_BAT) && tickCount % 20 == 0 && level.isBrightOutside()
+        if ((beast == Beast.BLOOD_HOUND || beast == Beast.BLOOD_BAT) && !isNoAi() && tickCount % 20 == 0 && level.isBrightOutside()
                 && !isInWater() && !level.isRainingAt(blockPosition()) && level.canSeeSky(blockPosition().above())) {
             igniteForSeconds(6.0F);
         }
