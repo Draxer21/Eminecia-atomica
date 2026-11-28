@@ -17,7 +17,9 @@ public final class CityLayout {
         /** El Santuario: un templo amurallado de 64×64 que absorbe el poder mágico. */
         SANCTUARY("sanctuary", 2),
         /** La Ciudad sin Ley (128×128) con la Torre Carmesí en el centro. */
-        LAWLESS("lawless", 4);
+        LAWLESS("lawless", 4),
+        /** La Base del Culto (64×64): laboratorio de quimeras con la Quimera Alfa. */
+        CULT_BASE("cult_base", 2);
 
         public final String style;
         /** Cuadras por lado. */
@@ -54,6 +56,8 @@ public final class CityLayout {
             for (int[] b : new int[][] {{0, 0}, {7, 7}}) one(b[0], b[1], "barracks");
         } else if (kind == Kind.SANCTUARY) {
             big(0, 0, "temple");
+        } else if (kind == Kind.CULT_BASE) {
+            big(0, 0, "laboratory");
         } else if (kind == Kind.LAWLESS) {
             big(1, 1, "crimson_tower");
             one(0, 0, "tavern");

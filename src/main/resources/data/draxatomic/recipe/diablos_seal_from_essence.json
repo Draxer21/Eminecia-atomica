@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "draxatomic:shadow_essence",
+    "draxatomic:shadow_essence",
+    "draxatomic:cult_insignia",
+    "minecraft:ender_pearl"
+  ],
+  "result": {
+    "id": "draxatomic:diablos_seal",
+    "count": 1
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "draxatomic:chimera_shard",
+    "draxatomic:chimera_shard",
+    "draxatomic:chimera_shard",
+    "draxatomic:chimera_shard",
+    "minecraft:amethyst_shard"
+  ],
+  "result": {
+    "id": "draxatomic:magic_crystal",
+    "count": 1
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "parent": "draxatomic:round_knight",
+  "display": {
+    "icon": {
+      "id": "draxatomic:cult_insignia"
+    },
+    "title": {
+      "translate": "advancement.draxatomic.first_child"
+    },
+    "description": {
+      "translate": "advancement.draxatomic.first_child.desc"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

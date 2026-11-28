@@ -201,7 +201,18 @@ public final class DemoClient {
             }
             case 3200 -> shot("aurora_charge");
             case 3250 -> shot("aurora_dissipates");
-            case 3270 -> shot("end");
+            // Los monstruos nuevos en fila y la Base del Culto.
+            case 3270 -> {
+                cmd(mc, "kill @e[type=!minecraft:player]");
+                cmd(mc, "time set 6000");
+                cmd(mc, "tp @s " + ox + ".5 " + (oy + 2) + " " + (oz - 20) + ".5 0 12");
+                cmd(mc, "draxatomic test monsters");
+            }
+            case 3340 -> shot("monsters");
+            case 3360 -> cmd(mc, "draxatomic city build");
+            case 3380 -> cmd(mc, "draxatomic city view cult_base overview");
+            case 3520 -> shot("cult_base");
+            case 3540 -> shot("end");
             default -> {}
         }
     }

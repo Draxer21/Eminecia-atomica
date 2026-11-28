@@ -2,6 +2,7 @@ draxatomic:mitsugoshi_counter
 minecraft:air
 minecraft:allium
 minecraft:amethyst_block
+minecraft:amethyst_cluster
 minecraft:andesite
 minecraft:anvil
 minecraft:azure_bluet
@@ -19,6 +20,7 @@ minecraft:blue_carpet
 minecraft:blue_terracotta
 minecraft:blue_wall_banner
 minecraft:blue_wool
+minecraft:bone_block
 minecraft:bookshelf
 minecraft:brewing_stand
 minecraft:brick_slab
@@ -44,7 +46,9 @@ minecraft:cobblestone
 minecraft:cobweb
 minecraft:composter
 minecraft:cornflower
+minecraft:cracked_deepslate_bricks
 minecraft:crafting_table
+minecraft:crimson_planks
 minecraft:crying_obsidian
 minecraft:cyan_bed
 minecraft:dandelion
@@ -58,12 +62,15 @@ minecraft:dark_oak_trapdoor
 minecraft:dark_prismarine
 minecraft:deepslate_brick_slab
 minecraft:deepslate_brick_stairs
+minecraft:deepslate_brick_wall
+minecraft:deepslate_bricks
 minecraft:deepslate_tile_stairs
 minecraft:deepslate_tiles
 minecraft:dirt
 minecraft:dirt_path
 minecraft:fletching_table
 minecraft:furnace
+minecraft:gilded_blackstone
 minecraft:glass
 minecraft:glowstone
 minecraft:gold_block
@@ -139,6 +146,8 @@ minecraft:red_sand
 minecraft:red_stained_glass
 minecraft:red_wall_banner
 minecraft:red_wool
+minecraft:redstone_block
+minecraft:respawn_anchor
 minecraft:sand
 minecraft:sculk
 minecraft:sculk_catalyst
@@ -149,7 +158,9 @@ minecraft:smooth_quartz
 minecraft:smooth_quartz_slab
 minecraft:smooth_sandstone
 minecraft:smooth_stone
+minecraft:soul_campfire
 minecraft:soul_lantern
+minecraft:soul_soil
 minecraft:spruce_door
 minecraft:spruce_fence
 minecraft:spruce_log
@@ -160,6 +171,8 @@ minecraft:stone_brick_slab
 minecraft:stone_bricks
 minecraft:stonecutter
 minecraft:stripped_dark_oak_log
+minecraft:tinted_glass
+minecraft:tuff
 minecraft:water
 minecraft:white_bed
 minecraft:white_candle

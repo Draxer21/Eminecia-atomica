@@ -108,6 +108,11 @@ public final class Cult {
             cultist.setup(i == 0 ? CultistEntity.Kind.MAGE : (random.nextBoolean() ? CultistEntity.Kind.KNIGHT : CultistEntity.Kind.MAGE));
             level.addFreshEntity(cultist);
         }
+        // A veces los guía un Niño del Culto.
+        if (AtomicConfig.monsters() && random.nextFloat() < 0.4F) {
+            int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, cx, cz);
+            Monsters.spawn(level, Monsters.randomChild(random), cx + 0.5, y, cz + 0.5, EntitySpawnReason.PATROL);
+        }
     }
 
     // ---------------------------------------------------------------- ítems
@@ -132,7 +137,7 @@ public final class Cult {
             RoundsKnightEntity knight = KNIGHT.value().create(level, EntitySpawnReason.TRIGGERED);
             if (knight == null) return InteractionResult.FAIL;
             knight.snapTo(at.getX() + 0.5, at.getY(), at.getZ() + 0.5, player.getYRot() + 180.0F, 0);
-            RoundsKnightEntity.Rank[] ranks = RoundsKnightEntity.Rank.values();
+            RoundsKnightEntity.Rank[] ranks = RoundsKnightEntity.Rank.SEALED;
             knight.setRank(ranks[level.getRandom().nextInt(ranks.length)]);
             level.addFreshEntity(knight);
             knight.announce();

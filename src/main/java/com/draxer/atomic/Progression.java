@@ -75,7 +75,16 @@ public final class Progression {
         LivingEntity dead = event.getEntity();
         if (dead instanceof Player || !(dead.level() instanceof ServerLevel level)) return;
         // Logros de jefes (se dan desde aquí: el formato de predicados de entidad cambió en 26.x).
-        if (dead instanceof RoundsKnightEntity) Achievements.grant(player, "round_knight");
+        if (dead instanceof RoundsKnightEntity knight) {
+            Achievements.grant(player, "round_knight");
+            if (knight.rank() == RoundsKnightEntity.Rank.VOID) Achievements.grant(player, "void_knight");
+        }
+        if (dead instanceof FoeEntity foe && foe.foe() == FoeEntity.Foe.CHILD_1) Achievements.grant(player, "first_child");
+        if (dead instanceof BeastEntity beast) {
+            if (beast.beast() == BeastEntity.Beast.CHIMERA_ALPHA) Achievements.grant(player, "chimera_alpha");
+            if (beast.beast() == BeastEntity.Beast.MANA_WRAITH) Achievements.grant(player, "mana_wraith");
+            if (beast.beast() == BeastEntity.Beast.SHADOW_BEAST) Achievements.grant(player, "shadow_beast");
+        }
         if (dead instanceof BloodLordEntity lord) Achievements.grant(player, lord.lord() == BloodLordEntity.Lord.CRIMSON ? "crimson" : "queen");
         if (dead instanceof AuroraEntity) Achievements.grant(player, "aurora");
         int points = bossPoints(dead);
@@ -87,21 +96,26 @@ public final class Progression {
         } else if (dead instanceof Enemy) {
             // Experiencia según lo resistente que era: 5 a 60.
             int xp = Math.max(5, Math.min(60, Math.round(dead.getMaxHealth() * 1.2F)));
-            if (dead instanceof CultistEntity || dead instanceof VampireEntity || dead instanceof DuelistEntity) xp += 20;
+            if (dead instanceof CultistEntity || dead instanceof VampireEntity || dead instanceof DuelistEntity || dead instanceof FoeEntity) xp += 20;
+            if (dead instanceof BeastEntity b && (b.beast() == BeastEntity.Beast.MANA_WRAITH || b.beast() == BeastEntity.Beast.SHADOW_BEAST)) xp += 30;
             Magic.addXp(player, xp);
-            float chance = dead instanceof CultistEntity ? 0.08F : dead instanceof VampireEntity ? 0.05F : 0.01F;
+            float chance = dead instanceof CultistEntity || dead instanceof FoeEntity ? 0.08F
+                    : dead instanceof VampireEntity || dead instanceof BeastEntity ? 0.05F : 0.01F;
             if (level.getRandom().nextFloat() < chance) dead.spawnAtLocation(level, new ItemStack(CRYSTAL.value()));
         }
         if (dead instanceof Enemy) {
             dailyProgress(player, Daily.KILL, 1);
-            if (dead instanceof CultistEntity || dead instanceof VampireEntity) dailyProgress(player, Daily.HUNT, 1);
+            if (dead instanceof CultistEntity || dead instanceof VampireEntity || dead instanceof FoeEntity || dead instanceof BeastEntity) {
+                dailyProgress(player, Daily.HUNT, 1);
+            }
         }
     }
 
     private static int bossPoints(LivingEntity e) {
         if (e instanceof BloodLordEntity lord) return lord.lord() == BloodLordEntity.Lord.ELIZABETH ? 5 : 3;
         if (e instanceof AuroraEntity) return 5;
-        if (e instanceof RoundsKnightEntity) return 3;
+        if (e instanceof RoundsKnightEntity k) return k.rank() == RoundsKnightEntity.Rank.VOID ? 6 : 3;
+        if (e instanceof BeastEntity b && b.beast() == BeastEntity.Beast.CHIMERA_ALPHA) return 4;
         return 0;
     }
 

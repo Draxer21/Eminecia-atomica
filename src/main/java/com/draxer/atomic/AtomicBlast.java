@@ -91,6 +91,7 @@ public final class AtomicBlast {
                 radius, AtomicConfig.damage() * comp * Magic.power(caster), AtomicConfig.destroyBlocks(), true);
         ACTIVE.add(blast);
         blast.flash();
+        Monsters.afterBigMagic(level, caster.position());
     }
 
     /** Una explosión atómica más pequeña en cualquier punto (la usa el All-Range Atomic). */
@@ -103,6 +104,7 @@ public final class AtomicBlast {
         AtomicBlast blast = new AtomicBlast(level, caster.getUUID(), center, radius, damage, carve, big);
         ACTIVE.add(blast);
         blast.flash();
+        if (big) Monsters.afterBigMagic(level, center);
     }
 
     // ---------------------------------------------------------------- el instante inicial

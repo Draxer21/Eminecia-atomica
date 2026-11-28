@@ -46,7 +46,8 @@ public final class DraxCommands {
                                 .then(Commands.literal("midgar").executes(c -> locate(c.getSource(), CityLayout.Kind.MIDGAR, false)))
                                 .then(Commands.literal("oriana").executes(c -> locate(c.getSource(), CityLayout.Kind.ORIANA, false)))
                                 .then(Commands.literal("sanctuary").executes(c -> locate(c.getSource(), CityLayout.Kind.SANCTUARY, false)))
-                                .then(Commands.literal("lawless").executes(c -> locate(c.getSource(), CityLayout.Kind.LAWLESS, false))))
+                                .then(Commands.literal("lawless").executes(c -> locate(c.getSource(), CityLayout.Kind.LAWLESS, false)))
+                                .then(Commands.literal("cult_base").executes(c -> locate(c.getSource(), CityLayout.Kind.CULT_BASE, false))))
                         .then(Commands.literal("build").executes(c -> buildHere(c.getSource())))
                         .then(Commands.literal("view")
                                 .then(Commands.literal("midgar")
@@ -63,12 +64,15 @@ public final class DraxCommands {
                                 .then(Commands.literal("lawless")
                                         .then(Commands.literal("overview").executes(c -> view(c.getSource(), CityLayout.Kind.LAWLESS, "overview")))
                                         .then(Commands.literal("castle").executes(c -> view(c.getSource(), CityLayout.Kind.LAWLESS, "castle")))
-                                        .then(Commands.literal("street").executes(c -> view(c.getSource(), CityLayout.Kind.LAWLESS, "street")))))
+                                        .then(Commands.literal("street").executes(c -> view(c.getSource(), CityLayout.Kind.LAWLESS, "street"))))
+                                .then(Commands.literal("cult_base")
+                                        .then(Commands.literal("overview").executes(c -> view(c.getSource(), CityLayout.Kind.CULT_BASE, "overview")))))
                         .then(Commands.literal("tp")
                                 .then(Commands.literal("midgar").executes(c -> locate(c.getSource(), CityLayout.Kind.MIDGAR, true)))
                                 .then(Commands.literal("oriana").executes(c -> locate(c.getSource(), CityLayout.Kind.ORIANA, true)))
                                 .then(Commands.literal("sanctuary").executes(c -> locate(c.getSource(), CityLayout.Kind.SANCTUARY, true)))
-                                .then(Commands.literal("lawless").executes(c -> locate(c.getSource(), CityLayout.Kind.LAWLESS, true)))))
+                                .then(Commands.literal("lawless").executes(c -> locate(c.getSource(), CityLayout.Kind.LAWLESS, true)))
+                                .then(Commands.literal("cult_base").executes(c -> locate(c.getSource(), CityLayout.Kind.CULT_BASE, true)))))
                 .then(Commands.literal("daily").executes(c -> {
                     if (!(c.getSource().getEntity() instanceof ServerPlayer p)) return 0;
                     p.sendSystemMessage(Progression.dailyLine(p));
@@ -147,6 +151,17 @@ public final class DraxCommands {
                             ServerPlayer player = creative(context.getSource());
                             if (player == null) return 0;
                             return summonVampires((ServerLevel) player.level(), player);
+                        }))
+                        .then(Commands.literal("monsters").executes(context -> {
+                            // Todos los monstruos nuevos en dos filas frente al jugador (quietos).
+                            ServerPlayer player = creative(context.getSource());
+                            if (player == null) return 0;
+                            return summonMonsters((ServerLevel) player.level(), player, true);
+                        }))
+                        .then(Commands.literal("monsters_live").executes(context -> {
+                            ServerPlayer player = creative(context.getSource());
+                            if (player == null) return 0;
+                            return summonMonsters((ServerLevel) player.level(), player, false);
                         }))
                         .then(Commands.literal("garden").executes(context -> {
                             ServerPlayer player = creative(context.getSource());
@@ -251,7 +266,7 @@ public final class DraxCommands {
                 // Fuera de la muralla sur, en alto, mirando la ciudad.
                 x = site.centerX() + 0.5;
                 z = site.minZ() + kind.size() + 24.5;
-                boolean small = kind == CityLayout.Kind.SANCTUARY;
+                boolean small = kind == CityLayout.Kind.SANCTUARY || kind == CityLayout.Kind.CULT_BASE;
                 if (small) z = site.minZ() + kind.size() + 34.5;
                 y = baseY + (small ? 30 : 55);
                 yaw = 180.0F;
@@ -260,6 +275,36 @@ public final class DraxCommands {
         }
         player.teleportTo(level, x, y, z, java.util.Set.of(), yaw, pitch, true);
         return 1;
+    }
+
+    /** Los monstruos nuevos en fila: humanoides delante, bestias detrás. */
+    static int summonMonsters(ServerLevel level, ServerPlayer player, boolean still) {
+        Vec3 look = player.getLookAngle().multiply(1, 0, 1).normalize();
+        Vec3 side = new Vec3(-look.z, 0, look.x);
+        var types = Monsters.all();
+        int count = 0;
+        for (int i = 0; i < types.size(); i++) {
+            boolean front = i < 6;
+            int idx = front ? i : i - 6;
+            int n = front ? 6 : types.size() - 6;
+            double spacing = front ? 1.6 : 2.6;
+            Vec3 at = player.position().add(look.scale(front ? 6 : 11)).add(side.scale((idx - (n - 1) / 2.0) * spacing));
+            int y = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, (int) Math.floor(at.x), (int) Math.floor(at.z));
+            @SuppressWarnings("unchecked")
+            var type = (net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.Mob>) types.get(i);
+            var mob = Monsters.spawn(level, type, at.x, type == Monsters.BLOOD_BAT.value() || type == Monsters.MANA_WRAITH.value() ? y + 1.2 : y, at.z,
+                    EntitySpawnReason.COMMAND);
+            if (mob == null) continue;
+            mob.snapTo(mob.getX(), mob.getY(), mob.getZ(), player.getYRot() + 180.0F, 0.0F);
+            mob.setYHeadRot(player.getYRot() + 180.0F);
+            mob.yBodyRot = player.getYRot() + 180.0F;
+            if (still) {
+                mob.setNoAi(true);
+                mob.setPersistenceRequired();
+            }
+            count++;
+        }
+        return count;
     }
 
     static int summonVampires(ServerLevel level, ServerPlayer player) {

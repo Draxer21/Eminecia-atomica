@@ -1,6 +1,6 @@
 # Drax Atomic
 
-Mod de NeoForge para Minecraft 26.2 (versión del mod 0.26.1).
+Mod de NeoForge para Minecraft 26.2 (versión del mod 0.27.0).
 
 ## Poder mágico
 
@@ -145,10 +145,26 @@ Las skins de los personajes son genéricas según su rol; puedes reemplazarlas p
 
 Las integrantes de la Shadow Garden ahora usan los nombres de las Siete Sombras: Alpha, Beta, Gamma, Delta, Epsilon, Zeta y Eta.
 
+## Monstruos y enemigos
+
+- **Niños del Culto** (Tercero, Segundo y Primero): espada y rayos rojos; el Primero se desvanece en sombra y aparece a tu espalda. A veces guían las patrullas del Culto. Sueltan Insignias (+120 de experiencia).
+- **Poseído fallido**: magia inestable de colores y estalla al morir.
+- **Bandido** (Ciudad sin Ley): te roba hasta 8 esmeraldas y huye; si lo atrapas, las devuelve. **Luchador del foso**: puños que te lanzan lejos.
+- **Sabuesos de sangre**: jaurías nocturnas que desangran (arden al sol). Sueltan colmillos.
+- **Murciélagos de sangre**: enjambres que te roban la vida.
+- **Gólem de limo** (cuevas): translúcido, con un núcleo; al morir se parte en dos más pequeños.
+- **Bestia de sombra**: invisible en la oscuridad (solo se le ven los ojos rojos), aparece a tu espalda y hace el doble de daño por detrás. Suelta Esencia de sombra.
+- **Espectro de maná**: aparece tras un Atomic grande, atraviesa paredes, te bebe el poder y solo lo hiere la magia (o la Espada de Slime). Suelta Residuo de maná.
+- **Base del Culto** (64×64, `/draxatomic city locate cult_base`): laboratorio con jaulas de **Quimeras del Culto**, celdas de Poseídos, Niños de guardia, cofres y el foso de la **Quimera Alfa** (jefe: golpe sísmico, púas de cristal y llama a su camada). Suelta el Núcleo de quimera (+60 de poder máximo y 2 puntos) y el Sello del Vacío.
+- **Caballero del Vacío** (Sello del Vacío, de noche): tres fases; en la última usa el **Juicio del Vacío**, una implosión enorme que puedes romper golpeándolo fuerte mientras la carga.
+- Recetas nuevas: 4 esquirlas de quimera + amatista → cristal mágico; 3 colmillos + vial de sangre + oro → cáliz carmesí; 2 esencias de sombra + insignia + perla de ender → Sello de Diablos.
+- Opciones: `[monsters]` `enabled`, `chance`, `wraithChance`; `[cities]` `cultBaseSpacing`.
+
 ## Comandos de prueba (modo creativo)
 
 - `/draxatomic test atomic` · `/draxatomic test allrange` · `/draxatomic test recovery`: lanza el ataque al instante, sin carga ni costo.
 - `/draxatomic test garden`: invoca a las siete integrantes frente a ti.
+- `/draxatomic test monsters`: todos los monstruos nuevos en fila (quietos); `monsters_live` los deja atacar.
 - `/draxatomic mana`: llena tu poder mágico.
 
 ## Configuración (`world/serverconfig/draxatomic-server.toml`)
@@ -167,6 +183,7 @@ Los textos (incluida la frase) están en `assets/draxatomic/lang/*.json`.
 ## Historial
 
 - 0.11.0: domo de barrera al cargar los Atomic (marca el área exacta); carga más corta (1,5 s) y más alcance (Atomic 48, hasta 160 con mejoras y compresión); tallado del cráter más rápido.
+- 0.27.0: monstruos nuevos: Niños del Culto, Poseídos, bandidos, luchadores del foso, sabuesos y murciélagos de sangre, gólems de limo, bestias de sombra, espectros de maná, la Base del Culto con la Quimera Alfa y el Caballero del Vacío; materiales, recetas y logros nuevos.
 - 0.26.1: fragmentos 3D del Atomic y cristales de la sobrecompresión más grandes (se veían muy chicos de lejos).
 - 0.26.0: arreglo: los logros de derrotar a Crimson, Elizabeth, Aurora y al Caballero no se cargaban (formato de 26.x); ahora se dan desde el código.
   Efectos 3D: efectos en 3D (entidades de visualización): fragmentos de amatista y cristal que giran y anillos de onda planos en cada Atomic; núcleo de energía en 3D sobre la cabeza al cargar y una esfera que se infla antes del estallido del All-Range; cristales rotos en la sobrecompresión y al disiparse una técnica (también Aurora); lanzas de sangre 3D (jugador, Crimson y Elizabeth). Duran pocos segundos, tienen un tope de piezas y se borran solos.

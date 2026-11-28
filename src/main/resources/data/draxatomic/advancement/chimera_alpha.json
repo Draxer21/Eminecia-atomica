@@ -1,0 +1,23 @@
+{
+  "parent": "draxatomic:round_knight",
+  "display": {
+    "icon": {
+      "id": "draxatomic:chimera_core"
+    },
+    "title": {
+      "translate": "advancement.draxatomic.chimera_alpha"
+    },
+    "description": {
+      "translate": "advancement.draxatomic.chimera_alpha.desc"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

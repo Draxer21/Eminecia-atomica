@@ -106,6 +106,20 @@ public final class AtomicConfig {
     private static final ModConfigSpec.IntValue LAWLESS_SPACING = BUILDER
             .comment("Tamaño de la región de cada Ciudad sin Ley (128x128): una cada N bloques. Mínimo 600.")
             .defineInRange("lawlessSpacing", 2200, 600, 100000);
+    private static final ModConfigSpec.IntValue CULT_BASE_SPACING = BUILDER
+            .comment("Tamaño de la región de cada Base del Culto (64x64, con la Quimera Alfa): una cada N bloques. Mínimo 500.")
+            .defineInRange("cultBaseSpacing", 1400, 500, 100000);
+
+    static { BUILDER.pop().push("monsters"); }
+    private static final ModConfigSpec.BooleanValue MONSTERS = BUILDER
+            .comment("Si es true, aparecen los monstruos nuevos (sabuesos, murciélagos de sangre, bestias de sombra, gólems de limo, poseídos, bandidos...).")
+            .define("enabled", true);
+    private static final ModConfigSpec.DoubleValue MONSTER_CHANCE = BUILDER
+            .comment("Probabilidad (cada 20 s, por jugador) de que aparezca un grupo de monstruos.")
+            .defineInRange("chance", 0.2, 0.0, 1.0);
+    private static final ModConfigSpec.DoubleValue WRAITH_CHANCE = BUILDER
+            .comment("Probabilidad de que un Atomic grande atraiga Espectros de maná.")
+            .defineInRange("wraithChance", 0.35, 0.0, 1.0);
 
     static { BUILDER.pop().push("diablos_cult"); }
     private static final ModConfigSpec.BooleanValue CULT_PATROLS = BUILDER
@@ -174,6 +188,10 @@ public final class AtomicConfig {
     public static int orianaSpacing() { return loaded() ? ORIANA_SPACING.getAsInt() : 1800; }
     public static int sanctuarySpacing() { return loaded() ? SANCTUARY_SPACING.getAsInt() : 1600; }
     public static int lawlessSpacing() { return loaded() ? LAWLESS_SPACING.getAsInt() : 2200; }
+    public static int cultBaseSpacing() { return loaded() ? CULT_BASE_SPACING.getAsInt() : 1400; }
+    public static boolean monsters() { return !loaded() || MONSTERS.getAsBoolean(); }
+    public static float monsterChance() { return loaded() ? MONSTER_CHANCE.get().floatValue() : 0.2F; }
+    public static float wraithChance() { return loaded() ? WRAITH_CHANCE.get().floatValue() : 0.35F; }
 
     public static boolean cultPatrols() { return !loaded() || CULT_PATROLS.getAsBoolean(); }
     public static float patrolChance() { return loaded() ? PATROL_CHANCE.get().floatValue() : 0.25F; }

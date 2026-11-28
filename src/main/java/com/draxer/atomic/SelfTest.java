@@ -79,7 +79,10 @@ public final class SelfTest {
         step("entities", () -> {
             for (var type : new net.minecraft.world.entity.EntityType<?>[] {
                     ShadowGarden.ALLY.value(), Cult.CULTIST.value(), Cult.KNIGHT.value(),
-                    Vampires.SERVANT.value(), Vampires.CRIMSON.value(), Vampires.ELIZABETH.value(), Vampires.AURORA.value(), Tournament.DUELIST.value()}) {
+                    Vampires.SERVANT.value(), Vampires.CRIMSON.value(), Vampires.ELIZABETH.value(), Vampires.AURORA.value(), Tournament.DUELIST.value(),
+                    Monsters.CHILD_3.value(), Monsters.CHILD_2.value(), Monsters.CHILD_1.value(), Monsters.POSSESSED.value(), Monsters.BANDIT.value(),
+                    Monsters.FIGHTER.value(), Monsters.BLOOD_HOUND.value(), Monsters.CHIMERA.value(), Monsters.CHIMERA_ALPHA.value(),
+                    Monsters.BLOOD_BAT.value(), Monsters.SLIME_GOLEM.value(), Monsters.SHADOW_BEAST.value(), Monsters.MANA_WRAITH.value()}) {
                 var entity = type.create(level, EntitySpawnReason.COMMAND);
                 if (entity == null) {
                     LOG.info("DRAXTEST entity {} NULL", type);
@@ -103,13 +106,16 @@ public final class SelfTest {
                 LOG.info("DRAXTEST city {} {}", kind, site.map(s -> s.centerX() + "," + s.centerZ() + " cells=" + Cities.total(s)).orElse("NONE"));
             }
             // Coloca algunas cuadras grandes en una zona cargada a la fuerza.
-            commands.performPrefixedCommand(source, "forceload add 5000 5000 5420 5070");
+            commands.performPrefixedCommand(source, "forceload add 5000 5000 5490 5070");
             int k = 0;
-            for (String t : new String[] {"city/midgar/castle", "city/oriana/palace", "city/midgar/houses_a", "city/oriana/houses_a", "city/sanctuary/temple", "city/lawless/crimson_tower"}) {
+            for (String t : new String[] {"city/midgar/castle", "city/oriana/palace", "city/midgar/houses_a", "city/oriana/houses_a", "city/sanctuary/temple", "city/lawless/crimson_tower", "city/cult_base/laboratory"}) {
                 Cities.placeCell(level, t, 5000 + k * 70, 90, 5000, 64, 1L);
                 LOG.info("DRAXTEST placed {}", t);
                 k++;
             }
+            LOG.info("DRAXTEST cult_base beasts={} foes={}",
+                    level.getEntitiesOfClass(BeastEntity.class, new net.minecraft.world.phys.AABB(5410, 60, 4990, 5490, 160, 5080)).size(),
+                    level.getEntitiesOfClass(FoeEntity.class, new net.minecraft.world.phys.AABB(5410, 60, 4990, 5490, 160, 5080)).size());
             LOG.info("DRAXTEST npcs={} guards={}",
                     level.getEntitiesOfClass(StoryNpcEntity.class, new net.minecraft.world.phys.AABB(4990, 60, 4990, 5300, 160, 5080)).size(),
                     level.getEntitiesOfClass(KingdomGuardEntity.class, new net.minecraft.world.phys.AABB(4990, 60, 4990, 5300, 160, 5080)).size());

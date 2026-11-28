@@ -59,7 +59,12 @@ public class RoundsKnightEntity extends Monster {
     public enum Rank {
         GOLD("gold", 0xFFD54A, 1.0F),
         FLAME("flame", 0xFF6A1A, 1.15F),
-        FROST("frost", 0x7FD8FF, 1.3F);
+        FROST("frost", 0x7FD8FF, 1.3F),
+        /** El Caballero del Vacío: tres fases y una técnica final (lo invoca el Sello del Vacío). */
+        VOID("void", 0x8A3BFF, 1.6F);
+
+        /** Los que puede invocar el Sello de Diablos. */
+        public static final Rank[] SEALED = {GOLD, FLAME, FROST};
 
         public final String id;
         public final int color;
@@ -90,6 +95,11 @@ public class RoundsKnightEntity extends Monster {
     private int awakening;
     private int summonCooldown = 200;
     private int teleportCooldown = 100;
+    /** Juicio del Vacío: ticks de carga restantes (0 = no está cargando). */
+    private int voidCharge;
+    private int voidCooldown = 80;
+    private float chargeDamage;
+    private static final int VOID_CHARGE = 70;
 
     public RoundsKnightEntity(EntityType<? extends RoundsKnightEntity> type, Level level) {
         super(type, level);
@@ -134,7 +144,7 @@ public class RoundsKnightEntity extends Monster {
         entityData.set(PHASE, input.getIntOr("Phase", 1));
         entityData.set(RANK, input.getIntOr("Rank", 0));
         bossBar.setName(Component.translatable("entity.draxatomic.round_knight." + rank().id));
-        if (phase() == 2) enterPhaseTwoStats();
+        if (phase() >= 2) enterPhaseTwoStats();
     }
 
     @Override
@@ -176,7 +186,7 @@ public class RoundsKnightEntity extends Monster {
         goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.15, true) {
             @Override
             public boolean canUse() {
-                return awakening == 0 && super.canUse();
+                return awakening == 0 && voidCharge == 0 && super.canUse();
             }
         });
         goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 16.0F));
@@ -199,16 +209,24 @@ public class RoundsKnightEntity extends Monster {
             awakeningTick(level);
             return;
         }
+        if (voidCharge > 0) {
+            voidChargeTick(level);
+            return;
+        }
         LivingEntity target = getTarget();
-        if (tickCount % 20 == 0 && getHealth() < getMaxHealth()) heal(phase() == 2 ? 2.0F : 1.0F);
+        if (phase() == 3 && target != null && --voidCooldown <= 0) {
+            startVoidCharge(level);
+            return;
+        }
+        if (tickCount % 20 == 0 && getHealth() < getMaxHealth()) heal(phase() >= 2 ? 2.0F : 1.0F);
         if (target == null) return;
         if (--teleportCooldown <= 0 && distanceToSqr(target) > 14 * 14) {
             teleportBehind(level, target);
-            teleportCooldown = phase() == 2 ? 80 : 140;
+            teleportCooldown = phase() >= 2 ? 80 : 140;
         }
         if (--summonCooldown <= 0) {
             summonGuards(level);
-            summonCooldown = phase() == 2 ? 400 : 600;
+            summonCooldown = phase() >= 2 ? 400 : 600;
         }
     }
 
@@ -218,9 +236,9 @@ public class RoundsKnightEntity extends Monster {
         boolean hit = super.doHurtTarget(level, target);
         if (hit && target instanceof LivingEntity living) elemental(living);
         if (hit && target instanceof ServerPlayer player) {
-            Mana.steal(player, phase() == 2 ? 25 : 15);
+            Mana.steal(player, phase() >= 2 ? 25 : 15);
             level.sendParticles(new DustParticleOptions(0xFFD54A, 1.2F), player.getX(), player.getY() + 1, player.getZ(), 12, 0.3, 0.5, 0.3, 0);
-            heal(phase() == 2 ? 6.0F : 3.0F);
+            heal(phase() >= 2 ? 6.0F : 3.0F);
         }
         return hit;
     }
@@ -234,6 +252,20 @@ public class RoundsKnightEntity extends Monster {
             return false;
         }
         if (source.getEntity() instanceof CultistEntity) return false;
+        if (voidCharge > 0) {
+            // Si le hacen bastante daño mientras carga, la técnica se rompe.
+            chargeDamage += amount;
+            if (chargeDamage >= 60.0F) breakVoidCharge(level);
+        }
+        if (rank() == Rank.VOID && phase() == 2 && getHealth() - amount < getMaxHealth() * 0.2F) {
+            // El Caballero del Vacío despierta una segunda vez.
+            float floor = getMaxHealth() * 0.2F;
+            amount = Math.max(0, getHealth() - floor);
+            boolean hurt = super.hurtServer(level, source, amount);
+            setHealth(floor);
+            startAwakening(level);
+            return hurt;
+        }
         float half = getMaxHealth() / 2.0F;
         if (phase() == 1 && getHealth() - amount < half) {
             // Resiste el golpe y despierta.
@@ -253,7 +285,8 @@ public class RoundsKnightEntity extends Monster {
         level.playSound(null, getX(), getY(), getZ(), SoundEvents.ENDER_DRAGON_GROWL, SoundSource.HOSTILE, 2.5F, 0.7F);
         for (ServerPlayer player : level.players()) {
             if (player.distanceToSqr(this) < 64 * 64) {
-                player.sendSystemMessage(Component.translatable("message.draxatomic.knight_awakens").withStyle(ChatFormatting.RED));
+                player.sendSystemMessage(Component.translatable(phase() == 2 ? "message.draxatomic.void_awakens" : "message.draxatomic.knight_awakens")
+                        .withStyle(phase() == 2 ? ChatFormatting.DARK_PURPLE : ChatFormatting.RED));
             }
         }
     }
@@ -267,8 +300,9 @@ public class RoundsKnightEntity extends Monster {
                     getX() + Math.cos(a) * r, getY() + 0.2 + (i % 4) * 0.6, getZ() + Math.sin(a) * r, 1, 0, 0, 0, 0);
         }
         if (awakening == 0) {
-            entityData.set(PHASE, 2);
+            entityData.set(PHASE, phase() + 1);
             enterPhaseTwoStats();
+            voidCooldown = 60;
             level.sendParticles(ParticleTypes.EXPLOSION_EMITTER, getX(), getY() + 1, getZ(), 2, 1, 1, 1, 0);
             level.playSound(null, getX(), getY(), getZ(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.HOSTILE, 2.0F, 0.6F);
             // Onda que empuja a todos los que estén cerca.
@@ -285,10 +319,71 @@ public class RoundsKnightEntity extends Monster {
     private void enterPhaseTwoStats() {
         var speed = getAttribute(Attributes.MOVEMENT_SPEED);
         var damage = getAttribute(Attributes.ATTACK_DAMAGE);
-        if (speed != null) speed.setBaseValue(0.38);
-        if (damage != null) damage.setBaseValue(22.0);
-        bossBar.setColor(BossEvent.BossBarColor.RED);
+        if (speed != null) speed.setBaseValue(phase() >= 3 ? 0.42 : 0.38);
+        if (damage != null) damage.setBaseValue(phase() >= 3 ? 28.0 : 22.0);
+        bossBar.setColor(phase() >= 3 ? BossEvent.BossBarColor.PURPLE : BossEvent.BossBarColor.RED);
         setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.NETHERITE_SWORD));
+    }
+
+    // ---------------------------------------------------------------- Juicio del Vacío
+
+    /** Fase 3 del Caballero del Vacío: concentra el vacío sobre su cabeza y lo hace implosionar. */
+    private void startVoidCharge(ServerLevel level) {
+        voidCharge = VOID_CHARGE;
+        chargeDamage = 0;
+        getNavigation().stop();
+        Fx3D.core(level, position().add(0, getBbHeight() + 1.5, 0), VOID_CHARGE, 3.0, getUUID());
+        level.playSound(null, getX(), getY(), getZ(), SoundEvents.BEACON_POWER_SELECT, SoundSource.HOSTILE, 3.0F, 0.5F);
+        for (ServerPlayer player : level.players()) {
+            if (player.distanceToSqr(this) < 64 * 64) {
+                player.sendSystemMessage(Component.translatable("message.draxatomic.void_judgment").withStyle(ChatFormatting.DARK_PURPLE));
+            }
+        }
+    }
+
+    private void voidChargeTick(ServerLevel level) {
+        voidCharge--;
+        Vec3 c = position().add(0, getBbHeight() + 1.5, 0);
+        double r = 2 + voidCharge * 0.12;
+        for (int i = 0; i < 10; i++) {
+            double a = i * Math.PI / 5 + tickCount * 0.3;
+            level.sendParticles(ModParticles.VIOLET_SPARK.value(), c.x + Math.cos(a) * r, c.y + Math.sin(a * 2) * 0.6, c.z + Math.sin(a) * r,
+                    1, 0, 0, 0, 0);
+        }
+        // Atrae poco a poco a todo lo que esté cerca.
+        for (LivingEntity e : level.getEntitiesOfClass(LivingEntity.class, getBoundingBox().inflate(18), e -> e != this && !isAlliedTo(e))) {
+            Vec3 pull = position().subtract(e.position()).normalize().scale(0.06);
+            e.push(pull.x, 0, pull.z);
+            e.hurtMarked = true;
+        }
+        if (voidCharge > 0) return;
+        Fx3D.clearCore(level, getUUID());
+        Fx3D.atomicBurst(level, position().add(0, 1, 0), 14);
+        level.sendParticles(ModParticles.SHOCKWAVE.value(), true, true, getX(), getY() + 1, getZ(), 6, 3, 1, 3, 0);
+        level.playSound(null, getX(), getY(), getZ(), SoundEvents.WARDEN_SONIC_BOOM, SoundSource.HOSTILE, 3.0F, 0.5F);
+        level.playSound(null, getX(), getY(), getZ(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.HOSTILE, 3.0F, 0.5F);
+        for (LivingEntity e : level.getEntitiesOfClass(LivingEntity.class, getBoundingBox().inflate(14), e -> e != this && !isAlliedTo(e))) {
+            e.hurtServer(level, damageSources().indirectMagic(this, this), 30.0F);
+            e.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.WITHER, 80, 1));
+            Vec3 push = e.position().subtract(position()).normalize().scale(2.0);
+            e.push(push.x, 0.8, push.z);
+            e.hurtMarked = true;
+        }
+        voidCooldown = 360;
+    }
+
+    private void breakVoidCharge(ServerLevel level) {
+        voidCharge = 0;
+        voidCooldown = 300;
+        Fx3D.clearCore(level, getUUID());
+        level.sendParticles(ModParticles.ENERGY_PETAL.value(), getX(), getY() + getBbHeight() + 1, getZ(), 60, 1, 1, 1, 0.2);
+        level.playSound(null, getX(), getY(), getZ(), SoundEvents.GLASS_BREAK, SoundSource.HOSTILE, 3.0F, 0.5F);
+        addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.SLOWNESS, 60, 4));
+        for (ServerPlayer player : level.players()) {
+            if (player.distanceToSqr(this) < 64 * 64) {
+                player.sendSystemMessage(Component.translatable("message.draxatomic.void_broken").withStyle(ChatFormatting.LIGHT_PURPLE));
+            }
+        }
     }
 
     // ---------------------------------------------------------------- habilidades
@@ -307,7 +402,7 @@ public class RoundsKnightEntity extends Monster {
 
     private void summonGuards(ServerLevel level) {
         int nearby = level.getEntitiesOfClass(CultistEntity.class, getBoundingBox().inflate(24)).size();
-        int count = Math.max(0, (phase() == 2 ? 4 : 2) - nearby);
+        int count = Math.max(0, (phase() >= 2 ? 4 : 2) - nearby);
         for (int i = 0; i < count; i++) {
             double a = getRandom().nextDouble() * Math.PI * 2;
             int x = (int) Math.floor(getX() + Math.cos(a) * 4);
@@ -359,6 +454,11 @@ public class RoundsKnightEntity extends Monster {
         super.dropCustomDeathLoot(level, source, recentlyHit);
         spawnAtLocation(level, new ItemStack(Cult.HEART.value()));
         spawnAtLocation(level, new ItemStack(Cult.FRAGMENT.value(), 4 + getRandom().nextInt(4)));
+        if (rank() == Rank.VOID) {
+            spawnAtLocation(level, new ItemStack(Cult.HEART.value(), 2));
+            spawnAtLocation(level, new ItemStack(Monsters.CHIMERA_CORE.value()));
+            spawnAtLocation(level, new ItemStack(Progression.CRYSTAL.value(), 6));
+        }
     }
 
     @Override
@@ -386,7 +486,7 @@ public class RoundsKnightEntity extends Monster {
         @Override
         public boolean canUse() {
             LivingEntity target = knight.getTarget();
-            return knight.awakening == 0 && target != null && target.isAlive() && knight.distanceToSqr(target) > 16;
+            return knight.awakening == 0 && knight.voidCharge == 0 && target != null && target.isAlive() && knight.distanceToSqr(target) > 16;
         }
 
         @Override
@@ -400,13 +500,13 @@ public class RoundsKnightEntity extends Monster {
             if (target == null || !(knight.level() instanceof ServerLevel level)) return;
             knight.getLookControl().setLookAt(target, 30.0F, 30.0F);
             if (--cooldown > 0 || !knight.getSensing().hasLineOfSight(target)) return;
-            if (knight.phase() == 2 && knight.getRandom().nextBoolean()) {
+            if (knight.phase() >= 2 && knight.getRandom().nextBoolean()) {
                 knight.judgment(level, target);
                 cooldown = 70;
             } else {
-                Bolts.fire(level, knight, target, knight.phase() == 2 ? 14.0F : 9.0F, knight.rank().color, SoundEvents.EVOKER_CAST_SPELL);
+                Bolts.fire(level, knight, target, knight.phase() >= 2 ? 14.0F : 9.0F, knight.rank().color, SoundEvents.EVOKER_CAST_SPELL);
                 knight.elemental(target);
-                cooldown = knight.phase() == 2 ? 30 : 50;
+                cooldown = knight.phase() >= 2 ? 30 : 50;
             }
         }
     }

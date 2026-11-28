@@ -1,0 +1,23 @@
+{
+  "parent": "draxatomic:chimera_alpha",
+  "display": {
+    "icon": {
+      "id": "draxatomic:void_sigil"
+    },
+    "title": {
+      "translate": "advancement.draxatomic.void_knight"
+    },
+    "description": {
+      "translate": "advancement.draxatomic.void_knight.desc"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

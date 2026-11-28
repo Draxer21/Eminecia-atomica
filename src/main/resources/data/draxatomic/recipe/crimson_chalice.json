@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "draxatomic:blood_fang",
+    "draxatomic:blood_fang",
+    "draxatomic:blood_fang",
+    "draxatomic:blood_vial",
+    "minecraft:gold_ingot"
+  ],
+  "result": {
+    "id": "draxatomic:crimson_chalice",
+    "count": 1
+  }
+}

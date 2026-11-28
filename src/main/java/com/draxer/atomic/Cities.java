@@ -49,6 +49,7 @@ public final class Cities {
     static final TagKey<Biome> MIDGAR_BIOMES = TagKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "has_midgar_capital"));
     static final TagKey<Biome> SANCTUARY_BIOMES = TagKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "has_sanctuary"));
     static final TagKey<Biome> LAWLESS_BIOMES = TagKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "has_lawless_city"));
+    static final TagKey<Biome> CULT_BASE_BIOMES = TagKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "has_cult_base"));
     static final TagKey<Biome> ORIANA_BIOMES = TagKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath(DraxAtomic.MOD_ID, "has_oriana_capital"));
 
     private static final int MAX_FOUNDATION = 24;
@@ -96,6 +97,7 @@ public final class Cities {
             case ORIANA -> AtomicConfig.orianaSpacing();
             case SANCTUARY -> AtomicConfig.sanctuarySpacing();
             case LAWLESS -> AtomicConfig.lawlessSpacing();
+            case CULT_BASE -> AtomicConfig.cultBaseSpacing();
         };
     }
 
@@ -105,6 +107,7 @@ public final class Cities {
             case ORIANA -> 0x0121A4AL;
             case SANCTUARY -> 0x5A4C7A11L;
             case LAWLESS -> 0x1A31E55CL;
+            case CULT_BASE -> 0x0C017BA5EL;
         };
     }
 
@@ -139,7 +142,8 @@ public final class Cities {
         {
             TagKey<Biome> tag = site.kind() == CityLayout.Kind.MIDGAR ? MIDGAR_BIOMES
                     : site.kind() == CityLayout.Kind.SANCTUARY ? SANCTUARY_BIOMES
-                    : site.kind() == CityLayout.Kind.LAWLESS ? LAWLESS_BIOMES : ORIANA_BIOMES;
+                    : site.kind() == CityLayout.Kind.LAWLESS ? LAWLESS_BIOMES
+                    : site.kind() == CityLayout.Kind.CULT_BASE ? CULT_BASE_BIOMES : ORIANA_BIOMES;
             TagKey<Biome> ocean = TagKey.create(Registries.BIOME, Identifier.withDefaultNamespace("is_ocean"));
             int r = site.kind().size() / 2 - 16;
             int y = level.getSeaLevel();
@@ -429,14 +433,15 @@ public final class Cities {
         int baseY = city.baseY();
         boolean midgar = site.kind() == CityLayout.Kind.MIDGAR;
         boolean lawless = site.kind() == CityLayout.Kind.LAWLESS;
-        BlockState wall = (midgar ? Blocks.STONE_BRICKS : lawless ? Blocks.POLISHED_BLACKSTONE_BRICKS : Blocks.QUARTZ_BRICKS).defaultBlockState();
-        BlockState wall2 = (midgar ? Blocks.CRACKED_STONE_BRICKS : lawless ? Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS : Blocks.SMOOTH_QUARTZ).defaultBlockState();
-        BlockState cap = (midgar ? Blocks.CHISELED_STONE_BRICKS : lawless ? Blocks.CHISELED_POLISHED_BLACKSTONE : Blocks.CHISELED_QUARTZ_BLOCK).defaultBlockState();
-        BlockState roof = (midgar ? Blocks.DEEPSLATE_TILES : lawless ? Blocks.NETHER_BRICKS : Blocks.DARK_PRISMARINE).defaultBlockState();
-        BlockState road = (midgar ? Blocks.STONE_BRICKS : lawless ? Blocks.COBBLED_DEEPSLATE : Blocks.POLISHED_ANDESITE).defaultBlockState();
-        BlockState grass = (lawless ? Blocks.COARSE_DIRT : Blocks.GRASS_BLOCK).defaultBlockState();
-        BlockState lantern = (lawless ? Blocks.SOUL_LANTERN : Blocks.LANTERN).defaultBlockState();
-        int height = midgar || lawless ? 10 : 8;
+        boolean cult = site.kind() == CityLayout.Kind.CULT_BASE;
+        BlockState wall = (cult ? Blocks.DEEPSLATE_BRICKS : midgar ? Blocks.STONE_BRICKS : lawless ? Blocks.POLISHED_BLACKSTONE_BRICKS : Blocks.QUARTZ_BRICKS).defaultBlockState();
+        BlockState wall2 = (cult ? Blocks.CRACKED_DEEPSLATE_BRICKS : midgar ? Blocks.CRACKED_STONE_BRICKS : lawless ? Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS : Blocks.SMOOTH_QUARTZ).defaultBlockState();
+        BlockState cap = (cult ? Blocks.CHISELED_DEEPSLATE : midgar ? Blocks.CHISELED_STONE_BRICKS : lawless ? Blocks.CHISELED_POLISHED_BLACKSTONE : Blocks.CHISELED_QUARTZ_BLOCK).defaultBlockState();
+        BlockState roof = (cult ? Blocks.BLACKSTONE : midgar ? Blocks.DEEPSLATE_TILES : lawless ? Blocks.NETHER_BRICKS : Blocks.DARK_PRISMARINE).defaultBlockState();
+        BlockState road = (cult ? Blocks.POLISHED_DEEPSLATE : midgar ? Blocks.STONE_BRICKS : lawless ? Blocks.COBBLED_DEEPSLATE : Blocks.POLISHED_ANDESITE).defaultBlockState();
+        BlockState grass = (lawless || cult ? Blocks.COARSE_DIRT : Blocks.GRASS_BLOCK).defaultBlockState();
+        BlockState lantern = (lawless || cult ? Blocks.SOUL_LANTERN : Blocks.LANTERN).defaultBlockState();
+        int height = midgar || lawless || cult ? 10 : 8;
         int size = site.kind().size();
         int x0 = site.minX();
         int z0 = site.minZ();
