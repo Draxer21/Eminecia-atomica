@@ -383,6 +383,8 @@ public final class Cities {
 
     /** Construye la ciudad completa de una vez (terreno, cuadras y muralla). */
     public static int buildAll(ServerLevel level, Site site) {
+        // Si ya está entera no hace falta volver a cargar (y quizás generar) todo su terreno.
+        if (complete(level, site)) return 0;
         prepareNow(level, site);
         int total = 0;
         int step;
