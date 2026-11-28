@@ -205,9 +205,14 @@ public final class DemoClient {
             case 3270 -> {
                 cmd(mc, "kill @e[type=!minecraft:player]");
                 cmd(mc, "time set 6000");
-                cmd(mc, "tp @s " + ox + ".5 " + (oy + 2) + " " + (oz - 20) + ".5 0 12");
-                cmd(mc, "draxatomic test monsters");
+                // Una plataforma en el aire para que el terreno no los tape.
+                cmd(mc, "tp @s " + ox + ".5 " + (oy + 40) + " " + (oz - 20) + ".5 0 15");
             }
+            case 3280 -> {
+                cmd(mc, "fill ~-14 ~-1 ~-3 ~14 ~-1 ~16 minecraft:polished_deepslate");
+                cmd(mc, "fill ~-14 ~ ~-3 ~14 ~10 ~16 minecraft:air");
+            }
+            case 3290 -> cmd(mc, "draxatomic test monsters");
             case 3340 -> shot("monsters");
             case 3350 -> cmd(mc, "draxatomic city tp cult_base");
             case 3400 -> cmd(mc, "draxatomic city build");
