@@ -111,7 +111,7 @@ public final class MonstersClient {
         private final ModelPart root;
 
         public CreatureModel(ModelPart root, Shape shape, boolean variant) {
-            super(root, variant && (shape == Shape.GOLEM || shape == Shape.WRAITH) ? RenderTypes::entityTranslucent : RenderTypes::entityCutoutNoCull);
+            super(root, RenderTypes::entityTranslucent);
             this.root = root;
             this.shape = shape;
             if (shape == Shape.QUADRUPED) {
